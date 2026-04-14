@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoAI — Random Forest</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f8f8f6;
+    --surface:   #ffffff;
+    --surface2:  #f2f1ed;
+    --border:    rgba(0,0,0,0.10);
+    --border2:   rgba(0,0,0,0.18);
+    --text:      #1a1a1e;
+    --text2:     #5a5a62;
+    --text3:     #9a9a9f;
+    --blue-bg:   #e6f1fb; --blue-bd: #85b7eb; --blue-txt: #0c447c;
+    --green-bg:  #e1f5ee; --green-bd: #5dcaa5; --green-txt: #085041;
+    --red-bg:    #fcebeb; --red-bd: #f09595;   --red-txt: #a32d2d;
+    --amber-bg:  #faeeda; --amber-bd: #ef9f27; --amber-txt: #633806;
+    --purple:    #534ab7;
+    --radius:    10px; --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16161a; --surface: #1e1e24; --surface2: #26262e;
+      --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
+      --text: #e8e8ec; --text2: #9a9aa4; --text3: #5a5a62;
+      --blue-bg: #0c2a44; --blue-bd: #185fa5; --blue-txt: #b5d4f4;
+      --green-bg: #04251c; --green-bd: #0f6e56; --green-txt: #9fe1cb;
+      --red-bg: #2a0a0a; --red-bd: #a32d2d; --red-txt: #f7c1c1;
+      --amber-bg: #2a1a04; --amber-bd: #854f0b; --amber-txt: #fac775;
+    }
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 52px; gap: 0; }
+  .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 2rem; white-space: nowrap; text-decoration: none; }
+  .nav-brand span { color: var(--purple); }
+  .nav-tab { padding: 0 1rem; height: 52px; display: flex; align-items: center; font-size: 13px; color: var(--text2); border-bottom: 2px solid transparent; text-decoration: none; white-space: nowrap; transition: color .15s; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
+  .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
+
+  .page-header { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 0.5rem; }
+  .page-tag { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); }
+  .page-title { font-size: 24px; font-weight: 600; margin: 4px 0; }
+  .page-sub { font-size: 13px; color: var(--text2); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 3rem; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
+  .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+  /* ── Phase nav ── */
+  .phase-nav { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .phase-btn { padding: 7px 16px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); cursor: pointer; transition: all .15s; }
+  .phase-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .phase-btn.locked { opacity: .4; cursor: default; }
+  .phase-content { display: none; }
+  .phase-content.active { display: block; }
+
+  /* ── Map ── */
+  #rf-map { height: 340px; border-radius: 10px; border: 1px solid var(--border); }
+
+  /* ── Tree display ── */
+  .trees-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; margin-bottom: 1rem; }
+  .tree-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; }
+  .tree-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .tree-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tree-card-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tree-card-sub { font-size: 11px; color: var(--text2); }
+  .tree-svg-wrap { overflow: auto; border-radius: 8px; background: var(--surface2); padding: 6px; cursor: grab; }
+  .tree-svg-wrap:active { cursor: grabbing; }
+
+  /* ── Classification game ── */
+  .game-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.6fr); gap: 1.25rem; align-items: start; }
+  .parcel-card { background: var(--surface); border: 2px solid var(--blue-bd); border-radius: var(--radius-lg); padding: 1.25rem; }
+  .parcel-id { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-txt); margin-bottom: 6px; }
+  .parcel-neighborhood { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .parcel-hint { font-size: 12px; color: var(--text2); font-style: italic; margin-bottom: 12px; line-height: 1.5; }
+  .feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .feat-item { background: var(--surface2); border-radius: 7px; padding: 7px 10px; }
+  .feat-name { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+  .feat-val  { font-size: 15px; font-weight: 600; color: var(--text); }
+
+  /* ── Tree voting rows ── */
+  .vote-rows { display: flex; flex-direction: column; gap: 10px; }
+  .vote-row { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .vote-row.correct  { border-color: var(--green-bd); background: var(--green-bg); }
+  .vote-row.wrong    { border-color: var(--red-bd);   background: var(--red-bg); }
+  .vote-tree-label { font-size: 12px; font-weight: 600; color: var(--text); min-width: 60px; }
+  .vote-btn-group { display: flex; gap: 6px; }
+  .vote-btn { padding: 5px 14px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); cursor: pointer; transition: all .15s; font-weight: 500; }
+  .vote-btn:hover { border-color: var(--border2); background: var(--surface); }
+  .vote-btn.selected-yes { background: var(--red-bg);   border-color: var(--red-bd);   color: var(--red-txt); }
+  .vote-btn.selected-no  { background: var(--green-bg); border-color: var(--green-bd); color: var(--green-txt); }
+  .vote-feedback { font-size: 12px; font-weight: 500; margin-left: auto; }
+  .vote-feedback.ok   { color: var(--green-txt); }
+  .vote-feedback.bad  { color: var(--red-txt); }
+  .vote-hint { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+  /* ── Ensemble result ── */
+  .ensemble-result { border-radius: 10px; padding: 14px 16px; margin-top: 12px; display: none; }
+  .ensemble-result.show { display: block; }
+  .ensemble-result.high { background: var(--red-bg); border: 1.5px solid var(--red-bd); }
+  .ensemble-result.low  { background: var(--green-bg); border: 1.5px solid var(--green-bd); }
+  .ensemble-label { font-size: 14px; font-weight: 700; }
+  .ensemble-label.high { color: var(--red-txt); }
+  .ensemble-label.low  { color: var(--green-txt); }
+  .ensemble-votes { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .ensemble-accuracy { font-size: 12px; margin-top: 4px; font-weight: 500; }
+
+  /* ── Progress bar ── */
+  .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .progress-dots { display: flex; gap: 6px; }
+  .p-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border2); }
+  .p-dot.done-correct { background: #1D9E75; }
+  .p-dot.done-wrong   { background: #E24B4A; }
+  .p-dot.current      { background: var(--purple); }
+
+  /* ── Score panel ── */
+  .score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .score-card { background: var(--surface2); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .score-num  { font-size: 24px; font-weight: 600; }
+  .score-lbl  { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* ── Feature importance ── */
+  .fi-bar-wrap { margin: 6px 0; }
+  .fi-label-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+  .fi-bar-track { height: 10px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
+  .fi-bar-fill  { height: 100%; border-radius: 5px; transition: width .6s; }
+
+  /* ── Buttons ── */
+  button.btn { padding: 7px 18px; font-size: 13px; border-radius: 7px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); transition: background .15s; }
+  button.btn:hover { background: var(--border); }
+  button.btn.primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+  button.btn.primary:hover { opacity: .88; }
+  .info-box { background: var(--surface2); border-radius: 8px; padding: 9px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .info-box strong { color: var(--text); }
+
+  @media (max-width: 750px) {
+    .trees-grid { grid-template-columns: 1fr; }
+    .game-layout { grid-template-columns: 1fr; }
+    .score-grid  { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="../index.html">Geo<span>AI</span> Explorer</a>
+  <a class="nav-tab" href="../index.html">Home</a>
+  <a class="nav-tab" href="../index.html#dtree">Decision tree</a>
+  <a class="nav-tab active" href="#">Random forest</a>
+  <a class="nav-tab" href="#">Neural network <span class="nav-badge">soon</span></a>
+  <a class="nav-tab" href="#">K-means <span class="nav-badge">soon</span></a>
+</nav>
+
+<div class="page-header">
+  <div class="page-tag">Supervised · Ensemble · Random Forest</div>
+  <div class="page-title">Flood risk — Houston, TX</div>
+  <div class="page-sub">Three trees, one forest. Classify parcels through each tree, then watch the majority vote decide.</div>
+</div>
+
+<div class="container">
+
+  <!-- ── Phase navigation ── -->
+  <div class="phase-nav">
+    <button class="phase-btn active" onclick="showPhase(1)" id="pbtn-1">1 · Meet the forest</button>
+    <button class="phase-btn locked"  onclick="showPhase(2)" id="pbtn-2">2 · Classify parcels</button>
+    <button class="phase-btn locked"  onclick="showPhase(3)" id="pbtn-3">3 · Results &amp; feature importance</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 1 — Meet the forest
+  ══════════════════════════════════════════ -->
+  <div class="phase-content active" id="phase-1">
+
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:1.25rem;margin-bottom:1.25rem;">
+
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="panel">
+          <div class="panel-title">the setup</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+            You built one decision tree in the last activity. The problem: a single tree is <strong style="color:var(--text);">brittle</strong> — change a few training parcels and the whole structure can shift.<br><br>
+            A <strong style="color:var(--text);">random forest</strong> fixes this by building many trees, each on a different random subsample of the data and a random subset of features. No tree sees everything. Then they <strong style="color:var(--text);">vote</strong>.<br><br>
+            Below are 3 trees trained on overlapping but different subsets of the 15 Houston parcels. Notice they each chose a <em>different first split</em> — and they'll disagree on some borderline cases. That disagreement is the point.
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">key concept</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.7;">
+            <strong style="color:var(--text);">Why does using less data per tree make the forest more accurate?</strong><br><br>
+            Each tree makes different errors because it saw different training data. When you aggregate many imperfect trees, errors that are <em>idiosyncratic to one tree</em> get outvoted. Only errors that are <em>systematic across all trees</em> survive — and those reflect genuine difficulty in the data, not noise.
+          </div>
+          <div style="margin-top:10px;background:var(--amber-bg);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--amber-txt);">
+            <strong>In real RF:</strong> sklearn builds 100–500 trees. Here we use 3 so you can read them. The principle is identical.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:0.75rem;">
+        <div class="panel-title" style="padding:0.25rem 0.5rem 0.5rem;">parcel locations — Harris County, TX</div>
+        <div id="rf-map"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;padding:0 0.25rem;">
+          <span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#E24B4A;display:inline-block;"></span> HIGH RISK
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:4px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#1D9E75;display:inline-block;"></span> LOW RISK
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Three trees -->
+    <div class="trees-grid" id="trees-display"></div>
+
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="btn primary" onclick="unlockPhase(2)">I've read the trees — start classifying &rarr;</button>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 2 — Classification game
+  ══════════════════════════════════════════ -->
+  <div class="phase-content" id="phase-2">
+
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">
+        For each parcel below, trace its path through each tree and vote HIGH RISK or LOW RISK. The forest then takes the majority vote.
+      </div>
+      <div class="progress-row">
+        <span style="font-size:12px;color:var(--text2);">Progress:</span>
+        <div class="progress-dots" id="progress-dots"></div>
+        <span style="font-size:12px;color:var(--text3);" id="progress-label"></span>
+      </div>
+    </div>
+
+    <div class="game-layout">
+      <!-- Parcel card + map -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="parcel-card" id="game-parcel-card"></div>
+        <div class="panel" style="padding:0.75rem;">
+          <div class="panel-title">location</div>
+          <div id="game-map" style="height:200px;border-radius:8px;border:1px solid var(--border);"></div>
+        </div>
+      </div>
+      <!-- Voting UI -->
+      <div>
+        <div class="panel-title">classify this parcel through each tree</div>
+        <div class="vote-rows" id="vote-rows"></div>
+        <div class="ensemble-result" id="ensemble-result"></div>
+        <div style="margin-top:14px;display:flex;gap:8px;" id="game-nav-btns"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 3 — Results & feature importance
+  ══════════════════════════════════════════ -->
+  <div class="phase-content" id="phase-3">
+
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.25rem;margin-bottom:1.25rem;">
+
+      <div class="panel">
+        <div class="panel-title">your results</div>
+        <div class="score-grid" id="score-grid"></div>
+        <div style="margin-top:1rem;font-size:13px;color:var(--text2);line-height:1.7;" id="results-commentary"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">feature importance — across all 3 trees</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">How often each feature was used as a split, weighted by gini improvement. Compare to what you'd expect from the geography.</div>
+        <div id="feature-importance"></div>
+      </div>
+
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">per-parcel breakdown</div>
+      <div id="results-table" style="overflow-x:auto;"></div>
+    </div>
+
+    <div style="margin-top:1rem;display:flex;gap:8px;">
+      <button class="btn" onclick="resetGame()">Try again</button>
+      <button class="btn" onclick="showPhase(1)">Back to trees</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="rf-data.js"></script>
+<script src="rf.js"></script>
+</body>
+</html>
