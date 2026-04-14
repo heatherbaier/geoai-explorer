@@ -21,13 +21,61 @@ function showPhase(n) {
   if(n === 2) setTimeout(() => gameMap && gameMap.invalidateSize(), 100);
 }
 
+let treesCollapsed = false;
+
+function toggleTrees() {
+  treesCollapsed = !treesCollapsed;
+  const el = document.getElementById('phase2-trees');
+  const icon = document.getElementById('trees-toggle-icon');
+  el.style.display = treesCollapsed ? 'none' : 'block';
+  icon.textContent = treesCollapsed ? '▼' : '▲';
+  const lbl = document.querySelector('[onclick="toggleTrees()"] .panel-title span');
+  if(lbl) lbl.textContent = treesCollapsed ? 'click to expand' : 'click to collapse';
+}
+
 function unlockPhase(n) {
   if(!phasesUnlocked.includes(n)) {
     phasesUnlocked.push(n);
     const btn = document.getElementById(`pbtn-${n}`);
     btn.classList.remove('locked');
   }
+  // When entering phase 2, render trees there too
+  if(n === 2) renderTreesPhase2();
   showPhase(n);
+}
+
+function renderTreesPhase2() {
+  const grid = document.getElementById('trees-display-2');
+  if(!grid || grid.innerHTML.trim()) return; // already rendered
+  grid.innerHTML = RF_TREES.map(t => {
+    const svg = drawTreeSVG(t, null);
+    return `
+      <div class="tree-card">
+        <div class="tree-card-header">
+          <span class="tree-dot" style="background:${t.color};"></span>
+          <div>
+            <div class="tree-card-name">${t.name}</div>
+            <div class="tree-card-sub">First split: ${t.firstSplit}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Trained on parcels: ${t.trainedOn.join(', ')}</div>
+        <div class="tree-svg-wrap" id="tree2-wrap-${t.id}">${svg}</div>
+      </div>`;
+  }).join('');
+
+  // Drag-to-scroll
+  RF_TREES.forEach(t => {
+    const el = document.getElementById(`tree2-wrap-${t.id}`);
+    if(!el) return;
+    let dragging=false, sx, sy, sl, st;
+    el.addEventListener('mousedown', e => { dragging=true; sx=e.pageX-el.offsetLeft; sy=e.pageY-el.offsetTop; sl=el.scrollLeft; st=el.scrollTop; e.preventDefault(); });
+    document.addEventListener('mouseup', () => { dragging=false; });
+    document.addEventListener('mousemove', e => {
+      if(!dragging) return;
+      el.scrollLeft = sl-(e.pageX-el.offsetLeft-sx);
+      el.scrollTop  = st-(e.pageY-el.offsetTop-sy);
+    });
+  });
 }
 
 /* ══════════════════════════ MAIN MAP ═══════════════════════ */
@@ -146,8 +194,8 @@ function drawTreeSVG(treeObj, highlightPath) {
   return html;
 }
 
-/* ══════════════════════════ PHASE 1 ════════════════════════ */
 function renderTrees(highlightPaths) {
+  // Render into phase 1 display
   const grid = document.getElementById('trees-display');
   grid.innerHTML = RF_TREES.map(t => {
     const hp = highlightPaths ? highlightPaths[t.id] : null;
@@ -168,9 +216,19 @@ function renderTrees(highlightPaths) {
       </div>`;
   }).join('');
 
-  // Drag-to-scroll for each tree
+  // Also update phase 2 trees with highlights if they exist
+  RF_TREES.forEach(t => {
+    const el2 = document.getElementById(`tree2-wrap-${t.id}`);
+    if(el2) {
+      const hp = highlightPaths ? highlightPaths[t.id] : null;
+      el2.innerHTML = drawTreeSVG(t, hp);
+    }
+  });
+
+  // Drag-to-scroll for phase 1
   RF_TREES.forEach(t => {
     const el = document.getElementById(`tree-wrap-${t.id}`);
+    if(!el) return;
     let dragging=false, sx, sy, sl, st;
     el.addEventListener('mousedown', e => { dragging=true; sx=e.pageX-el.offsetLeft; sy=e.pageY-el.offsetTop; sl=el.scrollLeft; st=el.scrollTop; e.preventDefault(); });
     document.addEventListener('mouseup', () => { dragging=false; });
