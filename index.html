@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoAI — Algorithm Explorer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f8f8f6;
+    --surface:   #ffffff;
+    --surface2:  #f2f1ed;
+    --border:    rgba(0,0,0,0.10);
+    --border2:   rgba(0,0,0,0.18);
+    --text:      #1a1a1e;
+    --text2:     #5a5a62;
+    --text3:     #9a9a9f;
+    --blue-bg:   #e6f1fb;
+    --blue-bd:   #85b7eb;
+    --blue-txt:  #0c447c;
+    --green-bg:  #e1f5ee;
+    --green-bd:  #5dcaa5;
+    --green-txt: #085041;
+    --red-bg:    #fcebeb;
+    --red-bd:    #f09595;
+    --red-txt:   #a32d2d;
+    --amber-bg:  #faeeda;
+    --amber-bd:  #ef9f27;
+    --amber-txt: #633806;
+    --purple:    #534ab7;
+    --radius:    10px;
+    --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #16161a;
+      --surface:   #1e1e24;
+      --surface2:  #26262e;
+      --border:    rgba(255,255,255,0.10);
+      --border2:   rgba(255,255,255,0.18);
+      --text:      #e8e8ec;
+      --text2:     #9a9aa4;
+      --text3:     #5a5a62;
+      --blue-bg:   #0c2a44;
+      --blue-bd:   #185fa5;
+      --blue-txt:  #b5d4f4;
+      --green-bg:  #04251c;
+      --green-bd:  #0f6e56;
+      --green-txt: #9fe1cb;
+      --red-bg:    #2a0a0a;
+      --red-bd:    #a32d2d;
+      --red-txt:   #f7c1c1;
+      --amber-bg:  #2a1a04;
+      --amber-bd:  #854f0b;
+      --amber-txt: #fac775;
+    }
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* ── Nav ── */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; gap: 0; height: 52px; }
+  .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 2rem; white-space: nowrap; }
+  .nav-brand span { color: var(--purple); }
+  .nav-tab { padding: 0 1rem; height: 52px; display: flex; align-items: center; font-size: 13px; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; text-decoration: none; transition: color .15s; white-space: nowrap; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
+  .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
+
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Hero ── */
+  .hero { max-width: 680px; margin: 4rem auto 2rem; padding: 0 1.5rem; }
+  .hero h1 { font-size: 30px; font-weight: 600; line-height: 1.25; margin-bottom: 0.75rem; }
+  .hero p { color: var(--text2); font-size: 15px; line-height: 1.7; margin-bottom: 2rem; }
+  .algo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+  .algo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; cursor: pointer; transition: border-color .15s; }
+  .algo-card:hover { border-color: var(--border2); }
+  .algo-card.available { cursor: pointer; }
+  .algo-card.coming { opacity: .5; cursor: default; }
+  .algo-tag { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-bottom: 10px; }
+  .tag-sup { background: var(--blue-bg); color: var(--blue-txt); }
+  .tag-unsup { background: var(--green-bg); color: var(--green-txt); }
+  .tag-ensemble { background: var(--amber-bg); color: var(--amber-txt); }
+  .algo-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .algo-card p  { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .coming-label { font-size: 11px; color: var(--text3); margin-top: 8px; }
+
+  /* ── App layout ── */
+  .app { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.25rem; max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.5rem 3rem; align-items: start; }
+
+  /* ── Panel ── */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
+  .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: var(--surface2); color: var(--text2); font-weight: 500; padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); font-size: 11px; }
+  td { padding: 5px 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr.row-yes td { background: rgba(228,75,74,0.05); }
+  .badge { display: inline-block; padding: 1px 7px; border-radius: 8px; font-size: 11px; font-weight: 500; }
+  .badge-yes { background: var(--red-bg); color: var(--red-txt); }
+  .badge-no  { background: var(--green-bg); color: var(--green-txt); }
+
+  /* ── Controls ── */
+  select, input[type=number] { font-size: 13px; padding: 6px 9px; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface); color: var(--text); width: 100%; }
+  select:focus, input:focus { outline: 2px solid var(--purple); outline-offset: 1px; border-color: transparent; }
+  .row2 { display: flex; gap: 8px; margin-bottom: 8px; }
+  .row2 > * { flex: 1; min-width: 0; }
+  .field-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  button.btn { padding: 7px 16px; font-size: 13px; border-radius: 7px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); transition: background .15s; }
+  button.btn:hover { background: var(--border); }
+  button.btn.primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+  button.btn.primary:hover { opacity: .88; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ── Feedback ── */
+  .feedback { font-size: 12px; margin-top: 8px; padding: 7px 11px; border-radius: 7px; display: none; line-height: 1.5; }
+  .feedback.show-ok   { display: block; background: var(--green-bg); color: var(--green-txt); }
+  .feedback.show-hint { display: block; background: var(--amber-bg); color: var(--amber-txt); }
+
+  /* ── Step blocks ── */
+  .step-block { margin-bottom: 1rem; }
+  .step-q    { font-size: 13px; color: var(--text); margin-bottom: 6px; line-height: 1.5; font-weight: 500; }
+  .step-hint { font-size: 12px; color: var(--text2); margin-bottom: 8px; line-height: 1.5; font-style: italic; }
+
+  /* ── Purity boxes ── */
+  .purity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .purity-box { background: var(--surface2); border-radius: 8px; padding: 8px 10px; }
+  .purity-box-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .purity-counts { font-size: 12px; }
+  .purity-bar { height: 5px; border-radius: 3px; background: var(--border); margin-top: 5px; overflow: hidden; }
+  .purity-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+  .purity-gini { font-size: 10px; color: var(--text3); margin-top: 3px; }
+  .purity-summary { font-size: 12px; color: var(--text2); }
+
+  /* ── Tree SVG ── */
+  .tree-wrap { width: 100%; overflow: visible; }
+  .tree-wrap svg { width: 100%; }
+  .t-edge { stroke: var(--border2); stroke-width: 1.2; fill: none; }
+  .t-elabel { font-size: 10px; fill: var(--text3); font-family: inherit; }
+  .t-box { rx: 8; fill: var(--surface2); stroke: var(--border); stroke-width: 1; }
+  .t-box-active { fill: var(--blue-bg); stroke: var(--blue-bd); stroke-width: 1.5; }
+  .t-box-leaf-yes { fill: var(--red-bg); stroke: var(--red-bd); stroke-width: 1.5; }
+  .t-box-leaf-no  { fill: var(--green-bg); stroke: var(--green-bd); stroke-width: 1.5; }
+  .t-box-pending  { fill: var(--surface2); stroke: var(--border); stroke-width: 1; stroke-dasharray: 4 3; }
+  .t-text  { font-size: 11px; fill: var(--text); font-family: inherit; font-weight: 500; }
+  .t-sub   { font-size: 10px; fill: var(--text2); font-family: inherit; }
+
+  /* ── Complete banner ── */
+  .complete-banner { background: var(--green-bg); border: 1px solid var(--green-bd); border-radius: 9px; padding: 12px 14px; font-size: 13px; color: var(--green-txt); line-height: 1.6; }
+  .complete-banner strong { font-weight: 600; display: block; margin-bottom: 4px; }
+
+  /* ── Info box ── */
+  .info-box { background: var(--surface2); border-radius: 8px; padding: 9px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; margin-top: 8px; }
+  .info-box strong { color: var(--text); }
+
+  /* ── Step confirmed badge ── */
+  .confirmed-badge { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--text2); margin-bottom: 10px; width: 100%; }
+  .confirmed-badge strong { color: var(--text); }
+
+  @media (max-width: 700px) {
+    .app { grid-template-columns: 1fr; }
+    .algo-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Geo<span>AI</span> Explorer</div>
+  <a class="nav-tab active" onclick="showPage('home')" href="#">Home</a>
+  <a class="nav-tab" onclick="showPage('dtree')" href="#">Decision tree</a>
+  <a class="nav-tab" href="#">Random forest <span class="nav-badge">soon</span></a>
+  <a class="nav-tab" href="#">Neural network <span class="nav-badge">soon</span></a>
+  <a class="nav-tab" href="#">K-means <span class="nav-badge">soon</span></a>
+</nav>
+
+<!-- ═══════════════════════════════ HOME ════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <h1>Learn ML algorithms by doing</h1>
+    <p>Interactive activities for GIS 521. Each module walks you through an algorithm step by step — you make the decisions, the model builds in real time.</p>
+  </div>
+  <div class="algo-grid">
+    <div class="algo-card available" onclick="showPage('dtree')">
+      <div class="algo-tag tag-sup">Supervised</div>
+      <h3>Decision tree</h3>
+      <p>Build a flood risk classifier by choosing your own splits on parcel data.</p>
+    </div>
+    <div class="algo-card coming">
+      <div class="algo-tag tag-ensemble">Ensemble</div>
+      <h3>Random forest</h3>
+      <p>See why 100 imperfect trees beat one perfect one.</p>
+      <div class="coming-label">Coming soon</div>
+    </div>
+    <div class="algo-card coming">
+      <div class="algo-tag tag-sup">Supervised</div>
+      <h3>Neural network</h3>
+      <p>Walk through a forward pass with real numbers.</p>
+      <div class="coming-label">Coming soon</div>
+    </div>
+    <div class="algo-card coming">
+      <div class="algo-tag tag-unsup">Unsupervised</div>
+      <h3>K-means</h3>
+      <p>Place centroids and watch clusters form on spatial data.</p>
+      <div class="coming-label">Coming soon</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ DECISION TREE ════════════════════════════ -->
+<div id="page-dtree" class="page">
+  <div style="max-width:1100px;margin:0 auto;padding:1rem 1.5rem 0.5rem;">
+    <div style="margin-bottom:0.25rem;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">Supervised · Decision tree</span>
+    </div>
+    <div style="font-size:22px;font-weight:600;margin-bottom:4px;">Flood risk prediction</div>
+    <div style="font-size:13px;color:var(--text2);">15 parcels, 4 features. You choose every split — the tree builds as you decide.</div>
+  </div>
+
+  <div class="app">
+
+    <!-- Left col: data + purity calc -->
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+
+      <div class="panel">
+        <div class="panel-title">parcel dataset</div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr>
+              <th>#</th>
+              <th>dist. stream (m)</th>
+              <th>imp. surface (%)</th>
+              <th>slope (°)</th>
+              <th>drainage</th>
+              <th>flood risk</th>
+            </tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;">Red-tinted rows = flood risk YES</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">purity calculator</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">
+          Try different features and thresholds on the <strong id="split-ctx-label" style="color:var(--text);">full dataset (15 parcels)</strong>. Lower weighted gini = cleaner split.
+        </div>
+        <div class="row2">
+          <div>
+            <div class="field-label">Feature</div>
+            <select id="feat-sel" onchange="updateThresholds('feat-sel','thresh-sel'); calcPurity()">
+              <option value="dist">dist. to stream</option>
+              <option value="imp">imp. surface %</option>
+              <option value="slope">slope</option>
+              <option value="drain">drainage class</option>
+            </select>
+          </div>
+          <div>
+            <div class="field-label">Threshold</div>
+            <select id="thresh-sel" onchange="calcPurity()"></select>
+          </div>
+        </div>
+        <div id="purity-out"></div>
+      </div>
+
+    </div>
+
+    <!-- Right col: tree + steps -->
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+
+      <div class="panel">
+        <div class="panel-title">your tree</div>
+        <div class="tree-wrap">
+          <svg id="treesvg" viewBox="0 0 340 430"></svg>
+        </div>
+      </div>
+
+      <div class="panel" id="steps-panel"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════ DATA ═══════════════════════════ */
+const parcels = [
+  {id:1,  dist:40,  imp:80, slope:2,  drain:'poor', flood:'YES'},
+  {id:2,  dist:20,  imp:75, slope:1,  drain:'poor', flood:'YES'},
+  {id:3,  dist:15,  imp:90, slope:3,  drain:'poor', flood:'YES'},
+  {id:4,  dist:55,  imp:60, slope:5,  drain:'mod',  flood:'YES'},
+  {id:5,  dist:30,  imp:85, slope:2,  drain:'poor', flood:'YES'},
+  {id:6,  dist:10,  imp:70, slope:1,  drain:'poor', flood:'YES'},
+  {id:7,  dist:200, imp:20, slope:12, drain:'good', flood:'NO'},
+  {id:8,  dist:180, imp:15, slope:18, drain:'good', flood:'NO'},
+  {id:9,  dist:300, imp:10, slope:22, drain:'good', flood:'NO'},
+  {id:10, dist:250, imp:25, slope:15, drain:'good', flood:'NO'},
+  {id:11, dist:160, imp:30, slope:10, drain:'mod',  flood:'NO'},
+  {id:12, dist:120, imp:40, slope:8,  drain:'mod',  flood:'NO'},
+  {id:13, dist:90,  imp:55, slope:6,  drain:'mod',  flood:'YES'},
+  {id:14, dist:100, imp:50, slope:7,  drain:'mod',  flood:'NO'},
+  {id:15, dist:70,  imp:65, slope:4,  drain:'poor', flood:'YES'},
+];
+
+const featMeta = {
+  dist:  {label:'dist. to stream', thresholds:[50,75,100,150], unit:'m',  fn:p=>p.dist,  cat:false},
+  imp:   {label:'imp. surface %',  thresholds:[30,50,60,70],   unit:'%',  fn:p=>p.imp,   cat:false},
+  slope: {label:'slope',           thresholds:[5,8,12,16],     unit:'°',  fn:p=>p.slope, cat:false},
+  drain: {label:'drainage class',  thresholds:['poor','mod'],  unit:'',   fn:p=>p.drain, cat:true},
+};
+
+/* ═══════════════════════════ STATE ═════════════════════════ */
+let step = 0;
+let splitCtx = parcels;
+let rootSplit = null;
+let leftSplit = null;
+let rightIsLeaf = false;
+
+let treeNodes = [
+  {id:'root',x:170,y:28, w:150,h:46,state:'active', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:null},
+  {id:'L',   x:82, y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+  {id:'R',   x:262,y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+  {id:'LL',  x:38, y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+  {id:'LR',  x:158,y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+  {id:'RL',  x:220,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+  {id:'RR',  x:315,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+];
+
+/* ═══════════════════════════ UTIL ══════════════════════════ */
+function gini(sub) {
+  if(!sub.length) return 0;
+  const y = sub.filter(p=>p.flood==='YES').length/sub.length;
+  return 1-y*y-(1-y)*(1-y);
+}
+function weightedGini(l,r) {
+  const n=l.length+r.length;
+  return (l.length/n)*gini(l)+(r.length/n)*gini(r);
+}
+function splitSubset(sub, feat, thresh) {
+  const m = featMeta[feat];
+  if(m.cat) return {left:sub.filter(p=>m.fn(p)===thresh), right:sub.filter(p=>m.fn(p)!==thresh)};
+  return {left:sub.filter(p=>m.fn(p)<=thresh), right:sub.filter(p=>m.fn(p)>thresh)};
+}
+function majority(sub) { return sub.filter(p=>p.flood==='YES').length > sub.length/2 ? 'HIGH RISK' : 'LOW RISK'; }
+function yesNo(sub) { const y=sub.filter(p=>p.flood==='YES').length; return `${y} YES / ${sub.length-y} NO`; }
+
+/* ════════════════════════════ TABLE ════════════════════════ */
+function renderTable(highlight) {
+  document.getElementById('tbody').innerHTML = parcels.map(p => {
+    const show = !highlight || highlight.includes(p.id);
+    return `<tr class="${p.flood==='YES'?'row-yes':''}" style="${show?'':'opacity:.35'}">
+      <td>${p.id}</td><td>${p.dist}</td><td>${p.imp}</td><td>${p.slope}</td><td>${p.drain}</td>
+      <td><span class="badge badge-${p.flood==='YES'?'yes':'no'}">${p.flood}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════════ THRESHOLDS ════════════════════════ */
+function updateThresholds(featId, threshId) {
+  const feat = document.getElementById(featId).value;
+  const m = featMeta[feat];
+  const sel = document.getElementById(threshId);
+  sel.innerHTML = m.thresholds.map(t=>`<option value="${t}">${m.cat ? t : '≤ '+t+' '+m.unit}</option>`).join('');
+}
+
+/* ═══════════════════════ PURITY CALC ══════════════════════ */
+function calcPurity() {
+  const feat   = document.getElementById('feat-sel').value;
+  const thresh = document.getElementById('thresh-sel').value;
+  const m = featMeta[feat];
+  const tv = m.cat ? thresh : parseFloat(thresh);
+  const {left,right} = splitSubset(splitCtx, feat, tv);
+  const wg = weightedGini(left, right);
+  const lLabel = m.cat ? `"${thresh}"` : `≤ ${thresh}${m.unit}`;
+  const rLabel = m.cat ? `not "${thresh}"` : `> ${thresh}${m.unit}`;
+  const lyesN = left.filter(p=>p.flood==='YES').length;
+  const ryesN = right.filter(p=>p.flood==='YES').length;
+  const lPure = 1-gini(left), rPure = 1-gini(right);
+
+  document.getElementById('purity-out').innerHTML = `
+    <div class="purity-grid">
+      <div class="purity-box">
+        <div class="purity-box-label">${lLabel} — ${left.length} parcels</div>
+        <div class="purity-counts"><span style="color:var(--red-txt);font-weight:500;">${lyesN} YES</span> &nbsp;·&nbsp; <span style="color:var(--green-txt);font-weight:500;">${left.length-lyesN} NO</span></div>
+        <div class="purity-bar"><div class="purity-fill" style="width:${(lPure*100).toFixed(0)}%;background:${gini(left)<0.35?'#1d9e75':'#e24b4a'};"></div></div>
+        <div class="purity-gini">gini impurity: ${gini(left).toFixed(3)}</div>
+      </div>
+      <div class="purity-box">
+        <div class="purity-box-label">${rLabel} — ${right.length} parcels</div>
+        <div class="purity-counts"><span style="color:var(--red-txt);font-weight:500;">${ryesN} YES</span> &nbsp;·&nbsp; <span style="color:var(--green-txt);font-weight:500;">${right.length-ryesN} NO</span></div>
+        <div class="purity-bar"><div class="purity-fill" style="width:${(rPure*100).toFixed(0)}%;background:${gini(right)<0.35?'#1d9e75':'#e24b4a'};"></div></div>
+        <div class="purity-gini">gini impurity: ${gini(right).toFixed(3)}</div>
+      </div>
+    </div>
+    <div class="purity-summary">weighted gini after split: <strong style="color:var(--text);">${wg.toFixed(3)}</strong> &nbsp;—&nbsp; lower is better</div>`;
+}
+
+/* ════════════════════════════ TREE ═════════════════════════ */
+function nodeClass(state) {
+  if(state==='active')   return 't-box-active';
+  if(state==='leaf-yes') return 't-box-leaf-yes';
+  if(state==='leaf-no')  return 't-box-leaf-no';
+  if(state==='pending')  return 't-box-pending';
+  return 't-box';
+}
+
+function drawTree() {
+  let html = '';
+  const vis = treeNodes.filter(n=>n.state!=='hidden');
+
+  vis.forEach(n => {
+    const p = treeNodes.find(t=>t.id===n.parentId);
+    if(!p || p.state==='hidden') return;
+    const px=p.x, py=p.y+p.h, cx=n.x, cy=n.y;
+    html += `<path class="t-edge" d="M${px},${py} C${px},${py+28} ${cx},${cy-28} ${cx},${cy}"/>`;
+    if(n.edgeLabel) {
+      const mx=(px+cx)/2, my=(py+cy)/2;
+      html += `<text class="t-elabel" x="${mx+4}" y="${my}" text-anchor="middle">${n.edgeLabel}</text>`;
+    }
+  });
+
+  vis.forEach(n => {
+    const x=n.x-n.w/2, y=n.y;
+    html += `<rect class="${nodeClass(n.state)}" x="${x}" y="${y}" width="${n.w}" height="${n.h}" rx="8"/>`;
+    if(n.state==='pending') {
+      html += `<text class="t-sub" x="${n.x}" y="${n.y+n.h/2+4}" text-anchor="middle" style="font-size:16px;fill:var(--text3);">?</text>`;
+    } else {
+      html += `<text class="t-text" x="${n.x}" y="${n.y+13}" text-anchor="middle">${n.label}</text>`;
+      if(n.sub1) html += `<text class="t-sub" x="${n.x}" y="${n.y+25}" text-anchor="middle">${n.sub1}</text>`;
+      if(n.sub2) html += `<text class="t-sub" x="${n.x}" y="${n.y+36}" text-anchor="middle">${n.sub2}</text>`;
+    }
+  });
+
+  document.getElementById('treesvg').innerHTML = html;
+}
+
+function setNode(id, label, sub1, sub2, state, edgeLabel) {
+  const n = treeNodes.find(n=>n.id===id);
+  if(!n) return;
+  if(label!==undefined) n.label=label;
+  if(sub1 !==undefined) n.sub1=sub1;
+  if(sub2 !==undefined) n.sub2=sub2;
+  if(state!==undefined) n.state=state;
+  if(edgeLabel!==undefined) n.edgeLabel=edgeLabel;
+  drawTree();
+}
+
+/* ════════════════════════════ STEPS ════════════════════════ */
+function renderSteps() {
+  const p = document.getElementById('steps-panel');
+
+  if(step===0) {
+    p.innerHTML = `
+      <div class="panel-title">guided steps</div>
+      <div class="step-block">
+        <div class="step-q">Step 1 — Choose your root split</div>
+        <div class="step-hint">Use the purity calculator to explore. Try each feature and threshold combination — look for the split that gives the lowest weighted gini (most separation between YES and NO). Pick whichever makes the most sense to you.</div>
+        <div class="row2">
+          <div><div class="field-label">Feature</div>
+            <select id="s0-feat" onchange="updateThresholds('s0-feat','s0-thresh')">
+              <option value="dist">dist. to stream</option>
+              <option value="imp">imp. surface %</option>
+              <option value="slope">slope</option>
+              <option value="drain">drainage class</option>
+            </select></div>
+          <div><div class="field-label">Threshold</div>
+            <select id="s0-thresh"></select></div>
+        </div>
+        <button class="btn primary" onclick="confirmRoot()">Confirm root split</button>
+        <div class="feedback" id="s0-fb"></div>
+      </div>`;
+    updateThresholds('s0-feat','s0-thresh');
+
+  } else if(step===1) {
+    const {left,right} = rootSplit;
+    const ryesN = right.filter(p=>p.flood==='YES').length;
+    p.innerHTML = `
+      <div class="panel-title">guided steps</div>
+      <div class="confirmed-badge">Root split: <strong>${rootSplit.label}</strong> &nbsp;·&nbsp; weighted gini ${weightedGini(left,right).toFixed(3)}</div>
+      <div class="step-block">
+        <div class="step-q">Step 2 — Right branch: pure enough?</div>
+        <div class="step-hint">The right branch (${rootSplit.rightLabel}) has ${right.length} parcels: ${ryesN} YES, ${right.length-ryesN} NO. If one class clearly dominates, call it a leaf. Otherwise split it further.</div>
+        <div class="info-box">A common rule: if one class makes up ≥ 80% of a node, it's pure enough to stop.</div>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn" onclick="confirmRightLeaf()">Call it a leaf</button>
+          <button class="btn" onclick="confirmRightSplit()">Split it further</button>
+        </div>
+        <div class="feedback" id="s1-fb"></div>
+      </div>`;
+
+  } else if(step===2) {
+    const {left} = rootSplit;
+    p.innerHTML = `
+      <div class="panel-title">guided steps</div>
+      <div class="confirmed-badge">Root: <strong>${rootSplit.label}</strong></div>
+      <div class="step-block">
+        <div class="step-q">Step 3 — Split the left branch</div>
+        <div class="step-hint">The purity calculator is now scoped to the ${left.length} parcels in the left branch. Find the best second split for this subset.</div>
+        <div class="row2">
+          <div><div class="field-label">Feature</div>
+            <select id="s2-feat" onchange="updateThresholds('s2-feat','s2-thresh'); calcPurity()">
+              <option value="dist">dist. to stream</option>
+              <option value="imp">imp. surface %</option>
+              <option value="slope">slope</option>
+              <option value="drain">drainage class</option>
+            </select></div>
+          <div><div class="field-label">Threshold</div>
+            <select id="s2-thresh" onchange="calcPurity()"></select></div>
+        </div>
+        <button class="btn primary" onclick="confirmLeftSplit()">Confirm left split</button>
+        <div class="feedback" id="s2-fb"></div>
+      </div>`;
+    splitCtx = left;
+    document.getElementById('split-ctx-label').textContent = `left branch (${left.length} parcels)`;
+    updateThresholds('s2-feat','s2-thresh');
+    calcPurity();
+
+  } else if(step===3) {
+    p.innerHTML = `
+      <div class="panel-title">guided steps</div>
+      <div class="step-block">
+        <div class="step-q">Step 4 — Label the leaf nodes</div>
+        <div class="step-hint">Each leaf gets the majority class of the parcels that ended up there. Look at the counts in each bottom node — whichever class has more parcels becomes the prediction for that leaf.</div>
+        <div class="info-box">This is the <strong>majority vote</strong> rule. The tree will predict whichever label appears most in each terminal node.</div>
+        <button class="btn primary" style="margin-top:10px;" onclick="finishTree()">Label leaves and finish</button>
+      </div>`;
+
+  } else if(step===4) {
+    p.innerHTML = `
+      <div class="panel-title">guided steps</div>
+      <div class="complete-banner">
+        <strong>Tree complete!</strong>
+        You just built a decision tree by choosing splits, evaluating purity, and labeling leaves. The algorithm does exactly this process automatically — it just evaluates every possible threshold on every feature and picks the lowest gini each time.
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text2);line-height:1.6;">
+        <strong style="color:var(--text);">Discuss:</strong> Which feature did you split on first — and does that match your geographic intuition about what drives flood risk?
+      </div>
+      <button class="btn" style="margin-top:12px;" onclick="resetTree()">Start over</button>`;
+  }
+}
+
+/* ═══════════════════════ CONFIRM HANDLERS ══════════════════ */
+function confirmRoot() {
+  const feat   = document.getElementById('s0-feat').value;
+  const thresh = document.getElementById('s0-thresh').value;
+  const m = featMeta[feat];
+  const tv = m.cat ? thresh : parseFloat(thresh);
+  const {left, right} = splitSubset(parcels, feat, tv);
+  const lLabel = m.cat ? `"${thresh}"` : `≤ ${thresh}${m.unit}`;
+  const rLabel = m.cat ? `not "${thresh}"` : `> ${thresh}${m.unit}`;
+
+  rootSplit = {feat, thresh:tv, label:`${m.label} ${lLabel}`, leftLabel:lLabel, rightLabel:rLabel, left, right};
+
+  setNode('root', m.label,    lLabel + ' | ' + rLabel, '', 'active', '');
+  setNode('L',    lLabel,     `${left.length} parcels`, yesNo(left),  'active', lLabel);
+  setNode('R',    rLabel,     `${right.length} parcels`, yesNo(right), 'active', rLabel);
+
+  const fb = document.getElementById('s0-fb');
+  fb.className = 'feedback show-ok';
+  fb.textContent = `Split confirmed — weighted gini: ${weightedGini(left,right).toFixed(3)}. Now examine your two branches.`;
+
+  renderTable(left.concat(right).map(p=>p.id));
+  step = 1;
+  setTimeout(renderSteps, 350);
+}
+
+function confirmRightLeaf() {
+  const {right} = rootSplit;
+  const maj = majority(right);
+  setNode('R', maj, `${right.length} parcels`, yesNo(right), maj==='HIGH RISK'?'leaf-yes':'leaf-no');
+  treeNodes.find(n=>n.id==='RL').state='hidden';
+  treeNodes.find(n=>n.id==='RR').state='hidden';
+  rightIsLeaf = true;
+  drawTree();
+  step = 2;
+  renderSteps();
+}
+
+function confirmRightSplit() {
+  const fb = document.getElementById('s1-fb');
+  fb.className='feedback show-hint';
+  fb.textContent = 'OK — you can come back to the right branch. Let\'s handle the left branch first.';
+  step = 2;
+  setTimeout(renderSteps, 350);
+}
+
+function confirmLeftSplit() {
+  const feat   = document.getElementById('s2-feat').value;
+  const thresh = document.getElementById('s2-thresh').value;
+  const m = featMeta[feat];
+  const tv = m.cat ? thresh : parseFloat(thresh);
+  const {left, right} = splitSubset(rootSplit.left, feat, tv);
+  const lLabel = m.cat ? `"${thresh}"` : `≤ ${thresh}${m.unit}`;
+  const rLabel = m.cat ? `not "${thresh}"` : `> ${thresh}${m.unit}`;
+
+  leftSplit = {left, right};
+
+  setNode('L',  m.label, lLabel + ' | ' + rLabel, '', 'active');
+  setNode('LL', lLabel,  `${left.length} parcels`, yesNo(left),  'active', lLabel);
+  setNode('LR', rLabel,  `${right.length} parcels`, yesNo(right), 'active', rLabel);
+
+  if(!rightIsLeaf) {
+    setNode('RL', '', '', '', 'pending', '');
+    setNode('RR', '', '', '', 'pending', '');
+  }
+
+  splitCtx = parcels;
+  document.getElementById('split-ctx-label').textContent = 'full dataset (15 parcels)';
+  calcPurity();
+
+  step = 3;
+  renderSteps();
+}
+
+function finishTree() {
+  const labelLeaf = (id, sub) => {
+    const n = treeNodes.find(n=>n.id===id);
+    if(!n || n.state==='hidden') return;
+    const maj = majority(sub);
+    setNode(id, maj, `${sub.length} parcels`, yesNo(sub), maj==='HIGH RISK'?'leaf-yes':'leaf-no');
+  };
+  if(leftSplit) { labelLeaf('LL', leftSplit.left); labelLeaf('LR', leftSplit.right); }
+  const rNode = treeNodes.find(n=>n.id==='R');
+  if(rNode && rNode.state==='active') labelLeaf('R', rootSplit.right);
+  step = 4;
+  renderSteps();
+}
+
+function resetTree() {
+  step=0; rootSplit=null; leftSplit=null; rightIsLeaf=false; splitCtx=parcels;
+  treeNodes = [
+    {id:'root',x:170,y:28, w:150,h:46,state:'active', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:null},
+    {id:'L',   x:82, y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+    {id:'R',   x:262,y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+    {id:'LL',  x:38, y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+    {id:'LR',  x:158,y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+    {id:'RL',  x:220,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+    {id:'RR',  x:315,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+  ];
+  document.getElementById('split-ctx-label').textContent='full dataset (15 parcels)';
+  renderTable();
+  drawTree();
+  renderSteps();
+}
+
+/* ══════════════════════════ ROUTING ════════════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const tabs = {'home':0,'dtree':1};
+  document.querySelectorAll('.nav-tab')[tabs[id]]?.classList.add('active');
+}
+
+/* ══════════════════════════ INIT ═══════════════════════════ */
+renderTable();
+updateThresholds('feat-sel','thresh-sel');
+calcPurity();
+drawTree();
+renderSteps();
+</script>
+</body>
+</html>
