@@ -463,8 +463,8 @@ const RF_TEST_PARCELS = [
   },
 ];
 
-// Feature display helpers
-const FEAT_LABELS = {
+// Helper to convert raw flood label to tree label
+function floodLabel(p) { return p.flood === 'YES' ? 'HIGH RISK' : 'LOW RISK'; }
   dist:  { label: 'dist. to stream', unit: 'm'  },
   imp:   { label: 'imp. surface %',  unit: '%'  },
   slope: { label: 'slope',           unit: '°'  },
@@ -605,16 +605,16 @@ function nodeClass(node) {
 }
 
 function drawTreeSVG(treeObj, highlightPath) {
-  // Layout: fixed positions for a 3-level tree
-  const W = 320, H = 220;
+  // Wider layout — 4 leaf nodes need room to breathe
+  const W = 430, H = 240;
   const nodes = [
-    { id:'root', x:160, y:22,  w:150, h:40, node: treeObj.tree, parentId: null, edgeLabel:'' },
-    { id:'L',    x:75,  y:110, w:130, h:38, node: treeObj.tree.left,  parentId:'root', edgeLabel:'YES' },
-    { id:'R',    x:250, y:110, w:130, h:38, node: treeObj.tree.right, parentId:'root', edgeLabel:'NO'  },
-    { id:'LL',   x:32,  y:190, w:110, h:34, node: treeObj.tree.left.left,   parentId:'L', edgeLabel:'YES' },
-    { id:'LR',   x:118, y:190, w:110, h:34, node: treeObj.tree.left.right,  parentId:'L', edgeLabel:'NO'  },
-    { id:'RL',   x:205, y:190, w:110, h:34, node: treeObj.tree.right.left,  parentId:'R', edgeLabel:'YES' },
-    { id:'RR',   x:298, y:190, w:110, h:34, node: treeObj.tree.right.right, parentId:'R', edgeLabel:'NO'  },
+    { id:'root', x:215, y:20,  w:160, h:40, node: treeObj.tree,                    parentId: null,   edgeLabel:'' },
+    { id:'L',    x:100, y:108, w:140, h:38, node: treeObj.tree.left,               parentId:'root',  edgeLabel:'YES' },
+    { id:'R',    x:330, y:108, w:140, h:38, node: treeObj.tree.right,              parentId:'root',  edgeLabel:'NO'  },
+    { id:'LL',   x:38,  y:194, w:100, h:34, node: treeObj.tree.left.left,          parentId:'L',     edgeLabel:'YES' },
+    { id:'LR',   x:155, y:194, w:100, h:34, node: treeObj.tree.left.right,         parentId:'L',     edgeLabel:'NO'  },
+    { id:'RL',   x:272, y:194, w:100, h:34, node: treeObj.tree.right.left,         parentId:'R',     edgeLabel:'YES' },
+    { id:'RR',   x:392, y:194, w:100, h:34, node: treeObj.tree.right.right,        parentId:'R',     edgeLabel:'NO'  },
   ];
 
   let html = `<svg viewBox="0 0 ${W} ${H+20}" width="${W}" height="${H+20}" style="display:block;min-width:${W}px;">`;
@@ -654,13 +654,12 @@ function drawTreeSVG(treeObj, highlightPath) {
       html += `<text x="${n.x}" y="${n.y+n.h/2+1}" text-anchor="middle" dominant-baseline="central"
         font-size="11" font-weight="700" fill="${textCol}" font-family="sans-serif">${n.node.label}</text>`;
     } else {
-      // Decision node — split label across two lines
       const feat = n.node.feat;
       const fl = FEAT_LABELS[feat];
       const thresh = n.node.cat ? `= ${n.node.thresh}` : `≤ ${n.node.thresh}${fl.unit}`;
       html += `<text x="${n.x}" y="${n.y+12}" text-anchor="middle"
         font-size="10" font-weight="600" fill="${textCol}" font-family="sans-serif">${fl.label}</text>`;
-      html += `<text x="${n.x}" y="${n.y+24}" text-anchor="middle"
+      html += `<text x="${n.x}" y="${n.y+26}" text-anchor="middle"
         font-size="10" fill="${textCol}" font-family="sans-serif">${thresh}?</text>`;
     }
   });
@@ -859,7 +858,8 @@ function showEnsembleResult(parcel) {
   const treeVotes = RF_TREES.map(t => traverse(t.tree, parcel));
   const highCount = treeVotes.filter(v => v === 'HIGH RISK').length;
   const ensemble  = highCount >= 2 ? 'HIGH RISK' : 'LOW RISK';
-  const correct   = ensemble === parcel.flood;
+  const trueLabel = floodLabel(parcel);
+  const correct   = ensemble === trueLabel;
 
   parcelResults[gameIdx] = { parcel, treeVotes, ensemble, correct };
 
@@ -873,7 +873,7 @@ function showEnsembleResult(parcel) {
       ${RF_TREES.map((t,i) => `<span style="color:${t.color};font-weight:500;">${t.name}: ${treeVotes[i]}</span>`).join(' · ')}
     </div>
     <div class="ensemble-accuracy" style="color:${correct?'var(--green-txt)':'var(--red-txt)'};">
-      ${correct ? '✓ Correct — matches true label' : `✗ Wrong — true label is ${parcel.flood}`}
+      ${correct ? '✓ Correct — matches true label' : `✗ Wrong — true label is ${trueLabel}`}
     </div>`;
 
   renderGameNav(true);
@@ -909,7 +909,7 @@ function renderResults() {
 
   // Per-tree accuracy
   const treeCorrect = RF_TREES.map(t => {
-    return parcelResults.filter(r => traverse(t.tree, r.parcel) === r.parcel.flood).length;
+    return parcelResults.filter(r => traverse(t.tree, r.parcel) === floodLabel(r.parcel)).length;
   });
   const bestSingle = Math.max(...treeCorrect);
 
@@ -969,8 +969,8 @@ function renderResults() {
           return `<tr style="border-bottom:1px solid var(--border);">
             <td style="padding:6px 10px;color:var(--text2);">${r.parcel.neighborhood}</td>
             <td style="padding:6px 10px;">
-              <span style="font-weight:600;color:${r.parcel.flood==='YES'?'var(--red-txt)':'var(--green-txt)'};">
-                ${r.parcel.flood === 'YES' ? 'HIGH' : 'LOW'}
+              <span style="font-weight:600;color:${floodLabel(r.parcel)==='HIGH RISK'?'var(--red-txt)':'var(--green-txt)'};">
+                ${floodLabel(r.parcel) === 'HIGH RISK' ? 'HIGH' : 'LOW'}
               </span>
             </td>
             ${treeVotes.map(v=>`
@@ -1010,5 +1010,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
