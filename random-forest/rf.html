@@ -463,8 +463,7 @@ const RF_TEST_PARCELS = [
   },
 ];
 
-// Helper to convert raw flood label to tree label
-function floodLabel(p) { return p.flood === 'YES' ? 'HIGH RISK' : 'LOW RISK'; }
+const FEAT_LABELS = {
   dist:  { label: 'dist. to stream', unit: 'm'  },
   imp:   { label: 'imp. surface %',  unit: '%'  },
   slope: { label: 'slope',           unit: '°'  },
@@ -478,6 +477,7 @@ function floodLabel(p) { return p.flood === 'YES' ? 'HIGH RISK' : 'LOW RISK'; }
 // ─────────────────────────────────────────────────────────────
 
 /* ══════════════════════════ STATE ══════════════════════════ */
+function floodLabel(p) { return p.flood === 'YES' ? 'HIGH RISK' : 'LOW RISK'; }
 let gameIdx       = 0;
 let votes         = {};       // { parcelId: { treeId: 'HIGH RISK'|'LOW RISK' } }
 let parcelResults = [];       // { parcel, treeVotes, ensemble, correct }
