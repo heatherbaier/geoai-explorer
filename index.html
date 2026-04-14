@@ -249,12 +249,12 @@
       <div class="panel">
         <div class="panel-title">purity calculator</div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">
-          Try different features and thresholds on the <strong id="split-ctx-label" style="color:var(--text);">full dataset (15 parcels)</strong>. Lower weighted gini = cleaner split.
+          Try different features and thresholds on the <strong id="split-ctx-label" style="color:var(--text);">full dataset (15 parcels)</strong>. Your goal: find a split where each side is dominated by <em>one</em> class.
         </div>
         <div class="row2">
           <div>
             <div class="field-label">Feature</div>
-            <select id="feat-sel" onchange="updateThresholds('feat-sel','thresh-sel'); calcPurity()">
+            <select id="feat-sel" onchange="syncStepDropdowns('feat'); updateThresholds('feat-sel','thresh-sel'); calcPurity()">
               <option value="dist">dist. to stream</option>
               <option value="imp">imp. surface %</option>
               <option value="slope">slope</option>
@@ -263,7 +263,7 @@
           </div>
           <div>
             <div class="field-label">Threshold</div>
-            <select id="thresh-sel" onchange="calcPurity()"></select>
+            <select id="thresh-sel" onchange="syncStepDropdowns('thresh'); calcPurity()"></select>
           </div>
         </div>
         <div id="purity-out"></div>
@@ -316,7 +316,7 @@ const featMeta = {
 
 /* ═══════════════════════════ STATE ═════════════════════════ */
 let step = 0;
-let splitCtx = parcels;
+let splitCtx = parcels;   // always the subset the purity calc is currently scoped to
 let rootSplit = null;
 let leftSplit = null;
 let rightIsLeaf = false;
@@ -346,7 +346,11 @@ function splitSubset(sub, feat, thresh) {
   if(m.cat) return {left:sub.filter(p=>m.fn(p)===thresh), right:sub.filter(p=>m.fn(p)!==thresh)};
   return {left:sub.filter(p=>m.fn(p)<=thresh), right:sub.filter(p=>m.fn(p)>thresh)};
 }
-function majority(sub) { return sub.filter(p=>p.flood==='YES').length > sub.length/2 ? 'HIGH RISK' : 'LOW RISK'; }
+function majority(sub) {
+  const yesCount = sub.filter(p=>p.flood==='YES').length;
+  const noCount  = sub.length - yesCount;
+  return yesCount >= noCount ? 'HIGH RISK' : 'LOW RISK';
+}
 function yesNo(sub) { const y=sub.filter(p=>p.flood==='YES').length; return `${y} YES / ${sub.length-y} NO`; }
 
 /* ════════════════════════════ TABLE ════════════════════════ */
@@ -370,34 +374,63 @@ function updateThresholds(featId, threshId) {
 
 /* ═══════════════════════ PURITY CALC ══════════════════════ */
 function calcPurity() {
-  const feat   = document.getElementById('feat-sel').value;
-  const thresh = document.getElementById('thresh-sel').value;
+  // Prefer the step-specific dropdowns; fall back to the top calculator ones
+  const featElId   = step===2 ? 's2-feat'   : 's0-feat';
+  const threshElId = step===2 ? 's2-thresh' : 's0-thresh';
+  const featEl   = document.getElementById(featElId)   || document.getElementById('feat-sel');
+  const threshEl = document.getElementById(threshElId) || document.getElementById('thresh-sel');
+  if(!featEl || !threshEl) return;
+
+  const feat   = featEl.value;
+  const thresh = threshEl.value;
   const m = featMeta[feat];
+  if(!m) return;
   const tv = m.cat ? thresh : parseFloat(thresh);
-  const {left,right} = splitSubset(splitCtx, feat, tv);
+
+  // Always split against the current context subset
+  const {left, right} = splitSubset(splitCtx, feat, tv);
   const wg = weightedGini(left, right);
   const lLabel = m.cat ? `"${thresh}"` : `≤ ${thresh}${m.unit}`;
   const rLabel = m.cat ? `not "${thresh}"` : `> ${thresh}${m.unit}`;
   const lyesN = left.filter(p=>p.flood==='YES').length;
   const ryesN = right.filter(p=>p.flood==='YES').length;
-  const lPure = 1-gini(left), rPure = 1-gini(right);
+  const lGini = gini(left), rGini = gini(right);
+  const parentGini = gini(splitCtx);
+  const improvement = parentGini - wg;
+
+  const purityLabel = g => g < 0.05 ? '— pure ✓' : g < 0.3 ? '— mostly pure' : '— mixed';
+  const barColor    = g => g < 0.15 ? '#1d9e75' : g < 0.35 ? '#ef9f27' : '#e24b4a';
 
   document.getElementById('purity-out').innerHTML = `
     <div class="purity-grid">
       <div class="purity-box">
         <div class="purity-box-label">${lLabel} — ${left.length} parcels</div>
-        <div class="purity-counts"><span style="color:var(--red-txt);font-weight:500;">${lyesN} YES</span> &nbsp;·&nbsp; <span style="color:var(--green-txt);font-weight:500;">${left.length-lyesN} NO</span></div>
-        <div class="purity-bar"><div class="purity-fill" style="width:${(lPure*100).toFixed(0)}%;background:${gini(left)<0.35?'#1d9e75':'#e24b4a'};"></div></div>
-        <div class="purity-gini">gini impurity: ${gini(left).toFixed(3)}</div>
+        <div class="purity-counts">
+          <span style="color:var(--red-txt);font-weight:500;">${lyesN} YES</span>
+          &nbsp;·&nbsp;
+          <span style="color:var(--green-txt);font-weight:500;">${left.length-lyesN} NO</span>
+        </div>
+        <div class="purity-bar"><div class="purity-fill" style="width:${((1-lGini)*100).toFixed(0)}%;background:${barColor(lGini)};"></div></div>
+        <div class="purity-gini">gini: ${lGini.toFixed(3)} &nbsp;${purityLabel(lGini)}</div>
       </div>
       <div class="purity-box">
         <div class="purity-box-label">${rLabel} — ${right.length} parcels</div>
-        <div class="purity-counts"><span style="color:var(--red-txt);font-weight:500;">${ryesN} YES</span> &nbsp;·&nbsp; <span style="color:var(--green-txt);font-weight:500;">${right.length-ryesN} NO</span></div>
-        <div class="purity-bar"><div class="purity-fill" style="width:${(rPure*100).toFixed(0)}%;background:${gini(right)<0.35?'#1d9e75':'#e24b4a'};"></div></div>
-        <div class="purity-gini">gini impurity: ${gini(right).toFixed(3)}</div>
+        <div class="purity-counts">${right.length > 0
+          ? `<span style="color:var(--red-txt);font-weight:500;">${ryesN} YES</span>
+             &nbsp;·&nbsp;
+             <span style="color:var(--green-txt);font-weight:500;">${right.length-ryesN} NO</span>`
+          : '<span style="color:var(--text3);">empty — try a different threshold</span>'}
+        </div>
+        <div class="purity-bar"><div class="purity-fill" style="width:${right.length ? ((1-rGini)*100).toFixed(0) : 0}%;background:${barColor(rGini)};"></div></div>
+        <div class="purity-gini">gini: ${rGini.toFixed(3)} &nbsp;${purityLabel(rGini)}</div>
       </div>
     </div>
-    <div class="purity-summary">weighted gini after split: <strong style="color:var(--text);">${wg.toFixed(3)}</strong> &nbsp;—&nbsp; lower is better</div>`;
+    <div class="purity-summary" style="margin-bottom:4px;">
+      weighted gini: <strong style="color:var(--text);">${wg.toFixed(3)}</strong>
+      &nbsp;(was ${parentGini.toFixed(3)}, improvement:
+      <strong style="color:${improvement > 0.05 ? '#1d9e75' : 'var(--text)'};">+${improvement.toFixed(3)}</strong>)
+    </div>
+    <div style="font-size:11px;color:var(--text3);">Green bar = pure (one class dominates). Orange = mostly pure. Red = mixed. Aim for green on both sides.</div>`;
 }
 
 /* ════════════════════════════ TREE ═════════════════════════ */
@@ -450,6 +483,33 @@ function setNode(id, label, sub1, sub2, state, edgeLabel) {
   drawTree();
 }
 
+/* ══════════════════ SYNC TOP ↔ STEP DROPDOWNS ══════════════ */
+function syncStepDropdowns(which) {
+  const topFeat   = document.getElementById('feat-sel');
+  const topThresh = document.getElementById('thresh-sel');
+  if(step===0) {
+    const sf = document.getElementById('s0-feat');
+    const st = document.getElementById('s0-thresh');
+    if(which==='feat' && sf) { sf.value = topFeat.value; updateThresholds('s0-feat','s0-thresh'); }
+    if(which==='thresh' && st) { st.value = topThresh.value; }
+  }
+  if(step===2) {
+    const sf = document.getElementById('s2-feat');
+    const st = document.getElementById('s2-thresh');
+    if(which==='feat' && sf) { sf.value = topFeat.value; updateThresholds('s2-feat','s2-thresh'); }
+    if(which==='thresh' && st) { st.value = topThresh.value; }
+  }
+}
+
+function syncTopDropdowns(which, featId, threshId) {
+  const tf = document.getElementById('feat-sel');
+  const tt = document.getElementById('thresh-sel');
+  const sf = document.getElementById(featId);
+  const st = document.getElementById(threshId);
+  if(which==='feat' && tf && sf) { tf.value = sf.value; updateThresholds('feat-sel','thresh-sel'); }
+  if(which==='thresh' && tt && st) { tt.value = st.value; }
+}
+
 /* ════════════════════════════ STEPS ════════════════════════ */
 function renderSteps() {
   const p = document.getElementById('steps-panel');
@@ -458,18 +518,19 @@ function renderSteps() {
     p.innerHTML = `
       <div class="panel-title">guided steps</div>
       <div class="step-block">
-        <div class="step-q">Step 1 — Choose your root split</div>
-        <div class="step-hint">Use the purity calculator to explore. Try each feature and threshold combination — look for the split that gives the lowest weighted gini (most separation between YES and NO). Pick whichever makes the most sense to you.</div>
+        <div class="step-q">Step 1 of 4 — Choose your root split</div>
+        <div class="step-hint">The root node splits <em>all 15 parcels</em> into two groups. Your goal is to find the feature and threshold that best separates HIGH RISK from LOW RISK parcels.<br><br>
+        Use the purity calculator to explore: try each feature and threshold and watch the gini scores. You want both sides to be as <strong>one-class-dominant</strong> as possible — ideally all YES on one side and all NO on the other. Once you've explored, pick the split that makes the most geographic sense to you.</div>
         <div class="row2">
           <div><div class="field-label">Feature</div>
-            <select id="s0-feat" onchange="updateThresholds('s0-feat','s0-thresh')">
+            <select id="s0-feat" onchange="updateThresholds('s0-feat','s0-thresh'); syncTopDropdowns('feat','s0-feat','s0-thresh'); calcPurity()">
               <option value="dist">dist. to stream</option>
               <option value="imp">imp. surface %</option>
               <option value="slope">slope</option>
               <option value="drain">drainage class</option>
             </select></div>
           <div><div class="field-label">Threshold</div>
-            <select id="s0-thresh"></select></div>
+            <select id="s0-thresh" onchange="syncTopDropdowns('thresh','s0-feat','s0-thresh'); calcPurity()"></select></div>
         </div>
         <button class="btn primary" onclick="confirmRoot()">Confirm root split</button>
         <div class="feedback" id="s0-fb"></div>
@@ -479,55 +540,74 @@ function renderSteps() {
   } else if(step===1) {
     const {left,right} = rootSplit;
     const ryesN = right.filter(p=>p.flood==='YES').length;
+    const rnoN  = right.length - ryesN;
+    const pct   = right.length ? Math.round(Math.max(ryesN,rnoN)/right.length*100) : 0;
     p.innerHTML = `
       <div class="panel-title">guided steps</div>
       <div class="confirmed-badge">Root split: <strong>${rootSplit.label}</strong> &nbsp;·&nbsp; weighted gini ${weightedGini(left,right).toFixed(3)}</div>
       <div class="step-block">
-        <div class="step-q">Step 2 — Right branch: pure enough?</div>
-        <div class="step-hint">The right branch (${rootSplit.rightLabel}) has ${right.length} parcels: ${ryesN} YES, ${right.length-ryesN} NO. If one class clearly dominates, call it a leaf. Otherwise split it further.</div>
-        <div class="info-box">A common rule: if one class makes up ≥ 80% of a node, it's pure enough to stop.</div>
+        <div class="step-q">Step 2 of 4 — Is the right branch pure enough to stop?</div>
+        <div class="step-hint">
+          Look at the <strong>right branch</strong> (${rootSplit.rightLabel}): it has <strong>${right.length} parcels — ${ryesN} YES, ${rnoN} NO</strong>. The dominant class makes up ${pct}% of this branch.<br><br>
+          A node is usually called a <em>leaf</em> (i.e. we stop splitting) when one class makes up ≥ 80% of the parcels. If it's still mixed, we split again to get cleaner predictions.<br><br>
+          Does this branch meet that threshold, or is it still too mixed to trust?
+        </div>
+        <div class="info-box">Stopping too early = impure leaves = wrong predictions. Splitting too deep = memorizing noise (overfitting).</div>
         <div class="btn-row" style="margin-top:10px;">
-          <button class="btn" onclick="confirmRightLeaf()">Call it a leaf</button>
-          <button class="btn" onclick="confirmRightSplit()">Split it further</button>
+          <button class="btn" onclick="confirmRightLeaf()">Call it a leaf (${pct}% dominant — good enough)</button>
+          <button class="btn" onclick="confirmRightSplit()">Still too mixed — split it</button>
         </div>
         <div class="feedback" id="s1-fb"></div>
       </div>`;
 
   } else if(step===2) {
     const {left} = rootSplit;
+    const lyesN = left.filter(p=>p.flood==='YES').length;
+    // Set splitCtx BEFORE rendering so calcPurity uses the right subset
+    splitCtx = left;
+    document.getElementById('split-ctx-label').textContent = `left branch (${left.length} parcels)`;
     p.innerHTML = `
       <div class="panel-title">guided steps</div>
       <div class="confirmed-badge">Root: <strong>${rootSplit.label}</strong></div>
       <div class="step-block">
-        <div class="step-q">Step 3 — Split the left branch</div>
-        <div class="step-hint">The purity calculator is now scoped to the ${left.length} parcels in the left branch. Find the best second split for this subset.</div>
+        <div class="step-q">Step 3 of 4 — Split the left branch</div>
+        <div class="step-hint">
+          The left branch (${rootSplit.leftLabel}) has <strong>${left.length} parcels — ${lyesN} YES, ${left.length-lyesN} NO</strong>. It's still mixed, so we need another split.<br><br>
+          The purity calculator is now scoped to just these ${left.length} parcels. Find the feature and threshold that best separates them. The goal is the same: get each side as close to all-YES or all-NO as possible.
+        </div>
         <div class="row2">
           <div><div class="field-label">Feature</div>
-            <select id="s2-feat" onchange="updateThresholds('s2-feat','s2-thresh'); calcPurity()">
+            <select id="s2-feat" onchange="updateThresholds('s2-feat','s2-thresh'); syncTopDropdowns('feat','s2-feat','s2-thresh'); calcPurity()">
               <option value="dist">dist. to stream</option>
               <option value="imp">imp. surface %</option>
               <option value="slope">slope</option>
               <option value="drain">drainage class</option>
             </select></div>
           <div><div class="field-label">Threshold</div>
-            <select id="s2-thresh" onchange="calcPurity()"></select></div>
+            <select id="s2-thresh" onchange="syncTopDropdowns('thresh','s2-feat','s2-thresh'); calcPurity()"></select></div>
         </div>
         <button class="btn primary" onclick="confirmLeftSplit()">Confirm left split</button>
         <div class="feedback" id="s2-fb"></div>
       </div>`;
-    splitCtx = left;
-    document.getElementById('split-ctx-label').textContent = `left branch (${left.length} parcels)`;
+    // Populate thresholds and sync top dropdowns, then calculate
     updateThresholds('s2-feat','s2-thresh');
+    const tf = document.getElementById('feat-sel');
+    const tt = document.getElementById('thresh-sel');
+    const sf = document.getElementById('s2-feat');
+    if(tf && sf) { tf.value = sf.value; updateThresholds('feat-sel','thresh-sel'); }
     calcPurity();
 
   } else if(step===3) {
     p.innerHTML = `
       <div class="panel-title">guided steps</div>
       <div class="step-block">
-        <div class="step-q">Step 4 — Label the leaf nodes</div>
-        <div class="step-hint">Each leaf gets the majority class of the parcels that ended up there. Look at the counts in each bottom node — whichever class has more parcels becomes the prediction for that leaf.</div>
-        <div class="info-box">This is the <strong>majority vote</strong> rule. The tree will predict whichever label appears most in each terminal node.</div>
-        <button class="btn primary" style="margin-top:10px;" onclick="finishTree()">Label leaves and finish</button>
+        <div class="step-q">Step 4 of 4 — Label the leaf nodes</div>
+        <div class="step-hint">
+          Every bottom node (leaf) now needs a prediction label. Look at the YES/NO counts shown in each leaf node on the tree — whichever class has more parcels becomes that leaf's prediction.<br><br>
+          This is the <strong>majority vote</strong> rule: if a leaf has 5 YES and 1 NO, the tree predicts HIGH RISK for any new parcel that lands there. The leaf color shows you what the prediction will be.
+        </div>
+        <div class="info-box">Even if a leaf isn't perfectly pure (e.g. 4 YES, 1 NO), the tree still makes a definitive prediction — it just might be wrong sometimes. That remaining error is called the <strong>impurity at the leaf</strong>.</div>
+        <button class="btn primary" style="margin-top:10px;" onclick="finishTree()">Label all leaves and finish</button>
       </div>`;
 
   } else if(step===4) {
@@ -535,10 +615,13 @@ function renderSteps() {
       <div class="panel-title">guided steps</div>
       <div class="complete-banner">
         <strong>Tree complete!</strong>
-        You just built a decision tree by choosing splits, evaluating purity, and labeling leaves. The algorithm does exactly this process automatically — it just evaluates every possible threshold on every feature and picks the lowest gini each time.
+        You just built a decision tree the same way the algorithm does — choosing splits by minimizing impurity, deciding when a branch is pure enough to stop, and labeling leaves by majority vote.
       </div>
-      <div style="margin-top:10px;font-size:12px;color:var(--text2);line-height:1.6;">
-        <strong style="color:var(--text);">Discuss:</strong> Which feature did you split on first — and does that match your geographic intuition about what drives flood risk?
+      <div style="margin-top:12px;font-size:12px;color:var(--text2);line-height:1.7;">
+        <strong style="color:var(--text);display:block;margin-bottom:4px;">Discussion questions</strong>
+        Which feature did you split on first — and why does that make geographic sense for flood risk?<br>
+        What would happen if you kept splitting until every leaf had exactly 1 parcel?<br>
+        If you ran this on 1,000 parcels instead of 15, do you think the same feature would come out on top?
       </div>
       <button class="btn" style="margin-top:12px;" onclick="resetTree()">Start over</button>`;
   }
