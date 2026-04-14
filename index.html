@@ -215,12 +215,102 @@
 
 <!-- ══════════════════════════ DECISION TREE ════════════════════════════ -->
 <div id="page-dtree" class="page">
-  <div style="max-width:1100px;margin:0 auto;padding:1rem 1.5rem 0.5rem;">
+  <div style="max-width:1100px;margin:0 auto;padding:1.25rem 1.5rem 0;">
     <div style="margin-bottom:0.25rem;">
       <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">Supervised · Decision tree</span>
     </div>
-    <div style="font-size:22px;font-weight:600;margin-bottom:4px;">Flood risk prediction</div>
-    <div style="font-size:13px;color:var(--text2);">15 parcels, 4 features. You choose every split — the tree builds as you decide.</div>
+    <div style="font-size:24px;font-weight:600;margin-bottom:6px;">Flood risk prediction</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;">15 parcels, 4 features. You choose every split — the tree builds as you decide.</div>
+
+    <!-- ── Intro cards ── -->
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem;">
+
+      <div class="panel">
+        <div class="panel-title">the scenario</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+          A county planning office wants to predict which parcels are at HIGH flood risk, using only features they can measure from GIS layers — no historical insurance data needed.<br><br>
+          You have 15 labeled parcels (past flood events confirmed the risk), each described by 4 features:
+        </div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px;">
+          <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">dist. to stream</strong> <span style="color:var(--text2);">— proximity to nearest waterway (m)</span></div>
+          <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">imp. surface %</strong> <span style="color:var(--text2);">— % of parcel covered by pavement/rooftop</span></div>
+          <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">slope</strong> <span style="color:var(--text2);">— average slope in degrees</span></div>
+          <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">drainage class</strong> <span style="color:var(--text2);">— soil drainage capacity (poor / mod / good)</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">how a decision tree works</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">A decision tree is a series of <strong style="color:var(--text);">if/then rules</strong> learned from data. Starting from the full dataset, it repeatedly asks: <em>"which feature and threshold best separates the two classes?"</em></div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:var(--blue-bg);color:var(--blue-txt);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:11px;">1</span>
+            <span style="color:var(--text2);">Pick the feature + threshold that creates the <strong style="color:var(--text);">purest split</strong> — one side mostly YES, one side mostly NO.</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:var(--blue-bg);color:var(--blue-txt);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:11px;">2</span>
+            <span style="color:var(--text2);">Repeat on each branch until a branch is <strong style="color:var(--text);">pure enough</strong> to stop — that branch becomes a leaf node with a final prediction.</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:var(--blue-bg);color:var(--blue-txt);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:11px;">3</span>
+            <span style="color:var(--text2);">Label each leaf by <strong style="color:var(--text);">majority vote</strong> — whichever class appears most in that leaf becomes the prediction.</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:var(--amber-bg);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--amber-txt);">
+          <strong>Key metric: Gini impurity.</strong> 0 = perfectly pure (all one class). 0.5 = maximally mixed (50/50 split). You want splits that drive both sides toward 0.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">example — species habitat suitability</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">A finished tree for a <em>different</em> problem — predicting suitable habitat for a wetland bird species. This is what you're building toward.</div>
+        <svg viewBox="0 0 280 230" width="100%" style="display:block;">
+          <defs>
+            <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M2 2L8 5L2 8" fill="none" stroke="#888780" stroke-width="1.5"/>
+            </marker>
+          </defs>
+          <!-- root -->
+          <rect x="80" y="8" width="120" height="38" rx="7" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1"/>
+          <text x="140" y="23" text-anchor="middle" font-size="10" font-weight="600" fill="#0c447c" font-family="sans-serif">water dist. ≤ 200m?</text>
+          <text x="140" y="37" text-anchor="middle" font-size="9" fill="#185fa5" font-family="sans-serif">gini 0.48 → 0.18</text>
+          <!-- edges -->
+          <path d="M110,46 C110,70 55,75 55,98" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
+          <path d="M170,46 C170,70 225,75 225,98" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
+          <text x="75" y="78" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">YES</text>
+          <text x="205" y="78" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">NO</text>
+          <!-- left internal -->
+          <rect x="10" y="98" width="90" height="36" rx="6" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1"/>
+          <text x="55" y="112" text-anchor="middle" font-size="9" font-weight="600" fill="#0c447c" font-family="sans-serif">canopy cover &gt; 40%?</text>
+          <text x="55" y="126" text-anchor="middle" font-size="9" fill="#185fa5" font-family="sans-serif">gini 0.38 → 0.08</text>
+          <!-- right leaf -->
+          <rect x="180" y="98" width="90" height="36" rx="6" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1.5"/>
+          <text x="225" y="113" text-anchor="middle" font-size="10" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUITABLE</text>
+          <text x="225" y="127" text-anchor="middle" font-size="9" fill="#0f6e56" font-family="sans-serif">42 parcels · 2% YES</text>
+          <!-- left edges -->
+          <path d="M30,134 C30,158 22,162 22,182" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
+          <path d="M80,134 C80,158 88,162 88,182" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
+          <text x="14" y="162" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">YES</text>
+          <text x="96" y="162" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">NO</text>
+          <!-- LL leaf -->
+          <rect x="0" y="182" width="44" height="36" rx="6" fill="#fcebeb" stroke="#f09595" stroke-width="1.5"/>
+          <text x="22" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#a32d2d" font-family="sans-serif">SUITABLE</text>
+          <text x="22" y="210" text-anchor="middle" font-size="8" fill="#a32d2d" font-family="sans-serif">31 · 94% YES</text>
+          <!-- LR leaf -->
+          <rect x="66" y="182" width="44" height="36" rx="6" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1.5"/>
+          <text x="88" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUIT.</text>
+          <text x="88" y="210" text-anchor="middle" font-size="8" fill="#0f6e56" font-family="sans-serif">18 · 11% YES</text>
+          <!-- legend -->
+          <rect x="148" y="182" width="10" height="10" rx="2" fill="#fcebeb" stroke="#f09595"/>
+          <text x="162" y="191" font-size="9" fill="#888" font-family="sans-serif">Suitable leaf</text>
+          <rect x="148" y="198" width="10" height="10" rx="2" fill="#e1f5ee" stroke="#5dcaa5"/>
+          <text x="162" y="207" font-size="9" fill="#888" font-family="sans-serif">Not suitable leaf</text>
+          <rect x="148" y="214" width="10" height="10" rx="2" fill="#e6f1fb" stroke="#85b7eb"/>
+          <text x="162" y="223" font-size="9" fill="#888" font-family="sans-serif">Decision node</text>
+        </svg>
+      </div>
+
+    </div>
   </div>
 
   <div class="app">
@@ -541,21 +631,66 @@ function renderSteps() {
     const {left,right} = rootSplit;
     const ryesN = right.filter(p=>p.flood==='YES').length;
     const rnoN  = right.length - ryesN;
-    const pct   = right.length ? Math.round(Math.max(ryesN,rnoN)/right.length*100) : 0;
+    const lyesN = left.filter(p=>p.flood==='YES').length;
+    const lnoN  = left.length - lyesN;
+    const rPct  = right.length ? Math.round(Math.max(ryesN,rnoN)/right.length*100) : 0;
+    const lPct  = left.length  ? Math.round(Math.max(lyesN,lnoN)/left.length*100)  : 0;
+    const rightPure = gini(right) < 0.01;
+    const leftPure  = gini(left)  < 0.01;
+
+    // If BOTH branches are pure, skip ahead — auto-label both as leaves
+    if(rightPure && leftPure) {
+      const rMaj = majority(right);
+      const lMaj = majority(left);
+      setNode('R', rMaj, `${right.length} parcels`, yesNo(right), rMaj==='HIGH RISK'?'leaf-yes':'leaf-no');
+      setNode('L', lMaj, `${left.length} parcels`,  yesNo(left),  lMaj==='HIGH RISK'?'leaf-yes':'leaf-no');
+      treeNodes.find(n=>n.id==='LL').state='hidden';
+      treeNodes.find(n=>n.id==='LR').state='hidden';
+      treeNodes.find(n=>n.id==='RL').state='hidden';
+      treeNodes.find(n=>n.id==='RR').state='hidden';
+      rightIsLeaf = true;
+      drawTree();
+      step = 4;
+      renderSteps();
+      return;
+    }
+
+    // If right is already pure, auto-label it and move straight to splitting left
+    if(rightPure) {
+      const rMaj = majority(right);
+      setNode('R', rMaj, `${right.length} parcels`, yesNo(right), rMaj==='HIGH RISK'?'leaf-yes':'leaf-no');
+      treeNodes.find(n=>n.id==='RL').state='hidden';
+      treeNodes.find(n=>n.id==='RR').state='hidden';
+      rightIsLeaf = true;
+      drawTree();
+      step = 2;
+      renderSteps();
+      return;
+    }
+
+    // If left is pure but right is mixed, note left is a leaf and ask about right
+    if(leftPure) {
+      const lMaj = majority(left);
+      setNode('L', lMaj, `${left.length} parcels`, yesNo(left), lMaj==='HIGH RISK'?'leaf-yes':'leaf-no');
+      treeNodes.find(n=>n.id==='LL').state='hidden';
+      treeNodes.find(n=>n.id==='LR').state='hidden';
+      drawTree();
+    }
+
+    // Right branch needs a decision — show the prompt
     p.innerHTML = `
       <div class="panel-title">guided steps</div>
       <div class="confirmed-badge">Root split: <strong>${rootSplit.label}</strong> &nbsp;·&nbsp; weighted gini ${weightedGini(left,right).toFixed(3)}</div>
       <div class="step-block">
-        <div class="step-q">Step 2 of 4 — Is the right branch pure enough to stop?</div>
+        <div class="step-q">Step 2 — Is the right branch pure enough to stop?</div>
         <div class="step-hint">
-          Look at the <strong>right branch</strong> (${rootSplit.rightLabel}): it has <strong>${right.length} parcels — ${ryesN} YES, ${rnoN} NO</strong>. The dominant class makes up ${pct}% of this branch.<br><br>
-          A node is usually called a <em>leaf</em> (i.e. we stop splitting) when one class makes up ≥ 80% of the parcels. If it's still mixed, we split again to get cleaner predictions.<br><br>
-          Does this branch meet that threshold, or is it still too mixed to trust?
+          The right branch (${rootSplit.rightLabel}) has <strong>${right.length} parcels — ${ryesN} YES, ${rnoN} NO</strong>. The dominant class makes up <strong>${rPct}%</strong> of this branch.<br><br>
+          A node becomes a <em>leaf</em> (we stop splitting) when one class clearly dominates — a common rule is ≥ 80%. If it's still mixed, another split will give cleaner predictions.
         </div>
-        <div class="info-box">Stopping too early = impure leaves = wrong predictions. Splitting too deep = memorizing noise (overfitting).</div>
+        <div class="info-box">Stopping too early = impure leaves = wrong predictions on new data.<br>Splitting too deep = the tree memorizes noise and fails on new data (overfitting).</div>
         <div class="btn-row" style="margin-top:10px;">
-          <button class="btn" onclick="confirmRightLeaf()">Call it a leaf (${pct}% dominant — good enough)</button>
-          <button class="btn" onclick="confirmRightSplit()">Still too mixed — split it</button>
+          <button class="btn" onclick="confirmRightLeaf()">Call it a leaf — ${rPct}% dominant, good enough</button>
+          <button class="btn" onclick="confirmRightSplit()">Still too mixed — split it further</button>
         </div>
         <div class="feedback" id="s1-fb"></div>
       </div>`;
