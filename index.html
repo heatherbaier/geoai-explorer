@@ -91,7 +91,8 @@
   .coming-label { font-size: 11px; color: var(--text3); margin-top: 8px; }
 
   /* ── App layout ── */
-  .app { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.25rem; max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.5rem 3rem; align-items: start; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 1.25rem; max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.5rem 3rem; align-items: start; }
+  #tree-scroll:active { cursor: grabbing; }
 
   /* ── Panel ── */
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
@@ -223,7 +224,7 @@
     <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;">15 parcels, 4 features. You choose every split — the tree builds as you decide.</div>
 
     <!-- ── Intro cards ── -->
-    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem;">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem;">
 
       <div class="panel">
         <div class="panel-title">the scenario</div>
@@ -261,55 +262,70 @@
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-title">example — species habitat suitability</div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">A finished tree for a <em>different</em> problem — predicting suitable habitat for a wetland bird species. This is what you're building toward.</div>
-        <svg viewBox="0 0 280 230" width="100%" style="display:block;">
-          <defs>
-            <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-              <path d="M2 2L8 5L2 8" fill="none" stroke="#888780" stroke-width="1.5"/>
-            </marker>
-          </defs>
-          <!-- root -->
-          <rect x="80" y="8" width="120" height="38" rx="7" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1"/>
-          <text x="140" y="23" text-anchor="middle" font-size="10" font-weight="600" fill="#0c447c" font-family="sans-serif">water dist. ≤ 200m?</text>
-          <text x="140" y="37" text-anchor="middle" font-size="9" fill="#185fa5" font-family="sans-serif">gini 0.48 → 0.18</text>
-          <!-- edges -->
-          <path d="M110,46 C110,70 55,75 55,98" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
-          <path d="M170,46 C170,70 225,75 225,98" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
-          <text x="75" y="78" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">YES</text>
-          <text x="205" y="78" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">NO</text>
-          <!-- left internal -->
-          <rect x="10" y="98" width="90" height="36" rx="6" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1"/>
-          <text x="55" y="112" text-anchor="middle" font-size="9" font-weight="600" fill="#0c447c" font-family="sans-serif">canopy cover &gt; 40%?</text>
-          <text x="55" y="126" text-anchor="middle" font-size="9" fill="#185fa5" font-family="sans-serif">gini 0.38 → 0.08</text>
-          <!-- right leaf -->
-          <rect x="180" y="98" width="90" height="36" rx="6" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1.5"/>
-          <text x="225" y="113" text-anchor="middle" font-size="10" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUITABLE</text>
-          <text x="225" y="127" text-anchor="middle" font-size="9" fill="#0f6e56" font-family="sans-serif">42 parcels · 2% YES</text>
-          <!-- left edges -->
-          <path d="M30,134 C30,158 22,162 22,182" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
-          <path d="M80,134 C80,158 88,162 88,182" fill="none" stroke="#aaa" stroke-width="1" marker-end="url(#arr2)"/>
-          <text x="14" y="162" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">YES</text>
-          <text x="96" y="162" text-anchor="middle" font-size="9" fill="#888" font-family="sans-serif">NO</text>
-          <!-- LL leaf -->
-          <rect x="0" y="182" width="44" height="36" rx="6" fill="#fcebeb" stroke="#f09595" stroke-width="1.5"/>
-          <text x="22" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#a32d2d" font-family="sans-serif">SUITABLE</text>
-          <text x="22" y="210" text-anchor="middle" font-size="8" fill="#a32d2d" font-family="sans-serif">31 · 94% YES</text>
-          <!-- LR leaf -->
-          <rect x="66" y="182" width="44" height="36" rx="6" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1.5"/>
-          <text x="88" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUIT.</text>
-          <text x="88" y="210" text-anchor="middle" font-size="8" fill="#0f6e56" font-family="sans-serif">18 · 11% YES</text>
-          <!-- legend -->
-          <rect x="148" y="182" width="10" height="10" rx="2" fill="#fcebeb" stroke="#f09595"/>
-          <text x="162" y="191" font-size="9" fill="#888" font-family="sans-serif">Suitable leaf</text>
-          <rect x="148" y="198" width="10" height="10" rx="2" fill="#e1f5ee" stroke="#5dcaa5"/>
-          <text x="162" y="207" font-size="9" fill="#888" font-family="sans-serif">Not suitable leaf</text>
-          <rect x="148" y="214" width="10" height="10" rx="2" fill="#e6f1fb" stroke="#85b7eb"/>
-          <text x="162" y="223" font-size="9" fill="#888" font-family="sans-serif">Decision node</text>
-        </svg>
-      </div>
+    </div>
 
+    <!-- ── Example tree — full width ── -->
+    <div class="panel" style="margin-bottom:1rem;">
+      <div class="panel-title">example finished tree — species habitat suitability (a different problem)</div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.8fr);gap:1.5rem;align-items:center;">
+        <div style="font-size:12px;color:var(--text2);line-height:1.7;">
+          This is a completed decision tree for predicting suitable wetland bird habitat — a different geospatial problem, shown so you can see the structure you're about to build.<br><br>
+          <strong style="color:var(--text);">Anatomy of a decision tree:</strong>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <span style="width:10px;height:10px;border-radius:2px;background:#e6f1fb;border:1.5px solid #85b7eb;flex-shrink:0;margin-top:2px;"></span>
+              <span><strong style="color:var(--text);">Decision node</strong> — asks a yes/no question. All parcels flow in, split into two groups based on the answer.</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <span style="width:10px;height:10px;border-radius:2px;background:#fcebeb;border:1.5px solid #f09595;flex-shrink:0;margin-top:2px;"></span>
+              <span><strong style="color:var(--text);">Leaf node (prediction)</strong> — the end of a branch. No more splitting. Majority class = the tree's prediction for any parcel that lands here.</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <span style="width:10px;height:10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);flex-shrink:0;margin-top:2px;"></span>
+              <span><strong style="color:var(--text);">Gini impurity</strong> — shown at each node. Dropping from 0.48 → 0.18 means this split substantially separated the classes.</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <svg viewBox="0 0 520 240" width="100%" style="display:block;">
+            <defs>
+              <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M2 2L8 5L2 8" fill="none" stroke="#888780" stroke-width="1.5"/>
+              </marker>
+            </defs>
+            <!-- root -->
+            <rect x="155" y="8" width="210" height="44" rx="8" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1.5"/>
+            <text x="260" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0c447c" font-family="sans-serif">water dist. ≤ 200m?</text>
+            <text x="260" y="43" text-anchor="middle" font-size="10" fill="#185fa5" font-family="sans-serif">gini: 0.480 → 0.180 after split</text>
+            <!-- edges root -->
+            <path d="M200,52 C200,82 100,88 100,118" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
+            <path d="M320,52 C320,82 420,88 420,118" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
+            <text x="145" y="90" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">YES (≤ 200m)</text>
+            <text x="375" y="90" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">NO (&gt; 200m)</text>
+            <!-- left internal node -->
+            <rect x="20" y="118" width="160" height="44" rx="8" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1.5"/>
+            <text x="100" y="136" text-anchor="middle" font-size="12" font-weight="600" fill="#0c447c" font-family="sans-serif">canopy cover &gt; 40%?</text>
+            <text x="100" y="153" text-anchor="middle" font-size="10" fill="#185fa5" font-family="sans-serif">gini: 0.380 → 0.080</text>
+            <!-- right leaf — not suitable -->
+            <rect x="340" y="118" width="160" height="44" rx="8" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="2"/>
+            <text x="420" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUITABLE</text>
+            <text x="420" y="153" text-anchor="middle" font-size="10" fill="#0f6e56" font-family="sans-serif">42 parcels · 95% NO</text>
+            <!-- edges left -->
+            <path d="M65,162 C65,188 45,192 45,202" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
+            <path d="M135,162 C135,188 155,192 155,202" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
+            <text x="28" y="188" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">YES</text>
+            <text x="172" y="188" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">NO</text>
+            <!-- LL leaf — suitable -->
+            <rect x="0" y="202" width="90" height="34" rx="7" fill="#fcebeb" stroke="#f09595" stroke-width="2"/>
+            <text x="45" y="216" text-anchor="middle" font-size="11" font-weight="700" fill="#a32d2d" font-family="sans-serif">SUITABLE</text>
+            <text x="45" y="229" text-anchor="middle" font-size="9" fill="#a32d2d" font-family="sans-serif">31 parcels · 94% YES</text>
+            <!-- LR leaf — not suitable -->
+            <rect x="110" y="202" width="90" height="34" rx="7" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="2"/>
+            <text x="155" y="216" text-anchor="middle" font-size="11" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUIT.</text>
+            <text x="155" y="229" text-anchor="middle" font-size="9" fill="#0f6e56" font-family="sans-serif">18 parcels · 89% NO</text>
+          </svg>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -365,9 +381,9 @@
     <div style="display:flex;flex-direction:column;gap:1rem;">
 
       <div class="panel">
-        <div class="panel-title">your tree</div>
-        <div class="tree-wrap">
-          <svg id="treesvg" viewBox="0 0 340 430"></svg>
+        <div class="panel-title">your tree <span style="font-weight:400;font-size:10px;color:var(--text3);margin-left:6px;">scroll to explore</span></div>
+        <div style="overflow:auto;cursor:grab;border-radius:8px;background:var(--surface2);padding:8px;" id="tree-scroll">
+          <svg id="treesvg" viewBox="0 0 590 380" width="590" height="380" style="display:block;min-width:590px;"></svg>
         </div>
       </div>
 
@@ -412,13 +428,13 @@ let leftSplit = null;
 let rightIsLeaf = false;
 
 let treeNodes = [
-  {id:'root',x:170,y:28, w:150,h:46,state:'active', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:null},
-  {id:'L',   x:82, y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
-  {id:'R',   x:262,y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
-  {id:'LL',  x:38, y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
-  {id:'LR',  x:158,y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
-  {id:'RL',  x:220,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
-  {id:'RR',  x:315,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+  {id:'root',x:260,y:28,  w:160,h:46,state:'active', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:null},
+  {id:'L',   x:110,y:148, w:140,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+  {id:'R',   x:410,y:148, w:140,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+  {id:'LL',  x:45,  y:268,w:120,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+  {id:'LR',  x:185, y:268,w:120,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+  {id:'RL',  x:330, y:268,w:120,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+  {id:'RR',  x:470, y:268,w:120,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
 ];
 
 /* ═══════════════════════════ UTIL ══════════════════════════ */
@@ -459,14 +475,35 @@ function updateThresholds(featId, threshId) {
   const feat = document.getElementById(featId).value;
   const m = featMeta[feat];
   const sel = document.getElementById(threshId);
-  sel.innerHTML = m.thresholds.map(t=>`<option value="${t}">${m.cat ? t : '≤ '+t+' '+m.unit}</option>`).join('');
+  if(m.cat) {
+    // Categorical: show only values present in current context
+    const vals = [...new Set(splitCtx.map(m.fn))].sort();
+    sel.innerHTML = vals.map(t=>`<option value="${t}">${t}</option>`).join('');
+  } else {
+    // Numeric: generate ~4 evenly spaced thresholds within actual data range
+    const vals = splitCtx.map(m.fn).sort((a,b)=>a-b);
+    const mn = vals[0], mx = vals[vals.length-1];
+    // Pick thresholds at ~25th, 40th, 60th, 75th percentile of actual values in context
+    const pcts = [0.25, 0.4, 0.6, 0.75];
+    const thresholds = pcts.map(p => {
+      const idx = Math.floor(p * (vals.length-1));
+      return vals[idx];
+    }).filter((v,i,a) => a.indexOf(v)===i && v > mn); // unique, not the minimum
+    // If context is tiny, just use midpoints between unique values
+    if(thresholds.length < 2) {
+      const unique = [...new Set(vals)];
+      thresholds.length = 0;
+      for(let i=0;i<unique.length-1;i++) thresholds.push(Math.round((unique[i]+unique[i+1])/2));
+    }
+    sel.innerHTML = thresholds.map(t=>`<option value="${t}">≤ ${t} ${m.unit}</option>`).join('');
+  }
 }
 
 /* ═══════════════════════ PURITY CALC ══════════════════════ */
 function calcPurity() {
   // Prefer the step-specific dropdowns; fall back to the top calculator ones
-  const featElId   = step===2 ? 's2-feat'   : 's0-feat';
-  const threshElId = step===2 ? 's2-thresh' : 's0-thresh';
+  const featElId   = step===2 ? 's2-feat' : step===5 ? 's5-feat' : 's0-feat';
+  const threshElId = step===2 ? 's2-thresh' : step===5 ? 's5-thresh' : 's0-thresh';
   const featEl   = document.getElementById(featElId)   || document.getElementById('feat-sel');
   const threshEl = document.getElementById(threshElId) || document.getElementById('thresh-sel');
   if(!featEl || !threshEl) return;
@@ -698,17 +735,33 @@ function renderSteps() {
   } else if(step===2) {
     const {left} = rootSplit;
     const lyesN = left.filter(p=>p.flood==='YES').length;
-    // Set splitCtx BEFORE rendering so calcPurity uses the right subset
+    const leftPure = gini(left) < 0.01;
+
+    // If left is already pure, auto-label it and jump straight to finish
+    if(leftPure) {
+      const lMaj = majority(left);
+      setNode('L', lMaj, `${left.length} parcels`, yesNo(left), lMaj==='HIGH RISK'?'leaf-yes':'leaf-no');
+      treeNodes.find(n=>n.id==='LL').state='hidden';
+      treeNodes.find(n=>n.id==='LR').state='hidden';
+      drawTree();
+      splitCtx = parcels;
+      document.getElementById('split-ctx-label').textContent = 'full dataset (15 parcels)';
+      step = 4;
+      renderSteps();
+      return;
+    }
+
+    // Left is still mixed — set context and show split UI
     splitCtx = left;
     document.getElementById('split-ctx-label').textContent = `left branch (${left.length} parcels)`;
     p.innerHTML = `
       <div class="panel-title">guided steps</div>
       <div class="confirmed-badge">Root: <strong>${rootSplit.label}</strong></div>
       <div class="step-block">
-        <div class="step-q">Step 3 of 4 — Split the left branch</div>
+        <div class="step-q">Step 3 — Split the left branch</div>
         <div class="step-hint">
           The left branch (${rootSplit.leftLabel}) has <strong>${left.length} parcels — ${lyesN} YES, ${left.length-lyesN} NO</strong>. It's still mixed, so we need another split.<br><br>
-          The purity calculator is now scoped to just these ${left.length} parcels. Find the feature and threshold that best separates them. The goal is the same: get each side as close to all-YES or all-NO as possible.
+          The purity calculator is now scoped to just these ${left.length} parcels. Find the feature and threshold that best separates them — get each side as close to all-YES or all-NO as possible.
         </div>
         <div class="row2">
           <div><div class="field-label">Feature</div>
@@ -724,11 +777,60 @@ function renderSteps() {
         <button class="btn primary" onclick="confirmLeftSplit()">Confirm left split</button>
         <div class="feedback" id="s2-fb"></div>
       </div>`;
-    // Populate thresholds and sync top dropdowns, then calculate
     updateThresholds('s2-feat','s2-thresh');
     const tf = document.getElementById('feat-sel');
-    const tt = document.getElementById('thresh-sel');
     const sf = document.getElementById('s2-feat');
+    if(tf && sf) { tf.value = sf.value; updateThresholds('feat-sel','thresh-sel'); }
+    calcPurity();
+
+  } else if(step===5) {
+    const {right} = rootSplit;
+    const ryesN = right.filter(p=>p.flood==='YES').length;
+    const rightPure = gini(right) < 0.01;
+
+    // Auto-label if already pure
+    if(rightPure) {
+      const rMaj = majority(right);
+      setNode('R', rMaj, `${right.length} parcels`, yesNo(right), rMaj==='HIGH RISK'?'leaf-yes':'leaf-no');
+      treeNodes.find(n=>n.id==='RL').state='hidden';
+      treeNodes.find(n=>n.id==='RR').state='hidden';
+      rightIsLeaf = true;
+      drawTree();
+      splitCtx = parcels;
+      document.getElementById('split-ctx-label').textContent = 'full dataset (15 parcels)';
+      step = 3;
+      renderSteps();
+      return;
+    }
+
+    splitCtx = right;
+    document.getElementById('split-ctx-label').textContent = `right branch (${right.length} parcels)`;
+    p.innerHTML = `
+      <div class="panel-title">guided steps</div>
+      <div class="confirmed-badge">Root: <strong>${rootSplit.label}</strong></div>
+      <div class="step-block">
+        <div class="step-q">Now split the right branch</div>
+        <div class="step-hint">
+          The right branch (${rootSplit.rightLabel}) has <strong>${right.length} parcels — ${ryesN} YES, ${right.length-ryesN} NO</strong>. It's still mixed.<br><br>
+          The purity calculator is now scoped to just these ${right.length} parcels. Find the best split.
+        </div>
+        <div class="row2">
+          <div><div class="field-label">Feature</div>
+            <select id="s5-feat" onchange="updateThresholds('s5-feat','s5-thresh'); syncTopDropdowns('feat','s5-feat','s5-thresh'); calcPurity()">
+              <option value="dist">dist. to stream</option>
+              <option value="imp">imp. surface %</option>
+              <option value="slope">slope</option>
+              <option value="drain">drainage class</option>
+            </select></div>
+          <div><div class="field-label">Threshold</div>
+            <select id="s5-thresh" onchange="syncTopDropdowns('thresh','s5-feat','s5-thresh'); calcPurity()"></select></div>
+        </div>
+        <button class="btn primary" onclick="confirmRightBranchSplit()">Confirm right split</button>
+        <div class="feedback" id="s5-fb"></div>
+      </div>`;
+    updateThresholds('s5-feat','s5-thresh');
+    const tf = document.getElementById('feat-sel');
+    const sf = document.getElementById('s5-feat');
     if(tf && sf) { tf.value = sf.value; updateThresholds('feat-sel','thresh-sel'); }
     calcPurity();
 
@@ -736,7 +838,7 @@ function renderSteps() {
     p.innerHTML = `
       <div class="panel-title">guided steps</div>
       <div class="step-block">
-        <div class="step-q">Step 4 of 4 — Label the leaf nodes</div>
+        <div class="step-q">Final step — Label the leaf nodes</div>
         <div class="step-hint">
           Every bottom node (leaf) now needs a prediction label. Look at the YES/NO counts shown in each leaf node on the tree — whichever class has more parcels becomes that leaf's prediction.<br><br>
           This is the <strong>majority vote</strong> rule: if a leaf has 5 YES and 1 NO, the tree predicts HIGH RISK for any new parcel that lands there. The leaf color shows you what the prediction will be.
@@ -800,10 +902,24 @@ function confirmRightLeaf() {
 }
 
 function confirmRightSplit() {
-  const fb = document.getElementById('s1-fb');
-  fb.className='feedback show-hint';
-  fb.textContent = 'OK — you can come back to the right branch. Let\'s handle the left branch first.';
-  step = 2;
+  // Right branch is mixed — handle left first, then come back to right
+  const {left} = rootSplit;
+  const leftPure = gini(left) < 0.01;
+  if(leftPure) {
+    // Left is already pure — auto-label it and go straight to splitting right
+    const lMaj = majority(left);
+    setNode('L', lMaj, `${left.length} parcels`, yesNo(left), lMaj==='HIGH RISK'?'leaf-yes':'leaf-no');
+    treeNodes.find(n=>n.id==='LL').state='hidden';
+    treeNodes.find(n=>n.id==='LR').state='hidden';
+    drawTree();
+    step = 5;
+  } else {
+    // Left needs splitting too — handle left first
+    const fb = document.getElementById('s1-fb');
+    fb.className='feedback show-hint';
+    fb.textContent = "Got it — we'll handle the left branch first, then come back to split the right.";
+    step = 2;
+  }
   setTimeout(renderSteps, 350);
 }
 
@@ -822,15 +938,40 @@ function confirmLeftSplit() {
   setNode('LL', lLabel,  `${left.length} parcels`, yesNo(left),  'active', lLabel);
   setNode('LR', rLabel,  `${right.length} parcels`, yesNo(right), 'active', rLabel);
 
-  if(!rightIsLeaf) {
-    setNode('RL', '', '', '', 'pending', '');
-    setNode('RR', '', '', '', 'pending', '');
-  }
-
   splitCtx = parcels;
   document.getElementById('split-ctx-label').textContent = 'full dataset (15 parcels)';
   calcPurity();
 
+  // If right branch still needs splitting, go there next; otherwise label leaves
+  if(!rightIsLeaf) {
+    setNode('RL', '', '', '', 'pending', '');
+    setNode('RR', '', '', '', 'pending', '');
+    step = 5;
+  } else {
+    step = 3;
+  }
+  renderSteps();
+}
+
+function confirmRightBranchSplit() {
+  const feat   = document.getElementById('s5-feat').value;
+  const thresh = document.getElementById('s5-thresh').value;
+  const m = featMeta[feat];
+  const tv = m.cat ? thresh : parseFloat(thresh);
+  const {left, right} = splitSubset(rootSplit.right, feat, tv);
+  const lLabel = m.cat ? `"${thresh}"` : `≤ ${thresh}${m.unit}`;
+  const rLabel = m.cat ? `not "${thresh}"` : `> ${thresh}${m.unit}`;
+
+  setNode('R',  m.label, lLabel + ' | ' + rLabel, '', 'active');
+  setNode('RL', lLabel,  `${left.length} parcels`, yesNo(left),  'active', lLabel);
+  setNode('RR', rLabel,  `${right.length} parcels`, yesNo(right), 'active', rLabel);
+
+  // Store for finishTree
+  rootSplit.rightSplit = {left, right};
+
+  splitCtx = parcels;
+  document.getElementById('split-ctx-label').textContent = 'full dataset (15 parcels)';
+  calcPurity();
   step = 3;
   renderSteps();
 }
@@ -843,6 +984,7 @@ function finishTree() {
     setNode(id, maj, `${sub.length} parcels`, yesNo(sub), maj==='HIGH RISK'?'leaf-yes':'leaf-no');
   };
   if(leftSplit) { labelLeaf('LL', leftSplit.left); labelLeaf('LR', leftSplit.right); }
+  if(rootSplit.rightSplit) { labelLeaf('RL', rootSplit.rightSplit.left); labelLeaf('RR', rootSplit.rightSplit.right); }
   const rNode = treeNodes.find(n=>n.id==='R');
   if(rNode && rNode.state==='active') labelLeaf('R', rootSplit.right);
   step = 4;
@@ -852,13 +994,13 @@ function finishTree() {
 function resetTree() {
   step=0; rootSplit=null; leftSplit=null; rightIsLeaf=false; splitCtx=parcels;
   treeNodes = [
-    {id:'root',x:170,y:28, w:150,h:46,state:'active', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:null},
-    {id:'L',   x:82, y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
-    {id:'R',   x:262,y:140,w:130,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
-    {id:'LL',  x:38, y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
-    {id:'LR',  x:158,y:255,w:115,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
-    {id:'RL',  x:220,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
-    {id:'RR',  x:315,y:255,w:105,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+    {id:'root',x:260,y:28,  w:160,h:46,state:'active', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:null},
+    {id:'L',   x:110,y:148, w:140,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+    {id:'R',   x:410,y:148, w:140,h:44,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'root'},
+    {id:'LL',  x:45,  y:268,w:120,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+    {id:'LR',  x:185, y:268,w:120,h:40,state:'pending',label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'L'},
+    {id:'RL',  x:330, y:268,w:120,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
+    {id:'RR',  x:470, y:268,w:120,h:40,state:'hidden', label:'?',sub1:'',sub2:'',edgeLabel:'',parentId:'R'},
   ];
   document.getElementById('split-ctx-label').textContent='full dataset (15 parcels)';
   renderTable();
@@ -881,6 +1023,43 @@ updateThresholds('feat-sel','thresh-sel');
 calcPurity();
 drawTree();
 renderSteps();
+
+/* ══════════════════ DRAG-TO-SCROLL TREE ════════════════════ */
+(function() {
+  const el = document.getElementById('tree-scroll');
+  let dragging = false, startX, startY, scrollLeft, scrollTop;
+  el.addEventListener('mousedown', e => {
+    dragging = true;
+    startX = e.pageX - el.offsetLeft;
+    startY = e.pageY - el.offsetTop;
+    scrollLeft = el.scrollLeft;
+    scrollTop  = el.scrollTop;
+    el.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mouseup', () => {
+    dragging = false;
+    el.style.cursor = 'grab';
+  });
+  document.addEventListener('mousemove', e => {
+    if(!dragging) return;
+    const x = e.pageX - el.offsetLeft;
+    const y = e.pageY - el.offsetTop;
+    el.scrollLeft = scrollLeft - (x - startX);
+    el.scrollTop  = scrollTop  - (y - startY);
+  });
+  // Touch support
+  el.addEventListener('touchstart', e => {
+    startX = e.touches[0].pageX;
+    startY = e.touches[0].pageY;
+    scrollLeft = el.scrollLeft;
+    scrollTop  = el.scrollTop;
+  }, {passive:true});
+  el.addEventListener('touchmove', e => {
+    el.scrollLeft = scrollLeft - (e.touches[0].pageX - startX);
+    el.scrollTop  = scrollTop  - (e.touches[0].pageY - startY);
+  }, {passive:true});
+})();
 </script>
 </body>
 </html>
