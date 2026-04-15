@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoAI — Neural Network Explorer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f8f8f6;
+    --surface:   #ffffff;
+    --surface2:  #f2f1ed;
+    --border:    rgba(0,0,0,0.10);
+    --border2:   rgba(0,0,0,0.18);
+    --text:      #1a1a1e;
+    --text2:     #5a5a62;
+    --text3:     #9a9a9f;
+    --blue-bg:   #e6f1fb;
+    --blue-bd:   #85b7eb;
+    --blue-txt:  #0c447c;
+    --green-bg:  #e1f5ee;
+    --green-bd:  #5dcaa5;
+    --green-txt: #085041;
+    --red-bg:    #fcebeb;
+    --red-bd:    #f09595;
+    --red-txt:   #a32d2d;
+    --amber-bg:  #faeeda;
+    --amber-bd:  #ef9f27;
+    --amber-txt: #633806;
+    --purple-bg: #eeedfe;
+    --purple-bd: #afa9ec;
+    --purple:    #534ab7;
+    --purple-txt:#26215c;
+    --radius:    10px;
+    --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #16161a;
+      --surface:   #1e1e24;
+      --surface2:  #26262e;
+      --border:    rgba(255,255,255,0.10);
+      --border2:   rgba(255,255,255,0.18);
+      --text:      #e8e8ec;
+      --text2:     #9a9aa4;
+      --text3:     #5a5a62;
+      --blue-bg:   #0c2a44;
+      --blue-bd:   #185fa5;
+      --blue-txt:  #b5d4f4;
+      --green-bg:  #04251c;
+      --green-bd:  #0f6e56;
+      --green-txt: #9fe1cb;
+      --red-bg:    #2a0a0a;
+      --red-bd:    #a32d2d;
+      --red-txt:   #f7c1c1;
+      --amber-bg:  #2a1a04;
+      --amber-bd:  #854f0b;
+      --amber-txt: #fac775;
+      --purple-bg: #1a1840;
+      --purple-bd: #534ab7;
+      --purple-txt:#cecbf6;
+    }
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 52px; }
+  .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 2rem; white-space: nowrap; text-decoration: none; }
+  .nav-brand span { color: var(--purple); }
+  .nav-tab { padding: 0 1rem; height: 52px; display: flex; align-items: center; font-size: 13px; color: var(--text2); border-bottom: 2px solid transparent; text-decoration: none; transition: color .15s; white-space: nowrap; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
+  .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
+
+  .page-wrap { max-width: 1060px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+  .page-header { margin-bottom: 1.5rem; }
+  .page-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.3rem; }
+  .page-header p  { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 600px; }
+
+  .main-grid { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 1.25rem; align-items: start; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
+  .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+  button.btn { padding: 7px 16px; font-size: 13px; border-radius: 7px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); transition: background .15s; font-family: inherit; }
+  button.btn:hover { background: var(--border); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+
+  .loc-banner { background: var(--surface2); border-radius: 8px; padding: 10px 14px; margin-bottom: 1rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .loc-name   { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .loc-desc   { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .uhi-badge  { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: 3px 9px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .uhi-high   { background: var(--red-bg);   color: var(--red-txt); }
+  .uhi-medium { background: var(--amber-bg); color: var(--amber-txt); }
+  .uhi-low    { background: var(--green-bg); color: var(--green-txt); }
+
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+
+  .input-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .input-box  { background: var(--green-bg); border: 1px solid var(--green-bd); border-radius: 8px; padding: 9px 8px; text-align: center; }
+  .ivar  { font-size: 12px; color: var(--green-txt); font-weight: 600; }
+  .ival  { font-size: 15px; font-weight: 600; color: var(--green-txt); margin: 3px 0 1px; }
+  .iunit { font-size: 10px; font-weight: 400; }
+  .istd  { font-size: 11px; color: var(--green-txt); opacity: .8; }
+  .iname { font-size: 10px; color: var(--green-txt); opacity: .75; margin-top: 3px; line-height: 1.3; }
+
+  .bridge-wrap { position: relative; }
+  .bridge-wrap svg { display: block; width: 100%; pointer-events: none; overflow: visible; }
+
+  /* layer divider */
+  .layer-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0 12px; }
+  .layer-divider-line { flex: 1; height: 1px; background: var(--border2); }
+  .layer-divider-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); white-space: nowrap; padding: 3px 10px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+
+  .neuron-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .neuron-card { border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 10px; cursor: pointer; background: var(--surface2); text-align: center; transition: border-color .15s, background .15s; }
+  .neuron-card:hover:not(.solved) { border-color: var(--purple); background: var(--purple-bg); }
+  .neuron-card.active { border-color: var(--purple); background: var(--purple-bg); }
+  .neuron-card.solved { border-color: var(--green-bd); background: var(--green-bg); cursor: default; }
+  .n-circle { width: 42px; height: 42px; border-radius: 50%; background: var(--purple-bd); border: 1px solid var(--purple); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--purple-txt); margin: 0 auto 6px; transition: background .15s, color .15s; }
+  .neuron-card.active .n-circle { background: var(--purple); color: #fff; }
+  .neuron-card.solved .n-circle { background: var(--green-bd); border-color: var(--green-txt); color: #fff; }
+  .n-hint { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+  .neuron-card.active .n-hint { color: var(--purple); }
+  .neuron-card.solved .n-hint { color: var(--green-txt); }
+  .n-answer { width: 80px; font-size: 13px; text-align: center; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface); color: var(--text); font-family: inherit; }
+  .n-answer:focus { outline: 2px solid var(--purple); outline-offset: 1px; border-color: transparent; }
+  .n-answer:disabled { opacity: .45; cursor: default; }
+  .n-check { font-size: 11px; margin-top: 5px; min-height: 15px; }
+  .n-check.ok { color: var(--green-txt); font-weight: 500; }
+  .n-check.no { color: var(--red-txt); }
+
+  .formula-box  { background: var(--surface2); border-radius: 8px; padding: 12px 14px; min-height: 60px; }
+  .fempty       { font-size: 12px; color: var(--text3); font-style: italic; }
+  .formula-eq   { font-size: 12px; font-family: "SF Mono","Fira Code","Consolas",monospace; line-height: 2.1; color: var(--text); }
+  .fw  { color: var(--purple); font-weight: 600; }
+  .fx  { color: var(--green-txt); font-weight: 600; }
+  .fp  { color: var(--text2); }
+  .ftotal { display: block; font-size: 13px; font-weight: 600; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 6px; }
+  .fnote  { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+  /* relu */
+  .relu-section { display: none; }
+  .relu-explainer { font-size: 12px; color: var(--blue-txt); background: var(--blue-bg); border: 1px solid var(--blue-bd); border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; line-height: 1.6; }
+  .relu-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .relu-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 10px; text-align: center; transition: border-color .15s, background .15s; }
+  .relu-card.solved { border-color: var(--green-bd); background: var(--green-bg); }
+  .rn-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+  .relu-card.solved .rn-label { color: var(--green-txt); }
+  .rn-pre   { font-size: 12px; font-family: "SF Mono","Fira Code","Consolas",monospace; color: var(--text2); margin-bottom: 8px; }
+  .rn-pre .rv { color: var(--purple); font-weight: 600; }
+  .relu-card input { width: 80px; font-size: 13px; text-align: center; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface); color: var(--text); font-family: inherit; }
+  .relu-card input:focus { outline: 2px solid var(--purple); outline-offset: 1px; border-color: transparent; }
+  .relu-card input:disabled { opacity: .45; }
+  .relu-check { font-size: 11px; margin-top: 5px; min-height: 15px; }
+  .relu-check.ok { color: var(--green-txt); font-weight: 500; }
+  .relu-check.no { color: var(--red-txt); }
+
+  /* softmax */
+  .softmax-section { display: none; }
+  .softmax-explainer { font-size: 12px; color: var(--amber-txt); background: var(--amber-bg); border: 1px solid var(--amber-bd); border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; line-height: 1.6; }
+  .softmax-explainer code { font-family: "SF Mono","Fira Code","Consolas",monospace; }
+  .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .output-card { border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px 12px; background: var(--surface2); text-align: center; }
+  .output-card.winning { border-color: var(--amber-bd); background: var(--amber-bg); }
+  .oc-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text3); margin-bottom: 4px; }
+  .output-card.winning .oc-label { color: var(--amber-txt); }
+  .oc-logit { font-size: 12px; font-family: "SF Mono","Fira Code","Consolas",monospace; color: var(--text2); margin-bottom: 6px; }
+  .oc-prob  { font-size: 28px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .output-card.winning .oc-prob { color: var(--amber-txt); }
+  .oc-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .oc-bar { height: 100%; border-radius: 3px; background: var(--border2); transition: width .6s ease; }
+  .output-card.winning .oc-bar { background: var(--amber-bd); }
+
+  .pred-banner { border-radius: 9px; padding: 12px 16px; font-size: 13px; line-height: 1.6; }
+  .pred-banner strong { font-size: 14px; font-weight: 600; display: block; margin-bottom: 3px; }
+  .pred-correct   { background: var(--green-bg); border: 1px solid var(--green-bd); color: var(--green-txt); }
+  .pred-incorrect { background: var(--red-bg);   border: 1px solid var(--red-bd);   color: var(--red-txt); }
+  .pred-medium    { background: var(--amber-bg); border: 1px solid var(--amber-bd); color: var(--amber-txt); }
+
+  .info-box { background: var(--surface2); border-radius: 8px; padding: 9px 12px; font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
+  .info-box:last-child { margin-bottom: 0; }
+  .info-box strong { color: var(--text); }
+
+  .arch-svg { width: 100%; display: block; }
+
+  @media (max-width: 780px) {
+    .main-grid  { grid-template-columns: 1fr; }
+    .input-grid { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="../index.html">GeoAI <span>Explorer</span></a>
+  <a class="nav-tab" href="../index.html">Home</a>
+  <a class="nav-tab" href="../index.html">Decision Tree</a>
+  <a class="nav-tab" href="../random-forest/rf.html">Random Forest</a>
+  <a class="nav-tab active" href="#">Neural Network <span class="nav-badge">FF</span></a>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <h1>Feed-Forward Neural Network</h1>
+    <p>Predict urban heat island intensity across Phoenix. Work through the network layer by layer — computing dot products, applying ReLU, and reading the final softmax prediction.</p>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- ═══ LEFT: network flow ═══ -->
+    <div>
+      <div class="panel">
+
+        <div class="btn-row">
+          <button class="btn" onclick="randomizeLocation()">Randomize location</button>
+          <button class="btn" onclick="randomizeWeights()">Randomize weights</button>
+        </div>
+
+        <div class="loc-banner">
+          <div>
+            <div class="loc-name" id="loc-name"></div>
+            <div class="loc-desc" id="loc-desc"></div>
+          </div>
+          <div class="uhi-badge" id="loc-uhi"></div>
+        </div>
+
+        <!-- INPUTS -->
+        <div class="section-label">Inputs</div>
+        <div class="input-grid" id="input-grid"></div>
+
+        <!-- SVG bridge -->
+        <div class="bridge-wrap" id="bridge-wrap">
+          <svg id="svg-bridge" style="height:80px;"></svg>
+        </div>
+
+        <!-- LAYER 1 DOT PRODUCTS -->
+        <div class="section-label" style="margin-top:0;">Layer 1 — dot products</div>
+        <div class="neuron-grid" id="neuron-grid"></div>
+
+        <div style="margin-top:12px;">
+          <div class="panel-title" id="formula-title">Dot product formula</div>
+          <div class="formula-box" id="formula-box">
+            <span class="fempty">Click a neuron above to see its step-by-step calculation</span>
+          </div>
+        </div>
+
+        <!-- RELU -->
+        <div class="relu-section" id="relu-section">
+          <div class="layer-divider">
+            <div class="layer-divider-line"></div>
+            <div class="layer-divider-label">ReLU activation</div>
+            <div class="layer-divider-line"></div>
+          </div>
+          <div class="relu-explainer">
+            <strong>ReLU(z) = max(0, z)</strong> — if the dot product is negative, the neuron outputs 0 (it doesn't fire). Positive values pass through unchanged. Apply ReLU to each neuron's dot product below.
+          </div>
+          <div class="relu-grid" id="relu-grid"></div>
+        </div>
+
+        <!-- SOFTMAX OUTPUT -->
+        <div class="softmax-section" id="softmax-section">
+          <div class="layer-divider">
+            <div class="layer-divider-line"></div>
+            <div class="layer-divider-label">Softmax output — prediction</div>
+            <div class="layer-divider-line"></div>
+          </div>
+          <div class="softmax-explainer">
+            The ReLU outputs feed into two output neurons — one for <strong>High UHI</strong>, one for <strong>Low UHI</strong>. Each computes a weighted sum of the ReLU values (logit), then <strong>softmax</strong> converts both logits into probabilities that sum to 1: <code>P = eᶻ / (e^z_high + e^z_low)</code>
+          </div>
+          <div class="output-grid" id="output-grid"></div>
+          <div class="pred-banner" id="pred-banner"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ RIGHT: reference ═══ -->
+    <div>
+      <div class="panel" style="margin-bottom:1.25rem;">
+        <div class="panel-title">Network architecture</div>
+        <svg class="arch-svg" id="arch-svg" viewBox="0 0 260 300"></svg>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">How to read each layer</div>
+        <div class="info-box">
+          <strong>Dot product</strong> — each neuron multiplies every standardized input by its own weight and sums the results. Weights live on the edges, not inside the circles.
+        </div>
+        <div class="info-box">
+          <strong>ReLU</strong> — max(0, z). Negative dot products are clipped to zero. This non-linearity lets the network learn patterns that a simple weighted sum cannot.
+        </div>
+        <div class="info-box">
+          <strong>Softmax</strong> — converts two raw output scores (logits) into probabilities. The class with the higher probability is the network's prediction.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════ DATA ══════════ */
+
+const LOCATIONS = [
+  { name:"Downtown Phoenix",         desc:"Dense urban core — concrete, glass towers, minimal vegetation",                  uhi:"high",   uhiLabel:"High UHI",          vals:[6,  89, 18, 120] },
+  { name:"Tempe Town Lake",           desc:"Mixed-use waterfront with moderate tree cover and open water",                   uhi:"medium", uhiLabel:"Moderate UHI",      vals:[22, 55,  8,  80] },
+  { name:"South Mountain Park",       desc:"Desert preserve at city edge — open terrain, sparse development",                uhi:"low",    uhiLabel:"Low UHI",           vals:[61, 12,  4, 950] },
+  { name:"Scottsdale Fashion Square", desc:"High-density retail corridor, large parking lots, very low canopy",              uhi:"high",   uhiLabel:"High UHI",          vals:[9,  82, 14, 200] },
+  { name:"ASU Tempe Campus",          desc:"University campus — mix of buildings, plazas, and green quads",                  uhi:"medium", uhiLabel:"Moderate UHI",      vals:[31, 48, 10, 150] },
+  { name:"Glendale Residential",      desc:"Suburban neighborhood with yards, street trees, and parks nearby",               uhi:"low",    uhiLabel:"Low UHI",           vals:[38, 41,  6, 300] },
+];
+
+const FEATURES = [
+  { name:"Tree canopy",  short:"x₁", unit:"%" },
+  { name:"Impervious %", short:"x₂", unit:"%" },
+  { name:"Bldg height",  short:"x₃", unit:"m"  },
+  { name:"Dist. park",   short:"x₄", unit:"m"  },
+];
+
+const MEANS = [25, 55, 10, 280];
+const STDS  = [18, 22,  6, 190];
+
+// Fixed output-layer weights per neuron: [w_high, w_low]
+const OUT_W = [
+  [ 0.8, -0.6],
+  [-0.5,  0.7],
+  [ 0.6, -0.4],
+];
+
+/* ══════════ STATE ══════════ */
+
+let locIdx  = 0;
+let neurons = [
+  { id:"N₁", weights:[ 0.4,-0.7, 0.2, 0.5] },
+  { id:"N₂", weights:[-0.3, 0.8, 0.6,-0.4] },
+  { id:"N₃", weights:[ 0.9, 0.1,-0.5, 0.3] },
+];
+let activeNeuron = null;
+const dotSolved  = new Set();
+const reluSolved = new Set();
+
+/* ══════════ HELPERS ══════════ */
+
+function stdz(val,i) { return +((val - MEANS[i]) / STDS[i]).toFixed(2); }
+function rw()        { let w=0; while(w===0) w=+(Math.round((Math.random()*2-1)*10)/10).toFixed(1); return w; }
+
+function dotProduct(ni) {
+  const loc = LOCATIONS[locIdx];
+  return neurons[ni].weights.reduce((s,w,i) => s + w * stdz(loc.vals[i], i), 0);
+}
+function reluVal(ni) { return Math.max(0, dotProduct(ni)); }
+
+function computeSoftmax() {
+  const r = [0,1,2].map(ni => reluVal(ni));
+  const lH = r.reduce((s,rv,ni) => s + rv * OUT_W[ni][0], 0);
+  const lL = r.reduce((s,rv,ni) => s + rv * OUT_W[ni][1], 0);
+  const eH = Math.exp(lH), eL = Math.exp(lL);
+  const sm = eH + eL;
+  return { lH, lL, pH: eH/sm, pL: eL/sm };
+}
+
+/* ══════════ RENDER INPUTS ══════════ */
+
+function renderInputs() {
+  const loc = LOCATIONS[locIdx];
+  document.getElementById('loc-name').textContent = loc.name;
+  document.getElementById('loc-desc').textContent = loc.desc;
+  const ub = document.getElementById('loc-uhi');
+  ub.textContent = loc.uhiLabel;
+  ub.className = 'uhi-badge uhi-' + loc.uhi;
+
+  const grid = document.getElementById('input-grid');
+  grid.innerHTML = '';
+  FEATURES.forEach((f,i) => {
+    const z = stdz(loc.vals[i], i);
+    const b = document.createElement('div');
+    b.className = 'input-box';
+    b.id = 'inp-' + i;
+    b.innerHTML = `<div class="ivar">${f.short}</div>
+      <div class="ival">${loc.vals[i]}<span class="iunit"> ${f.unit}</span></div>
+      <div class="istd">z = ${z >= 0 ? '+' : ''}${z}</div>
+      <div class="iname">${f.name}</div>`;
+    grid.appendChild(b);
+  });
+}
+
+/* ══════════ RENDER NEURONS ══════════ */
+
+function renderNeurons() {
+  const grid = document.getElementById('neuron-grid');
+  grid.innerHTML = '';
+  neurons.forEach((n,ni) => {
+    const isSolved = dotSolved.has(ni);
+    const card = document.createElement('div');
+    card.className = 'neuron-card' + (isSolved ? ' solved' : '');
+    card.id = 'ncard-' + ni;
+    card.innerHTML = `
+      <div class="n-circle" id="ncircle-${ni}">${n.id}</div>
+      <div class="n-hint"   id="nhint-${ni}">${isSolved ? 'Correct!' : 'Click to explore'}</div>
+      <input class="n-answer" type="number" step="0.01" placeholder="= ?" id="ans-${ni}" ${isSolved ? 'disabled' : ''}>
+      <div class="n-check" id="nchk-${ni}"></div>`;
+    card.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT' || isSolved) return;
+      selectNeuron(ni);
+    });
+    grid.appendChild(card);
+    document.getElementById('ans-' + ni).addEventListener('input', () => checkDot(ni));
+  });
+}
+
+/* ══════════ RENDER RELU ══════════ */
+
+function renderRelu() {
+  const grid = document.getElementById('relu-grid');
+  grid.innerHTML = '';
+  neurons.forEach((n,ni) => {
+    const z        = dotProduct(ni);
+    const isSolved = reluSolved.has(ni);
+    const card     = document.createElement('div');
+    card.className = 'relu-card' + (isSolved ? ' solved' : '');
+    card.id        = 'rccard-' + ni;
+    card.innerHTML = `
+      <div class="rn-label">${n.id}</div>
+      <div class="rn-pre">ReLU(<span class="rv">${z.toFixed(3)}</span>)</div>
+      <input type="number" step="0.001" placeholder="= ?" id="rans-${ni}" ${isSolved ? 'disabled' : ''}>
+      <div class="relu-check ${isSolved ? 'ok' : ''}" id="rchk-${ni}">${isSolved ? 'Correct!' : ''}</div>`;
+    grid.appendChild(card);
+    if (!isSolved) {
+      document.getElementById('rans-' + ni).addEventListener('input', () => checkRelu(ni));
+    }
+  });
+}
+
+/* ══════════ RENDER SOFTMAX ══════════ */
+
+function renderSoftmax() {
+  const { lH, lL, pH, pL } = computeSoftmax();
+  const highWins = pH >= pL;
+
+  const grid = document.getElementById('output-grid');
+  grid.innerHTML = '';
+
+  [
+    { label:'High UHI',           logit:lH, prob:pH, wins: highWins },
+    { label:'Low / Moderate UHI', logit:lL, prob:pL, wins:!highWins },
+  ].forEach(cls => {
+    const card = document.createElement('div');
+    card.className = 'output-card' + (cls.wins ? ' winning' : '');
+    card.innerHTML = `
+      <div class="oc-label">${cls.label}</div>
+      <div class="oc-logit">logit = ${cls.logit.toFixed(3)}</div>
+      <div class="oc-prob">${(cls.prob * 100).toFixed(1)}%</div>
+      <div class="oc-bar-wrap"><div class="oc-bar" style="width:${(cls.prob*100).toFixed(1)}%"></div></div>`;
+    grid.appendChild(card);
+  });
+
+  const loc    = LOCATIONS[locIdx];
+  const pred   = highWins ? 'high' : 'low';
+  const banner = document.getElementById('pred-banner');
+  const conf   = (Math.max(pH, pL) * 100).toFixed(1);
+
+  if (loc.uhi === 'medium') {
+    banner.className = 'pred-banner pred-medium';
+    banner.innerHTML = `<strong>Prediction: ${highWins ? 'High UHI' : 'Low / Moderate UHI'} (${conf}% confidence)</strong>
+      This location has moderate UHI — either prediction can be reasonable. Try randomizing weights to see how sensitive the output is.`;
+  } else if ((pred === 'high' && loc.uhi === 'high') || (pred === 'low' && loc.uhi === 'low')) {
+    banner.className = 'pred-banner pred-correct';
+    banner.innerHTML = `<strong>Correct prediction!</strong>
+      The network predicted ${highWins ? 'High' : 'Low'} UHI for ${loc.name} with ${conf}% confidence — matching the expected intensity.`;
+  } else {
+    banner.className = 'pred-banner pred-incorrect';
+    banner.innerHTML = `<strong>Incorrect prediction.</strong>
+      The network predicted ${highWins ? 'High' : 'Low'} UHI but the expected intensity is ${loc.uhiLabel}. This happens with random weights — a real network learns weights through training on labelled examples.`;
+  }
+}
+
+/* ══════════ SELECT NEURON ══════════ */
+
+function selectNeuron(ni) {
+  if (activeNeuron === ni) { clearActive(); return; }
+  activeNeuron = ni;
+  document.querySelectorAll('.neuron-card').forEach((c,i) => {
+    if (!dotSolved.has(i)) c.classList.toggle('active', i === ni);
+  });
+  showFormula(ni);
+  setTimeout(() => drawLines(ni), 60);
+}
+
+function clearActive() {
+  activeNeuron = null;
+  document.querySelectorAll('.neuron-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('svg-bridge').innerHTML = '';
+  document.getElementById('formula-title').textContent = 'Dot product formula';
+  document.getElementById('formula-box').innerHTML = '<span class="fempty">Click a neuron above to see its step-by-step calculation</span>';
+}
+
+/* ══════════ FORMULA ══════════ */
+
+function showFormula(ni) {
+  const n = neurons[ni], loc = LOCATIONS[locIdx];
+  document.getElementById('formula-title').textContent = `${n.id} — dot product`;
+  let html = '<div class="formula-eq">', sum = 0;
+  FEATURES.forEach((f,i) => {
+    const z    = stdz(loc.vals[i], i);
+    const prod = +(n.weights[i] * z).toFixed(3);
+    sum += n.weights[i] * z;
+    const ws = (n.weights[i] >= 0 ? '+' : '') + n.weights[i];
+    const zs = (z >= 0 ? '+' : '') + z;
+    html += `<span class="fw">${ws}</span><span class="fp"> × </span><span class="fx">${zs}</span><span class="fp"> = ${prod >= 0 ? '+' : ''}${prod}</span><br>`;
+  });
+  html += `<span class="ftotal">z = ${sum.toFixed(3)}</span></div>`;
+  html += `<p class="fnote">Standardized inputs (z-scores). Enter your result in the neuron box above.</p>`;
+  document.getElementById('formula-box').innerHTML = html;
+}
+
+/* ══════════ CHECK DOT ══════════ */
+
+function checkDot(ni) {
+  const ansEl = document.getElementById('ans-' + ni);
+  const chkEl = document.getElementById('nchk-' + ni);
+  if (!ansEl.value) { chkEl.textContent = ''; chkEl.className = 'n-check'; return; }
+  if (Math.abs(parseFloat(ansEl.value) - dotProduct(ni)) < 0.05) {
+    markDotSolved(ni);
+  } else {
+    chkEl.textContent = 'Not quite — check your signs';
+    chkEl.className = 'n-check no';
+  }
+}
+
+function markDotSolved(ni) {
+  dotSolved.add(ni);
+  const card = document.getElementById('ncard-' + ni);
+  card.classList.remove('active');
+  card.classList.add('solved');
+  document.getElementById('nhint-' + ni).textContent = 'Correct!';
+  document.getElementById('nchk-' + ni).textContent  = '';
+  document.getElementById('ans-'  + ni).disabled = true;
+  if (activeNeuron === ni) {
+    activeNeuron = null;
+    document.getElementById('svg-bridge').innerHTML = '';
+    document.getElementById('formula-title').textContent = 'Dot product formula';
+    document.getElementById('formula-box').innerHTML = dotSolved.size === 3
+      ? '<span class="fempty" style="color:var(--green-txt);">All three solved — apply ReLU below ↓</span>'
+      : '<span class="fempty">Click another neuron to continue</span>';
+  }
+  if (dotSolved.size === 3) {
+    document.getElementById('relu-section').style.display = 'block';
+    renderRelu();
+  }
+  drawArchitecture();
+}
+
+/* ══════════ CHECK RELU ══════════ */
+
+function checkRelu(ni) {
+  const ansEl = document.getElementById('rans-' + ni);
+  const chkEl = document.getElementById('rchk-' + ni);
+  if (!ansEl.value) { chkEl.textContent = ''; chkEl.className = 'relu-check'; return; }
+  const z = dotProduct(ni), correct = Math.max(0, z);
+  if (Math.abs(parseFloat(ansEl.value) - correct) < 0.005) {
+    reluSolved.add(ni);
+    document.getElementById('rccard-' + ni).classList.add('solved');
+    ansEl.disabled    = true;
+    chkEl.textContent = 'Correct!';
+    chkEl.className   = 'relu-check ok';
+    if (reluSolved.size === 3) {
+      document.getElementById('softmax-section').style.display = 'block';
+      renderSoftmax();
+      setTimeout(() => document.getElementById('softmax-section').scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+    }
+    drawArchitecture();
+  } else {
+    chkEl.textContent = z < 0 ? 'Remember: negative values → 0' : 'Positive values pass through unchanged';
+    chkEl.className   = 'relu-check no';
+  }
+}
+
+/* ══════════ SVG LINES ══════════ */
+
+function drawLines(ni) {
+  const svg  = document.getElementById('svg-bridge');
+  const wrap = document.getElementById('bridge-wrap');
+  svg.innerHTML = '';
+  const wRect = wrap.getBoundingClientRect();
+  const W = wRect.width, H = svg.getBoundingClientRect().height;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  defs.innerHTML = `<marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#534ab7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>`;
+  svg.appendChild(defs);
+
+  const cRect = document.getElementById('ncircle-' + ni).getBoundingClientRect();
+  const tx = cRect.left - wRect.left + cRect.width  / 2;
+  const ty = cRect.top  - wRect.top  + cRect.height / 2;
+  const n  = neurons[ni];
+
+  FEATURES.forEach((_,i) => {
+    const ir = document.getElementById('inp-' + i).getBoundingClientRect();
+    const x1 = ir.left   - wRect.left + ir.width  / 2;
+    const y1 = ir.bottom - wRect.top;
+    const cy = (y1 + ty) / 2;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',    `M${x1},${y1} C${x1},${cy} ${tx},${cy} ${tx},${ty}`);
+    path.setAttribute('fill',         'none');
+    path.setAttribute('stroke',       '#534ab7');
+    path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('opacity',      '0.55');
+    path.setAttribute('marker-end',   'url(#arr)');
+    svg.appendChild(path);
+
+    const mx = (x1+tx)/2, my = (y1+ty)/2;
+    const w  = n.weights[i];
+    const lbl = `w = ${w >= 0 ? '+' : ''}${w}`;
+    const lw  = lbl.length * 6.5 + 12;
+
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x', mx-lw/2); bg.setAttribute('y', my-9);
+    bg.setAttribute('width', lw);  bg.setAttribute('height', 17);
+    bg.setAttribute('rx','4'); bg.setAttribute('fill','#eeedfe');
+    bg.setAttribute('stroke','#afa9ec'); bg.setAttribute('stroke-width','0.5');
+    svg.appendChild(bg);
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', mx); txt.setAttribute('y', my+0.5);
+    txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
+    txt.setAttribute('font-size','11'); txt.setAttribute('font-weight','600');
+    txt.setAttribute('fill','#534ab7'); txt.setAttribute('font-family','inherit');
+    txt.textContent = lbl;
+    svg.appendChild(txt);
+  });
+}
+
+/* ══════════ ARCHITECTURE SVG ══════════ */
+
+function drawArchitecture() {
+  const svg = document.getElementById('arch-svg');
+  svg.innerHTML = '';
+  const cx = { inp:38, dot:105, relu:172, out:228 };
+  const iYs = [45, 100, 155, 210];
+  const nYs = [72, 142, 212];
+  const rYs = [72, 142, 212];
+  const oYs = [106, 176];
+
+  function ln(x1,y1,x2,y2,op) {
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke','#afa9ec'); l.setAttribute('stroke-width','0.7'); l.setAttribute('opacity', op||'0.3');
+    svg.appendChild(l);
+  }
+
+  function circ(x,y,r,fill,stroke,lbl,tf) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',r);
+    c.setAttribute('fill',fill); c.setAttribute('stroke',stroke); c.setAttribute('stroke-width','1.2');
+    g.appendChild(c);
+    if (lbl) {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',x); t.setAttribute('y',y);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','central');
+      t.setAttribute('font-size','9'); t.setAttribute('font-weight','600');
+      t.setAttribute('font-family','inherit'); t.setAttribute('fill', tf||'#fff');
+      t.textContent = lbl;
+      g.appendChild(t);
+    }
+    svg.appendChild(g);
+  }
+
+  function colLbl(x,y,txt) {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',x); t.setAttribute('y',y); t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','7.5'); t.setAttribute('fill','#9a9a9f');
+    t.setAttribute('font-family','inherit'); t.setAttribute('font-weight','600');
+    t.textContent = txt; svg.appendChild(t);
+  }
+
+  // edges
+  iYs.forEach(iy => nYs.forEach(ny => ln(cx.inp+13, iy, cx.dot-13, ny)));
+  nYs.forEach((y,i) => ln(cx.dot+13, y, cx.relu-13, rYs[i], '0.5'));
+  rYs.forEach(ry => oYs.forEach(oy => ln(cx.relu+13, ry, cx.out-12, oy)));
+
+  // input nodes
+  iYs.forEach((y,i) => circ(cx.inp, y, 13, '#e1f5ee', '#5dcaa5', FEATURES[i].short, '#085041'));
+
+  // dot/L1 nodes
+  nYs.forEach((y,i) => {
+    const ds = dotSolved.has(i), rs = reluSolved.has(i);
+    const fill   = rs ? '#5dcaa5' : ds ? '#534ab7' : '#f2f1ed';
+    const stroke = rs ? '#0f6e56' : ds ? '#3c3489' : '#c0c0c8';
+    circ(cx.dot, y, 13, fill, stroke, neurons[i].id, (ds||rs) ? '#fff' : '#9a9a9f');
+  });
+
+  // relu nodes
+  rYs.forEach((y,i) => {
+    const rs = reluSolved.has(i);
+    circ(cx.relu, y, 13, rs ? '#5dcaa5' : '#f2f1ed', rs ? '#0f6e56' : '#c0c0c8', 'σ', rs ? '#fff' : '#9a9a9f');
+  });
+
+  // output nodes
+  const allR = reluSolved.size === 3;
+  oYs.forEach((y,i) => {
+    circ(cx.out, y, 12,
+      allR ? '#faeeda' : '#f2f1ed',
+      allR ? '#ef9f27' : '#c0c0c8',
+      i===0 ? 'Hi' : 'Lo',
+      allR ? '#633806' : '#9a9a9f'
+    );
+  });
+
+  colLbl(cx.inp,  285, 'INPUT');
+  colLbl(cx.dot,  285, 'DOT');
+  colLbl(cx.relu, 285, 'RELU');
+  colLbl(cx.out,  285, 'OUT');
+}
+
+/* ══════════ RANDOMIZE / RESET ══════════ */
+
+function randomizeLocation() {
+  let next = locIdx;
+  while (next === locIdx) next = Math.floor(Math.random() * LOCATIONS.length);
+  locIdx = next; reset();
+}
+
+function randomizeWeights() {
+  neurons = neurons.map(n => ({ ...n, weights: FEATURES.map(() => rw()) }));
+  reset();
+}
+
+function reset() {
+  dotSolved.clear(); reluSolved.clear(); activeNeuron = null;
+  document.getElementById('relu-section').style.display    = 'none';
+  document.getElementById('softmax-section').style.display = 'none';
+  document.getElementById('svg-bridge').innerHTML           = '';
+  document.getElementById('formula-title').textContent     = 'Dot product formula';
+  document.getElementById('formula-box').innerHTML         = '<span class="fempty">Click a neuron above to see its step-by-step calculation</span>';
+  renderInputs(); renderNeurons(); drawArchitecture();
+}
+
+/* ══════════ OUTSIDE CLICK ══════════ */
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.neuron-card') && !e.target.closest('.panel') && !e.target.closest('.btn-row')) {
+    if (activeNeuron !== null) clearActive();
+  }
+});
+
+/* ══════════ INIT ══════════ */
+
+renderInputs(); renderNeurons(); drawArchitecture();
+</script>
+</body>
+</html>
