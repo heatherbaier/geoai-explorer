@@ -66,9 +66,6 @@
 
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
 
-
-
-
   nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 52px; }
   .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 2rem; white-space: nowrap; text-decoration: none; }
   .nav-brand span { color: var(--purple); }
@@ -76,16 +73,6 @@
   .nav-tab:hover { color: var(--text); }
   .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
   .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
-
-  /* ── Nav dropdowns ── */
-  .nav-dropdown { position: relative; display: flex; align-items: center; }
-  .nav-dropdown-btn { background: none; border: none; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; }
-  .nav-dropdown-btn:hover { color: var(--text); }
-  .nav-dropdown-menu { display: none; position: absolute; top: 52px; left: 0; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 100; overflow: hidden; }
-  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
-  .nav-dropdown-menu a { display: block; padding: 9px 16px; font-size: 13px; color: var(--text2); text-decoration: none; transition: background .1s; }
-  .nav-dropdown-menu a:hover { background: var(--surface2); color: var(--text); }
-  .nav-dropdown-menu a.active { color: var(--purple); font-weight: 500; background: var(--purple-bg, #eeedfe); }
 
   .page-wrap { max-width: 1060px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
   .page-header { margin-bottom: 1.5rem; }
@@ -226,28 +213,12 @@
 <body>
 
 <nav>
-  <a class="nav-brand" href="/geoai-explorer/">Geo<span>AI</span> Explorer</a>
-  <a class="nav-tab" href="/geoai-explorer/">Home</a>
-  <a class="nav-tab" href="/geoai-explorer/supervised-learning.html">What is ML?</a>
-
-  <!-- Supervised dropdown -->
-  <div class="nav-dropdown">
-    <button class="nav-tab nav-dropdown-btn">Supervised ▾</button>
-    <div class="nav-dropdown-menu">
-      <a href="/geoai-explorer/supervised-learning/dt.html">Decision tree</a>
-      <a href="/geoai-explorer/supervised-learning/rf.html">Random forest</a>
-      <a href="/geoai-explorer/supervised-learning/nn.html">Neural network</a>
-      <!-- <a href="/geoai-explorer/supervised-learning/nn_training.html">NN training</a> -->
-    </div>
-  </div>
-
-  <!-- Unsupervised dropdown -->
-  <div class="nav-dropdown">
-    <button class="nav-tab nav-dropdown-btn">Unsupervised ▾</button>
-    <div class="nav-dropdown-menu">
-      <a href="/geoai-explorer/unsupervised-learning/kmeans.html">K-means</a>
-    </div>
-  </div>
+  <a class="nav-brand" href="../index.html">GeoAI <span>Explorer</span></a>
+  <a class="nav-tab" href="../index.html">Home</a>
+  <a class="nav-tab" href="../index.html">Decision Tree</a>
+  <a class="nav-tab" href="../random-forest/rf.html">Random Forest</a>
+  <a class="nav-tab active" href="#">Neural Network <span class="nav-badge">FF</span></a>
+  <a class="nav-tab" href="nn_training.html">NN Training</a>
 </nav>
 
 <div class="page-wrap">
@@ -293,9 +264,9 @@
       <div class="context-card">
         <div class="context-card-eyebrow">The model</div>
         <h3>Why use a neural network?</h3>
-        <p>A linear regression would assume that each variable contributes independently and proportionally to UHI intensity. But reality is messier — a neighborhood with high tree canopy <em>and</em> high building height behaves differently than one with just high buildings alone. These interactions are non-linear.</p>
-        <p>A feed-forward neural network handles this naturally. Hidden layer neurons learn to detect combinations of features — one neuron might activate strongly for "high impervious + low canopy," another for "tall buildings + far from parks." The ReLU activation function is what makes this possible: it switches neurons on or off depending on whether their input pattern is present.</p>
-        <p>This makes neural networks well-suited for urban remote sensing problems where feature interactions drive outcomes as much as individual variables do.</p>
+        <p>A decision tree asks one question at a time — is impervious surface above 60%? Then is canopy below 20%? A neural network does something different: it runs multiple <strong style="color:var(--text);">pattern detectors in parallel</strong>. Each hidden neuron learns to respond to a different combination of inputs simultaneously.</p>
+        <p>Think of how image recognition works — one filter detects edges, another detects blue sky, another detects texture. Your UHI network works the same way, just with neighborhood features instead of pixels. One neuron might activate strongly for "high impervious + low canopy." Another for "tall buildings + far from parks." The final prediction combines whatever each detector found.</p>
+        <p>This page shows the mechanics with random weights. The pattern detector story only becomes meaningful once the network has trained — that's what the next module is about.</p>
       </div>
 
     </div>
@@ -348,7 +319,7 @@
             <div class="layer-divider-line"></div>
           </div>
           <div class="relu-explainer">
-            <strong>ReLU(z) = max(0, z)</strong> — ReLU looks at the dot product z, not the individual weights. Even if some weights are negative (which is normal and meaningful — a negative weight means "more of this input pushes against this neuron firing"), the dot product z can still be positive or negative depending on the full weighted sum. ReLU asks one question: is z &gt; 0? If yes, pass z forward unchanged. If z ≤ 0, output 0 — the neuron doesn't fire. The weights themselves are never clipped.
+            <strong>ReLU(z) = max(0, z)</strong> — ReLU asks one question about the dot product z: is it above zero? If yes, this neuron detected its pattern strongly enough — pass z forward. If no, output 0 — the neuron stays silent. That's it. ReLU is the threshold that turns a weighted sum into a firing decision.
           </div>
           <div class="relu-grid" id="relu-grid"></div>
         </div>
@@ -378,15 +349,21 @@
       </div>
 
       <div class="panel">
-        <div class="panel-title">How to read each layer</div>
+        <div class="panel-title">The story this page tells</div>
         <div class="info-box">
-          <strong>Dot product (z)</strong> — each neuron multiplies every standardized input by its own weight and sums the results. Weights can be positive or negative — a negative weight means that input works against this neuron firing. The result z can also be positive or negative.
+          <strong>Step 1 — Inputs become numbers.</strong> Each feature (canopy %, impervious %, building height, distance to park) is standardized so they're on the same scale. These four numbers are the only thing the network ever sees about a neighborhood.
         </div>
         <div class="info-box">
-          <strong>ReLU</strong> — max(0, z). ReLU looks at the dot product z, not the weights. If z &gt; 0, the neuron fires and z passes forward. If z ≤ 0, the neuron outputs 0. Negative weights are never clipped — only a negative z value causes the neuron to go silent.
+          <strong>Step 2 — Each neuron computes a weighted sum.</strong> Every neuron multiplies each input by its own weight and adds them up (the dot product). Positive weights push the neuron toward firing. Negative weights push against it. The result z is a single number reflecting how much this neuron's particular combination of inputs was present.
         </div>
         <div class="info-box">
-          <strong>Softmax</strong> — converts two raw output scores (logits) into probabilities. The class with the higher probability is the network's prediction.
+          <strong>Step 3 — ReLU decides if the neuron fires.</strong> If z &gt; 0, the neuron activates and passes z forward. If z ≤ 0, the neuron outputs 0 — it didn't detect its pattern strongly enough. This is the threshold.
+        </div>
+        <div class="info-box">
+          <strong>Step 4 — Softmax makes the prediction.</strong> The three neuron outputs feed into two output nodes (High UHI / Low UHI). Softmax converts those raw scores into probabilities that sum to 1. The highest probability wins.
+        </div>
+        <div class="info-box" style="background:var(--amber-bg);border:1px solid var(--amber-bd);">
+          <strong style="color:var(--amber-txt);">Note on these weights.</strong> <span style="color:var(--amber-txt);">The weights on this page are random — they haven't been learned from data. That's intentional: this page is about understanding the mechanics, not the meaning. Head to the training module to see weights that actually mean something.</span>
         </div>
       </div>
 

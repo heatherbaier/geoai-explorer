@@ -50,17 +50,6 @@
     }
   }
 
-
-  /* ── Nav dropdowns ── */
-  .nav-dropdown { position: relative; display: flex; align-items: center; }
-  .nav-dropdown-btn { background: none; border: none; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; }
-  .nav-dropdown-btn:hover { color: var(--text); }
-  .nav-dropdown-menu { display: none; position: absolute; top: 52px; left: 0; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 100; overflow: hidden; }
-  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
-  .nav-dropdown-menu a { display: block; padding: 9px 16px; font-size: 13px; color: var(--text2); text-decoration: none; transition: background .1s; }
-  .nav-dropdown-menu a:hover { background: var(--surface2); color: var(--text); }
-  .nav-dropdown-menu a.active { color: var(--purple); font-weight: 500; background: var(--purple-bg, #eeedfe); }  
-
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
 
   nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 52px; }
@@ -113,8 +102,14 @@
   .hp-option.selected .hp-option-name { color: var(--purple); }
   .hp-option-desc { font-size: 11px; color: var(--text3); line-height: 1.4; margin-top: 1px; }
 
-  /* ── Bottom grid: loss + weights + diagnostics ── */
-  .bottom-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) 280px; gap: 1.25rem; align-items: start; }
+  /* ── Bottom grid: loss + diagnostics (2-col) ── */
+  .bottom-grid { display: grid; grid-template-columns: minmax(0,1fr) 280px; gap: 1.25rem; align-items: start; }
+  .walkthrough-grid { display: grid; grid-template-columns: 260px minmax(0,1fr); gap: 1.25rem; align-items: start; margin-top: 1.25rem; }
+  .sample-feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+  .sample-feat { background: var(--surface2); border-radius: 7px; padding: 8px 10px; }
+  .sample-feat-name { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--text3); margin-bottom: 3px; }
+  .sample-feat-raw  { font-size: 16px; font-weight: 600; color: var(--text); }
+  .sample-feat-std  { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: "SF Mono","Consolas",monospace; }
 
   /* ── Loss curve ── */
   #loss-canvas { display: block; width: 100%; border-radius: 8px; background: var(--surface2); }
@@ -128,8 +123,13 @@
   .weight-row { display: flex; gap: 4px; align-items: center; }
   .weight-cell { flex: 1; height: 32px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; font-family: "SF Mono","Consolas",monospace; transition: background .3s, color .3s; }
   .weight-row-label { font-size: 10px; color: var(--text3); width: 28px; flex-shrink: 0; text-align: right; font-weight: 600; }
-  .weight-col-labels { display: flex; gap: 4px; margin-left: 36px; margin-bottom: 2px; }
+  .weight-col-labels { display: flex; gap: 4px; margin-left: 36px; margin-bottom: 2px; align-items: center; }
   .weight-col-label  { flex: 1; font-size: 10px; color: var(--text3); text-align: center; font-weight: 600; }
+  .weight-divider    { width: 1px; background: var(--border2); flex-shrink: 0; align-self: stretch; margin: 0 2px; }
+  .weight-col-label.z-col    { color: var(--purple); width: 44px; flex: none; }
+  .weight-col-label.relu-col { color: var(--green-txt); width: 44px; flex: none; }
+  .weight-cell.z-cell    { background: var(--purple-bg); color: var(--purple); width: 44px; flex: none; border: 1px solid var(--purple-bd); }
+  .weight-cell.relu-cell { width: 44px; flex: none; }
 
   /* ── Diagnostics ── */
   .diag-box { border-radius: 9px; padding: 11px 13px; font-size: 12px; line-height: 1.65; margin-bottom: 10px; }
@@ -169,28 +169,12 @@
 <body>
 
 <nav>
-  <a class="nav-brand" href="/geoai-explorer/">Geo<span>AI</span> Explorer</a>
-  <a class="nav-tab" href="/geoai-explorer/">Home</a>
-  <a class="nav-tab" href="/geoai-explorer/supervised-learning.html">What is ML?</a>
-
-  <!-- Supervised dropdown -->
-  <div class="nav-dropdown">
-    <button class="nav-tab nav-dropdown-btn">Supervised ▾</button>
-    <div class="nav-dropdown-menu">
-      <a href="/geoai-explorer/supervised-learning/dt.html">Decision tree</a>
-      <a href="/geoai-explorer/supervised-learning/rf.html">Random forest</a>
-      <a href="/geoai-explorer/supervised-learning/nn.html">Neural network</a>
-      <!-- <a href="/geoai-explorer/supervised-learning/nn_training.html">NN training</a> -->
-    </div>
-  </div>
-
-  <!-- Unsupervised dropdown -->
-  <div class="nav-dropdown">
-    <button class="nav-tab nav-dropdown-btn">Unsupervised ▾</button>
-    <div class="nav-dropdown-menu">
-      <a href="/geoai-explorer/unsupervised-learning/kmeans.html">K-means</a>
-    </div>
-  </div>
+  <a class="nav-brand" href="../index.html">GeoAI <span>Explorer</span></a>
+  <a class="nav-tab" href="../index.html">Home</a>
+  <a class="nav-tab" href="../index.html">Decision Tree</a>
+  <a class="nav-tab" href="../random-forest/rf.html">Random Forest</a>
+  <a class="nav-tab active" href="#">Neural Network <span class="nav-badge">Training</span></a>
+  <a class="nav-tab" href="nn_ff.html">NN Forward Pass</a>
 </nav>
 
 <div class="page-wrap">
@@ -198,7 +182,7 @@
   <div class="page-header">
     <h1>Neural Network — Model Training</h1>
     <p>Choose your hyperparameters, hit Train, and watch the network learn to predict urban heat island intensity from 60 synthetic Phoenix neighborhoods. See what happens when you choose well — and when you don't.</p>
-    <a class="header-link" href="nn.html">← Already understand training? Go to the forward pass walkthrough</a>
+    <a class="header-link" href="nn_ff.html">← Already understand training? Go to the forward pass walkthrough</a>
   </div>
 
   <!-- ═══ HYPERPARAMETERS: 2x2 grid ═══ -->
@@ -343,7 +327,7 @@
     <div class="epoch-counter" id="epoch-counter">Epoch — / —</div>
   </div>
 
-  <!-- ═══ BOTTOM: loss curve + weight heatmap + diagnostics ═══ -->
+  <!-- ═══ BOTTOM: loss curve + diagnostics ═══ -->
   <div class="bottom-grid">
 
     <!-- Loss curve -->
@@ -357,18 +341,6 @@
       </div>
     </div>
 
-    <!-- Weight heatmap -->
-    <div class="panel">
-      <div class="panel-title">Layer 1 weights — live heatmap</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.6;">Each cell = weight from input (column) to neuron (row). <span style="background:#e24b4a;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;">red</span> = strong positive &nbsp;<span style="background:#185fa5;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;">blue</span> = strong negative, gray = near zero.<br><strong style="color:var(--text2);">Note:</strong> negative weights are meaningful — they mean "more of this input pushes against this neuron firing." ReLU never clips weights, only the neuron's output z.</div>
-      <div class="weight-col-labels" id="weight-col-labels"></div>
-      <div class="weight-grid" id="weight-grid"></div>
-      <div style="margin-top:14px;">
-        <div class="panel-title" style="margin-bottom:6px;">What the network learned</div>
-        <div id="weight-interp" style="font-size:12px;color:var(--text2);line-height:1.7;font-style:italic;">Train the network to see weight interpretation.</div>
-      </div>
-    </div>
-
     <!-- Diagnostics -->
     <div class="panel">
       <div class="panel-title">Training diagnostics</div>
@@ -377,6 +349,39 @@
           <strong>Ready to train</strong>
           Choose your hyperparameters on the left, then hit Train. Try different combinations and compare what happens to the loss curve.
         </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ WEIGHT WALKTHROUGH — full width ═══ -->
+  <div class="walkthrough-grid" id="walkthrough-section" style="display:none;">
+
+    <!-- Left: sample input card -->
+    <div>
+      <div class="panel" style="margin-bottom:1rem;">
+        <div class="panel-title">Sample neighborhood</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6;">The weight matrix and neuron breakdown below use this specific neighborhood as a worked example. Raw values are standardized (mean subtracted, divided by std) before being fed to the network.</div>
+        <div id="sample-info" style="margin-bottom:10px;padding:8px 10px;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:7px;font-size:12px;font-weight:600;color:var(--red-txt);"></div>
+        <div class="sample-feat-grid" id="sample-feat-grid"></div>
+      </div>
+      <div class="panel" style="background:var(--purple-bg);border-color:var(--purple-bd);">
+        <div class="panel-title" style="color:var(--purple);">How to read the matrix →</div>
+        <div style="font-size:12px;color:var(--purple-txt);line-height:1.7;">
+          Each row is one neuron. Each cell is its weight for that input. Multiply weight × standardized input to get that term's contribution. Sum all four contributions to get <strong>z</strong>. Apply ReLU to get the neuron's output.
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: weight heatmap + interpretation -->
+    <div class="panel">
+      <div class="panel-title">Layer 1 weights — live heatmap</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.6;">Each cell = weight from input (column) to neuron (row). <span style="background:#e24b4a;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;">red</span> = strong positive &nbsp;<span style="background:#185fa5;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;">blue</span> = strong negative. The <span style="color:var(--purple);font-weight:600;">z</span> column shows the dot product for the sample neighborhood. The <span style="color:var(--green-txt);font-weight:600;">ReLU</span> column shows whether that neuron fired (green) or stayed silent (gray).</div>
+      <div class="weight-col-labels" id="weight-col-labels"></div>
+      <div class="weight-grid" id="weight-grid"></div>
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+        <div class="panel-title" style="margin-bottom:8px;">What each neuron learned to detect</div>
+        <div id="weight-interp" style="font-size:12px;color:var(--text2);line-height:1.7;font-style:italic;">Train the network to see what each neuron specialized in.</div>
       </div>
     </div>
 
@@ -787,20 +792,37 @@ function weightColor(w) {
 
 function renderWeightGrid() {
   if (!W1) return;
-  const H = W1.length;
+
+  // Use same sample as interpretWeights — first high-UHI point
+  const sampleIdx = DATA.findIndex(d => d.label === 'high');
+  const sVals = X[sampleIdx];
 
   const colLabels = document.getElementById('weight-col-labels');
-  colLabels.innerHTML = FEAT_NAMES.map(n => `<div class="weight-col-label">${n}</div>`).join('');
+  colLabels.innerHTML =
+    FEAT_NAMES.map(n => `<div class="weight-col-label">${n}</div>`).join('') +
+    `<div class="weight-divider" style="height:14px;"></div>` +
+    `<div class="weight-col-label z-col">z</div>` +
+    `<div class="weight-divider" style="height:14px;"></div>` +
+    `<div class="weight-col-label relu-col">ReLU</div>`;
 
   const grid = document.getElementById('weight-grid');
   grid.innerHTML = '';
+
   W1.forEach((row, j) => {
+    const z    = row.reduce((s, w, i) => s + w * sVals[i], 0);
+    const relu = Math.max(0, z);
+    const fired = z > 0;
+
     const rowEl = document.createElement('div');
     rowEl.className = 'weight-row';
+
+    // Row label
     const lbl = document.createElement('div');
     lbl.className = 'weight-row-label';
     lbl.textContent = `N${j+1}`;
     rowEl.appendChild(lbl);
+
+    // Weight cells
     row.forEach(w => {
       const cell = document.createElement('div');
       cell.className = 'weight-cell';
@@ -810,24 +832,140 @@ function renderWeightGrid() {
       cell.textContent = w.toFixed(2);
       rowEl.appendChild(cell);
     });
+
+    // Divider
+    const div1 = document.createElement('div');
+    div1.className = 'weight-divider';
+    rowEl.appendChild(div1);
+
+    // z cell
+    const zCell = document.createElement('div');
+    zCell.className = 'weight-cell z-cell';
+    zCell.textContent = z.toFixed(2);
+    rowEl.appendChild(zCell);
+
+    // Divider
+    const div2 = document.createElement('div');
+    div2.className = 'weight-divider';
+    rowEl.appendChild(div2);
+
+    // ReLU cell
+    const reluCell = document.createElement('div');
+    reluCell.className = 'weight-cell relu-cell';
+    if (fired) {
+      reluCell.style.background = 'var(--green-bg)';
+      reluCell.style.color = 'var(--green-txt)';
+      reluCell.style.border = '1px solid var(--green-bd)';
+    } else {
+      reluCell.style.background = 'var(--surface2)';
+      reluCell.style.color = 'var(--text3)';
+      reluCell.style.border = '1px solid var(--border)';
+    }
+    reluCell.textContent = relu.toFixed(2);
+    rowEl.appendChild(reluCell);
+
     grid.appendChild(rowEl);
   });
 }
 
+function renderSampleCard() {
+  const sampleIdx = DATA.findIndex(d => d.label === 'high');
+  const d = DATA[sampleIdx];
+  const sVals = X[sampleIdx];
+  const FEAT_NAMES_FULL = ['Tree canopy', 'Impervious surface', 'Building height', 'Dist. to park'];
+  const FEAT_UNITS_RAW  = ['%', '%', 'm', 'm'];
+
+  document.getElementById('sample-info').textContent =
+    `True label: HIGH UHI — canopy ${d.canopy}%, imperv ${d.imperv}%, height ${d.height}m, park ${d.distPark}m`;
+
+  document.getElementById('sample-feat-grid').innerHTML = sVals.map((sv, i) => `
+    <div class="sample-feat">
+      <div class="sample-feat-name">${FEAT_NAMES_FULL[i]}</div>
+      <div class="sample-feat-raw">${d.features[i]}${FEAT_UNITS_RAW[i]}</div>
+      <div class="sample-feat-std">standardized: ${sv.toFixed(2)}</div>
+    </div>`).join('');
+
+  document.getElementById('walkthrough-section').style.display = 'grid';
+}
+
 function interpretWeights() {
   if (!W1) return;
-  const H = W1.length;
-  const FEAT_FULL = ['tree canopy', 'impervious surface', 'building height', 'distance to park'];
-  let lines = [];
+  renderSampleCard();
+  const FEAT_LABELS = ['Tree canopy', 'Impervious %', 'Bldg height', 'Dist. to park'];
+  const sampleIdx  = DATA.findIndex(d => d.label === 'high');
+  const sVals      = X[sampleIdx];
+  const sampleName = `canopy ${DATA[sampleIdx].canopy}%, imperv ${DATA[sampleIdx].imperv}%, height ${DATA[sampleIdx].height}m`;
+
+  let html = `<div style="font-size:11px;color:var(--text3);margin-bottom:10px;">
+    z and ReLU columns above use this sample: <em>${sampleName}</em>. The boxes below explain what each neuron specializes in, using the same values.
+  </div>`;
 
   W1.forEach((row, j) => {
-    const maxI   = row.reduce((mi, v, i) => Math.abs(v) > Math.abs(row[mi]) ? i : mi, 0);
-    const maxW   = row[maxI];
-    const dir    = maxW > 0 ? 'increases with' : 'decreases with';
-    lines.push(`N${j+1} responds most strongly to <b>${FEAT_FULL[maxI]}</b> (w=${maxW.toFixed(2)}) — it ${dir} higher ${FEAT_FULL[maxI]}.`);
+    const z     = row.reduce((s, w, i) => s + w * sVals[i], 0);
+    const a     = Math.max(0, z);
+    const fired = z > 0;
+
+    // Contributions = weight × standardized input for each feature
+    const contribs = row.map((w, i) => ({ w, x: sVals[i], prod: w * sVals[i], feat: FEAT_LABELS[i] }));
+    const byContrib = [...contribs].sort((a, b) => b.prod - a.prod);
+    const topPos = byContrib.find(x => x.prod > 0);
+    const topNeg = [...byContrib].reverse().find(x => x.prod < 0);
+
+    // Pattern description — note when weight sign differs from contribution sign
+    function contribNote(t) {
+      // If weight and contribution have different signs, explain why
+      if (Math.sign(t.w) !== Math.sign(t.prod) && Math.abs(t.w) > 0.05 && Math.abs(t.prod) > 0.05) {
+        return ` <span style="font-size:10px;color:var(--text3);">(weight ${t.w.toFixed(2)} × input ${t.x.toFixed(2)} = ${t.prod >= 0 ? '+' : ''}${t.prod.toFixed(2)})</span>`;
+      }
+      return ` <span style="font-size:10px;color:var(--text3);">(${t.prod >= 0 ? '+' : ''}${t.prod.toFixed(2)})</span>`;
+    }
+
+    let patternDesc = '';
+    if (topPos && topNeg) {
+      patternDesc = `<strong>${topPos.feat}</strong> contributed most positively${contribNote(topPos)}, <strong>${topNeg.feat}</strong> most negatively${contribNote(topNeg)}.`;
+    } else if (topPos) {
+      patternDesc = `<strong>${topPos.feat}</strong> was the only positive contributor${contribNote(topPos)} — everything else pushed against firing.`;
+    } else {
+      patternDesc = `All contributions were negative for this sample — the neuron stayed silent.`;
+    }
+
+    // All 4 terms sorted by absolute contribution — show w × x = contribution
+    const allTerms = [...contribs].sort((a, b) => Math.abs(b.prod) - Math.abs(a.prod));
+
+    html += `
+      <div style="margin-bottom:10px;padding:11px 13px;background:var(--surface2);border-radius:9px;border-left:3px solid ${fired ? 'var(--green-bd)' : 'var(--border2)'};">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
+          <span style="font-size:12px;font-weight:600;color:${fired ? 'var(--green-txt)' : 'var(--text3)'};">
+            N${j+1}&nbsp;
+            ${fired
+              ? `<span style="background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green-txt);font-size:10px;padding:1px 8px;border-radius:5px;font-weight:500;">fired ✓</span>`
+              : `<span style="background:var(--surface);border:1px solid var(--border2);color:var(--text3);font-size:10px;padding:1px 8px;border-radius:5px;">silent</span>`}
+          </span>
+          <span style="font-size:11px;font-family:monospace;color:var(--text3);">z = ${z.toFixed(2)} → ReLU → <strong style="color:${fired ? 'var(--green-txt)' : 'var(--text3)'};">${a.toFixed(2)}</strong></span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">${patternDesc}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;">
+          ${allTerms.map(t => `
+            <div style="font-size:10px;font-family:monospace;padding:4px 7px;border-radius:4px;background:var(--surface);border:1px solid var(--border);">
+              <span style="color:var(--text3);">${t.feat.split(' ')[0]}:</span>
+              <span style="color:var(--text2);"> ${t.w.toFixed(2)} × ${t.x.toFixed(2)}</span>
+              <span style="color:${t.prod >= 0 ? 'var(--red-txt)' : 'var(--blue-txt)'}; font-weight:600;"> = ${t.prod >= 0 ? '+' : ''}${t.prod.toFixed(2)}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
   });
 
-  document.getElementById('weight-interp').innerHTML = lines.join('<br><br>');
+  // Black box callout
+  html += `
+    <div style="margin-top:8px;padding:12px 14px;background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:9px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--amber-txt);margin-bottom:5px;">Why neural networks are black boxes</div>
+      <div style="font-size:12px;color:var(--amber-txt);line-height:1.7;">
+        We can read the weights and <em>infer</em> what pattern each neuron might be detecting — but the network never told us. It just adjusted numbers until predictions improved. The pattern names above are our interpretation, not the network's intention.<br><br>
+        Think of how a CNN trained on images develops neurons that detect edges, textures, or colors — nobody programmed those detectors, they emerged from training. The same thing happened here with UHI features. That's what makes neural networks powerful, and what makes them hard to fully audit without careful evaluation.
+      </div>
+    </div>`;
+
+  document.getElementById('weight-interp').innerHTML = html;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1005,8 +1143,9 @@ function resetTraining() {
     '<div class="diag-box diag-neutral"><strong>Ready to train</strong>Choose your hyperparameters and hit Train. Try different combinations and compare what happens to the loss curve.</div>';
   document.getElementById('weight-grid').innerHTML     = '';
   document.getElementById('weight-col-labels').innerHTML = '';
-  document.getElementById('weight-interp').innerHTML   = 'Train the network to see weight interpretation.';
-  document.getElementById('cta-banner').style.display  = 'none';
+  document.getElementById('weight-interp').innerHTML   = 'Train the network to see what each neuron specialized in.';
+  document.getElementById('cta-banner').style.display       = 'none';
+  document.getElementById('walkthrough-section').style.display = 'none';
   if (mapMode === 'pred') buildMarkers();
   initCanvas();
 }
