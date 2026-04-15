@@ -47,11 +47,6 @@
   .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
   .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
 
-  .page-header { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 0.5rem; }
-  .page-tag { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); }
-  .page-title { font-size: 24px; font-weight: 600; margin: 4px 0; }
-  .page-sub { font-size: 13px; color: var(--text2); }
-
   .container { max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 3rem; }
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
   .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
@@ -143,6 +138,32 @@
   .info-box { background: var(--surface2); border-radius: 8px; padding: 9px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; }
   .info-box strong { color: var(--text); }
 
+  /* ── Context section ── */
+  .context-wrap { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 0; }
+  .page-header-new { margin-bottom: 1.5rem; }
+  .page-header-new h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.3rem; }
+  .page-header-new p  { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 600px; }
+  .scenario-banner { background: #eeedfe; border: 1px solid #afa9ec; border-radius: var(--radius-lg); padding: 1.1rem 1.4rem; margin-bottom: 1.25rem; }
+  .scenario-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #534ab7; margin-bottom: 6px; }
+  .scenario-banner p { font-size: 13px; color: #26215c; line-height: 1.75; }
+  .scenario-banner p + p { margin-top: 8px; }
+  .context-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .context-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; }
+  .context-card-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+  .context-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .context-card p  { font-size: 12px; color: var(--text2); line-height: 1.7; }
+  .context-card p + p { margin-top: 6px; }
+  .var-list { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .var-list li { font-size: 12px; color: var(--text2); line-height: 1.5; padding-left: 12px; position: relative; }
+  .var-list li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--blue-bd); }
+  .var-list li strong { color: var(--text); font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    .scenario-banner { background: #1a1840; border-color: #534ab7; }
+    .scenario-banner p { color: #cecbf6; }
+    .scenario-eyebrow { color: #afa9ec; }
+  }
+  @media (max-width: 780px) { .context-grid { grid-template-columns: 1fr; } }
+
   @media (max-width: 750px) {
     .trees-grid { grid-template-columns: 1fr; }
     .game-layout { grid-template-columns: 1fr; }
@@ -154,17 +175,60 @@
 
 <nav>
   <a class="nav-brand" href="/geoai-explorer/">Geo<span>AI</span> Explorer</a>
-  <a class="nav-tab active" href="/geoai-explorer/">Home</a>
+  <a class="nav-tab" href="/geoai-explorer/">Home</a>
   <a class="nav-tab" href="/geoai-explorer/decision-tree/dt.html">Decision tree</a>
-  <a class="nav-tab" href="/geoai-explorer/random-forest/rf.html">Random forest</a>
+  <a class="nav-tab active" href="/geoai-explorer/random-forest/rf.html">Random forest</a>
   <a class="nav-tab" href="/geoai-explorer/neural-network/nn_ff.html">Neural network</a>
   <a class="nav-tab" href="/geoai-explorer/neural-network/nn_training.html">NN training</a>
 </nav>
 
-<div class="page-header">
-  <div class="page-tag">Supervised · Ensemble · Random Forest</div>
-  <div class="page-title">Flood risk — Houston, TX</div>
-  <div class="page-sub">Three trees, one forest. Classify parcels through each tree, then watch the majority vote decide.</div>
+<div class="context-wrap">
+
+  <div class="page-header-new">
+    <h1>Random Forest</h1>
+    <p>Predicting flood risk across Houston using an ensemble of decision trees.</p>
+  </div>
+
+  <!-- Scenario banner -->
+  <div class="scenario-banner">
+    <div class="scenario-eyebrow">Your scenario</div>
+    <p>It's August in Houston. Harris County Emergency Management has just finished reviewing flood damage from the last storm cycle, and your team has been asked to build a more reliable risk model than the single decision tree you built last week — one that won't fall apart when a few training parcels change.</p>
+    <p>Your colleague suggests a random forest: instead of one tree trained on all the data, build many trees, each on a different random subsample, then let them vote. Your job today is to understand why that works — by reading three trees with different first splits, tracing five test parcels through each one by hand, and watching the ensemble majority vote outperform any single tree.</p>
+  </div>
+
+  <!-- Three context cards -->
+  <div class="context-grid">
+
+    <!-- Card 1: Background -->
+    <div class="context-card">
+      <div class="context-card-eyebrow">Background</div>
+      <h3>Why does Houston flood?</h3>
+      <p>Houston sits on a flat coastal plain with clay-heavy soils that drain poorly, bisected by a network of bayous — Buffalo Bayou, Brays Bayou, White Oak Bayou — that overflow during heavy rainfall. The city is also one of the most impervious urban surfaces in the US: decades of low-density sprawl replaced native prairie with concrete, dramatically reducing infiltration.</p>
+      <p>Parcels close to bayou channels, with high impervious cover, flat grades, and poor soil drainage face compounding risk — each factor amplifies the others. The features in this dataset were chosen to capture exactly that interaction.</p>
+    </div>
+
+    <!-- Card 2: Variables -->
+    <div class="context-card">
+      <div class="context-card-eyebrow">Model inputs</div>
+      <h3>Why these four features?</h3>
+      <ul class="var-list">
+        <li><strong>Distance to stream (m)</strong> — Proximity to Buffalo Bayou or Brays Bayou is the dominant risk factor. Parcels within 75m face direct inundation during moderate events; beyond 200m risk drops sharply for most storm types.</li>
+        <li><strong>Impervious surface (%)</strong> — Houston's bayou corridors are lined with high-impervious neighborhoods (Meyerland, Westbury, Montrose). Paved surfaces prevent infiltration and accelerate runoff directly into channels.</li>
+        <li><strong>Slope (°)</strong> — The coastal plain is nearly flat. Even a 5–8° slope substantially improves drainage. Very flat parcels (&lt;3°) pond water in place regardless of soil type.</li>
+        <li><strong>Drainage class</strong> — Houston's heavy clay soils are notoriously poor draining. Soil drainage class captures infiltration capacity independently of slope and pavement cover.</li>
+      </ul>
+    </div>
+
+    <!-- Card 3: Why a random forest -->
+    <div class="context-card">
+      <div class="context-card-eyebrow">The model</div>
+      <h3>Why use a random forest?</h3>
+      <p>A single decision tree is brittle — its structure can shift dramatically if a few training parcels change. This matters in flood risk modeling, where ground-truth labels (past flood events) are sparse and noisy.</p>
+      <p>A random forest fixes this by training many trees on different random subsamples of the data, each also seeing a random subset of features. No single tree sees the full picture — but the errors each tree makes are different and largely independent. When the trees vote, idiosyncratic errors get outvoted, and only systematic patterns survive.</p>
+      <p>In sklearn a real forest uses 100–500 trees. Here you'll work with 3 — small enough to read every split, large enough to see the ensemble effect when the trees disagree.</p>
+    </div>
+
+  </div>
 </div>
 
 <div class="container">
@@ -185,11 +249,10 @@
 
       <div style="display:flex;flex-direction:column;gap:1rem;">
         <div class="panel">
-          <div class="panel-title">the setup</div>
+          <div class="panel-title">the three trees</div>
           <div style="font-size:13px;color:var(--text2);line-height:1.7;">
-            You built one decision tree in the last activity. The problem: a single tree is <strong style="color:var(--text);">brittle</strong> — change a few training parcels and the whole structure can shift.<br><br>
-            A <strong style="color:var(--text);">random forest</strong> fixes this by building many trees, each on a different random subsample of the data and a random subset of features. No tree sees everything. Then they <strong style="color:var(--text);">vote</strong>.<br><br>
-            Below are 3 trees trained on overlapping but different subsets of the 15 Houston parcels. Notice they each chose a <em>different first split</em> — and they'll disagree on some borderline cases. That disagreement is the point.
+            Below are 3 trees trained on overlapping but different subsamples of the 15 Houston parcels. Each chose a <em>different first split</em> — and they'll disagree on some borderline cases.<br><br>
+            Notice how Tree 1 splits first on distance to stream, Tree 2 on impervious surface, and Tree 3 on drainage class. Same data, same features, three different perspectives. That disagreement is the point — the forest is more robust than any one of them.
           </div>
         </div>
         <div class="panel">
