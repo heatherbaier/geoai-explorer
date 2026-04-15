@@ -186,7 +186,25 @@
 
   .arch-svg { width: 100%; display: block; }
 
+  /* ── Context section ── */
+  .context-section { max-width: 1060px; margin: 0 auto 1.75rem; }
+  .scenario-banner { background: var(--purple-bg); border: 1px solid var(--purple-bd); border-radius: var(--radius-lg); padding: 1.1rem 1.4rem; margin-bottom: 1.25rem; }
+  .scenario-banner .scenario-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin-bottom: 6px; }
+  .scenario-banner p { font-size: 13px; color: var(--purple-txt); line-height: 1.75; }
+  .scenario-banner p + p { margin-top: 8px; }
+  .context-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .context-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; }
+  .context-card-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+  .context-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .context-card p  { font-size: 12px; color: var(--text2); line-height: 1.7; }
+  .context-card p + p { margin-top: 6px; }
+  .var-list { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .var-list li { font-size: 12px; color: var(--text2); line-height: 1.5; padding-left: 12px; position: relative; }
+  .var-list li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--green-bd); }
+  .var-list li strong { color: var(--text); font-weight: 600; }
+
   @media (max-width: 780px) {
+    .context-grid { grid-template-columns: 1fr; }
     .main-grid  { grid-template-columns: 1fr; }
     .input-grid { grid-template-columns: repeat(2,1fr); }
   }
@@ -205,7 +223,52 @@
 <div class="page-wrap">
   <div class="page-header">
     <h1>Feed-Forward Neural Network</h1>
-    <p>Predict urban heat island intensity across Phoenix. Work through the network layer by layer — computing dot products, applying ReLU, and reading the final softmax prediction.</p>
+    <p>Predicting urban heat island intensity across Phoenix neighborhoods.</p>
+  </div>
+
+  <!-- ═══════════════ CONTEXT ═══════════════ -->
+  <div class="context-section">
+
+    <!-- Scenario banner -->
+    <div class="scenario-banner">
+      <div class="scenario-eyebrow">Your scenario</div>
+      <p>You're a GIS analyst at the City of Phoenix Office of Sustainability. It's July, temperatures are hitting 115°F, and your team has been asked to identify which neighborhoods face the highest urban heat island (UHI) intensity — so the city can prioritize shade tree planting, cool pavement programs, and cooling center locations before next summer.</p>
+      <p>You have satellite-derived measurements for dozens of Phoenix neighborhoods: tree canopy coverage, impervious surface percentage, average building height, and distance to the nearest park. A colleague suggests training a neural network to predict UHI intensity from these four features. Your job today: work through a single forward pass of that network by hand, so you understand exactly what the model is computing before you trust its predictions.</p>
+    </div>
+
+    <!-- Three context cards -->
+    <div class="context-grid">
+
+      <!-- Card 1: What is UHI -->
+      <div class="context-card">
+        <div class="context-card-eyebrow">Background</div>
+        <h3>What is urban heat island effect?</h3>
+        <p>Urban areas are significantly warmer than surrounding rural land — sometimes by 5–10°F at night. This happens because cities replace vegetation and soil (which absorb water and provide shade) with dark, heat-absorbing surfaces like asphalt and concrete that retain and radiate heat long after sunset.</p>
+        <p>In Phoenix, UHI compounds an already extreme climate. Neighborhoods with high UHI intensity see elevated rates of heat-related illness, higher energy costs, and worse air quality. Low-income communities and communities of color are disproportionately affected because they tend to have less tree canopy and more impervious surface.</p>
+      </div>
+
+      <!-- Card 2: The variables -->
+      <div class="context-card">
+        <div class="context-card-eyebrow">Model inputs</div>
+        <h3>Why these four variables?</h3>
+        <ul class="var-list">
+          <li><strong>Tree canopy (%)</strong> — Trees provide direct shade, reduce surface temperatures through evapotranspiration, and block solar radiation. Higher canopy → lower UHI. This is often the strongest predictor in Phoenix neighborhoods.</li>
+          <li><strong>Impervious surface (%)</strong> — Roads, parking lots, and rooftops absorb and retain heat. High impervious cover is strongly correlated with elevated nighttime temperatures.</li>
+          <li><strong>Building height (m)</strong> — Taller buildings trap heat in street-level canyons by blocking wind flow and reflecting radiation back toward the ground.</li>
+          <li><strong>Distance to park (m)</strong> — Parks act as cool islands. Neighborhoods farther from green space lose access to this cooling effect.</li>
+        </ul>
+      </div>
+
+      <!-- Card 3: Why a neural network -->
+      <div class="context-card">
+        <div class="context-card-eyebrow">The model</div>
+        <h3>Why use a neural network?</h3>
+        <p>A linear regression would assume that each variable contributes independently and proportionally to UHI intensity. But reality is messier — a neighborhood with high tree canopy <em>and</em> high building height behaves differently than one with just high buildings alone. These interactions are non-linear.</p>
+        <p>A feed-forward neural network handles this naturally. Hidden layer neurons learn to detect combinations of features — one neuron might activate strongly for "high impervious + low canopy," another for "tall buildings + far from parks." The ReLU activation function is what makes this possible: it switches neurons on or off depending on whether their input pattern is present.</p>
+        <p>This makes neural networks well-suited for urban remote sensing problems where feature interactions drive outcomes as much as individual variables do.</p>
+      </div>
+
+    </div>
   </div>
 
   <div class="main-grid">
