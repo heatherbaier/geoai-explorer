@@ -203,7 +203,21 @@
   .var-list li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--green-bd); }
   .var-list li strong { color: var(--text); font-weight: 600; }
 
+  /* ── Non-linearity explainer ── */
+  .nonlin-section { margin-bottom: 1.75rem; }
+  .nonlin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+  .nonlin-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; }
+  .nonlin-card h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .nonlin-card p  { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+  .nonlin-canvas  { display: block; width: 100%; border-radius: 7px; background: var(--surface2); border: 1px solid var(--border); }
+  .nonlin-slider-wrap { margin-top: 10px; }
+  .nonlin-slider-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  input.nonlin-slider { width: 100%; accent-color: var(--purple); }
+  .nonlin-output { margin-top: 8px; font-size: 12px; font-family: "SF Mono","Consolas",monospace; text-align: center; padding: 6px; border-radius: 6px; background: var(--surface2); color: var(--text2); }
+  .nonlin-key { font-size: 11px; font-weight: 600; color: var(--purple); }
+
   @media (max-width: 780px) {
+    .nonlin-grid { grid-template-columns: 1fr; }
     .context-grid { grid-template-columns: 1fr; }
     .main-grid  { grid-template-columns: 1fr; }
     .input-grid { grid-template-columns: repeat(2,1fr); }
@@ -213,12 +227,28 @@
 <body>
 
 <nav>
-  <a class="nav-brand" href="../index.html">GeoAI <span>Explorer</span></a>
-  <a class="nav-tab" href="../index.html">Home</a>
-  <a class="nav-tab" href="../index.html">Decision Tree</a>
-  <a class="nav-tab" href="../random-forest/rf.html">Random Forest</a>
-  <a class="nav-tab active" href="#">Neural Network <span class="nav-badge">FF</span></a>
-  <a class="nav-tab" href="nn_training.html">NN Training</a>
+  <a class="nav-brand" href="/geoai-explorer/">Geo<span>AI</span> Explorer</a>
+  <a class="nav-tab" href="/geoai-explorer/">Home</a>
+  <a class="nav-tab" href="/geoai-explorer/supervised-learning.html">What is ML?</a>
+
+  <!-- Supervised dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-tab nav-dropdown-btn">Supervised ▾</button>
+    <div class="nav-dropdown-menu">
+      <a href="/geoai-explorer/supervised-learning/dt.html">Decision tree</a>
+      <a href="/geoai-explorer/supervised-learning/rf.html">Random forest</a>
+      <a href="/geoai-explorer/supervised-learning/nn.html">Neural network</a>
+      <!-- <a href="/geoai-explorer/supervised-learning/nn_training.html">NN training</a> -->
+    </div>
+  </div>
+
+  <!-- Unsupervised dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-tab nav-dropdown-btn">Unsupervised ▾</button>
+    <div class="nav-dropdown-menu">
+      <a href="/geoai-explorer/unsupervised-learning/kmeans.html">K-means</a>
+    </div>
+  </div>
 </nav>
 
 <div class="page-wrap">
@@ -269,6 +299,36 @@
         <p>This page shows the mechanics with random weights. The pattern detector story only becomes meaningful once the network has trained — that's what the next module is about.</p>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ═══════════════ NON-LINEARITY EXPLAINER ═══════════════ -->
+  <div class="nonlin-section">
+    <div style="margin-bottom:0.75rem;">
+      <div class="section-eyebrow" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:4px;">Before you start — key concept</div>
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:0.3rem;">Why neural networks need activation functions</h2>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;max-width:680px;">A single neuron is just a weighted sum — a linear function. The problem: stacking multiple linear layers is still linear. No matter how deep the network, without activation functions you could always collapse it to one layer. <strong style="color:var(--text);">Activation functions like ReLU introduce non-linearity</strong>, letting the network learn curves, thresholds, and complex interactions. Drag the slider below to see the difference.</p>
+    </div>
+    <div class="nonlin-grid">
+      <div class="nonlin-card">
+        <h4>Without activation — linear only</h4>
+        <p>The output is a straight line through the origin. Adding more layers or more neurons doesn't help — the relationship stays linear. High canopy + low imperv always maps to a proportionally lower UHI score, with no threshold or saturation effects.</p>
+        <canvas class="nonlin-canvas" id="nl-canvas-linear" height="140"></canvas>
+        <div class="nonlin-slider-wrap">
+          <div class="nonlin-slider-label"><span>Input (standardized)</span><span id="nl-val-linear">0.0</span></div>
+          <input type="range" class="nonlin-slider" id="nl-slider-linear" min="-3" max="3" step="0.05" value="0" oninput="updateNonlin()">
+        </div>
+        <div class="nonlin-output" id="nl-out-linear">output = 0.00</div>
+      </div>
+      <div class="nonlin-card" style="border-color:var(--purple-bd);">
+        <h4>With ReLU — non-linear ✓</h4>
+        <p>ReLU clamps negative inputs to zero, creating a threshold. Now the network can say "this pattern only matters when it's strongly present." Stacking multiple ReLU neurons lets the network carve the input space into regions — exactly what's needed for classifying UHI intensity.</p>
+        <canvas class="nonlin-canvas" id="nl-canvas-relu" height="140"></canvas>
+        <div class="nonlin-slider-wrap">
+          <div class="nonlin-slider-label"><span>← drag the slider on the left</span><span id="nl-val-relu">0.0</span></div>
+        </div>
+        <div class="nonlin-output" id="nl-out-relu" style="color:var(--purple);">output = 0.00</div>
+      </div>
     </div>
   </div>
 
@@ -577,18 +637,35 @@ function clearActive() {
 
 function showFormula(ni) {
   const n = neurons[ni], loc = LOCATIONS[locIdx];
+  const isSolved = dotSolved.has(ni);
   document.getElementById('formula-title').textContent = `${n.id} — dot product`;
-  let html = '<div class="formula-eq">', sum = 0;
-  FEATURES.forEach((f,i) => {
+
+  let html = '<div class="formula-eq">';
+  let sum = 0;
+  const prods = [];
+
+  FEATURES.forEach((f, i) => {
     const z    = stdz(loc.vals[i], i);
     const prod = +(n.weights[i] * z).toFixed(3);
     sum += n.weights[i] * z;
+    prods.push(prod);
     const ws = (n.weights[i] >= 0 ? '+' : '') + n.weights[i];
     const zs = (z >= 0 ? '+' : '') + z;
     html += `<span class="fw">${ws}</span><span class="fp"> × </span><span class="fx">${zs}</span><span class="fp"> = ${prod >= 0 ? '+' : ''}${prod}</span><br>`;
   });
-  html += `<span class="ftotal">z = ${sum.toFixed(3)}</span></div>`;
-  html += `<p class="fnote">Standardized inputs (z-scores). Enter your result in the neuron box above.</p>`;
+
+  // Sum line — show all products being added, then = ? or the answer if solved
+  const sumStr = prods.map((p, i) => (i === 0 ? (p >= 0 ? '' : '') : (p >= 0 ? ' + ' : ' ')) + (p >= 0 && i > 0 ? '+' : '') + p).join('');
+  html += `<span style="border-top:1px solid var(--border2);display:block;margin-top:6px;padding-top:6px;font-size:11px;color:var(--text3);">sum: ${prods.map(p => (p >= 0 ? '+' : '') + p).join(' ')}</span>`;
+
+  if (isSolved) {
+    html += `<span class="ftotal">z = ${sum.toFixed(3)}</span>`;
+  } else {
+    html += `<span class="ftotal" style="color:var(--text3);">z = <span style="background:var(--surface2);border:1px dashed var(--border2);border-radius:4px;padding:1px 10px;font-size:13px;color:var(--text3);">?</span> <span style="font-size:10px;font-weight:400;color:var(--text3);">← enter in the box above</span></span>`;
+  }
+
+  html += '</div>';
+  html += `<p class="fnote">Standardized inputs (z-scores). ${isSolved ? 'Correct — z confirmed.' : 'Add up the four products and enter z in the neuron box.'}</p>`;
   document.getElementById('formula-box').innerHTML = html;
 }
 
@@ -614,6 +691,8 @@ function markDotSolved(ni) {
   document.getElementById('nhint-' + ni).textContent = 'Correct!';
   document.getElementById('nchk-' + ni).textContent  = '';
   document.getElementById('ans-'  + ni).disabled = true;
+  // Refresh formula to reveal the z value now that it's solved
+  showFormula(ni);
   if (activeNeuron === ni) {
     activeNeuron = null;
     document.getElementById('svg-bridge').innerHTML = '';
@@ -826,9 +905,103 @@ document.addEventListener('click', e => {
   }
 });
 
+/* ══════════ NON-LINEARITY EXPLAINER ══════════ */
+
+function drawNonlinCanvas(canvasId, useRelu, inputVal) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = 140;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const c = canvas.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const PAD = { l:28, r:12, t:12, b:24 };
+  const pw = W - PAD.l - PAD.r, ph = H - PAD.t - PAD.b;
+
+  // Background
+  c.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface2') || '#f2f1ed';
+  c.fillRect(0, 0, W, H);
+
+  // Grid
+  c.strokeStyle = 'rgba(0,0,0,0.07)'; c.lineWidth = 0.5;
+  [-3,-2,-1,0,1,2,3].forEach(v => {
+    const x = PAD.l + ((v + 3) / 6) * pw;
+    c.beginPath(); c.moveTo(x, PAD.t); c.lineTo(x, PAD.t + ph); c.stroke();
+    c.fillStyle = '#9a9a9f'; c.font = '8px -apple-system,sans-serif';
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText(v, x, PAD.t + ph + 3);
+  });
+  // Zero y-line
+  const yZero = PAD.t + ph / 2;
+  c.beginPath(); c.moveTo(PAD.l, yZero); c.lineTo(PAD.l + pw, yZero);
+  c.strokeStyle = 'rgba(0,0,0,0.15)'; c.stroke();
+
+  // Y-axis label
+  c.save(); c.translate(10, PAD.t + ph/2); c.rotate(-Math.PI/2);
+  c.textAlign = 'center'; c.fillStyle = '#9a9a9f'; c.font = '8px -apple-system,sans-serif';
+  c.fillText('output', 0, 0); c.restore();
+
+  // Function curve
+  const W_EXAMPLE = 1.2; // representative weight
+  const minOut = useRelu ? 0 : -W_EXAMPLE * 3;
+  const maxOut = W_EXAMPLE * 3;
+  const range  = maxOut - (useRelu ? 0 : minOut);
+
+  function toY(outVal) {
+    const norm = (outVal - (useRelu ? 0 : minOut)) / range;
+    return PAD.t + ph - norm * ph;
+  }
+  function toX(inVal) {
+    return PAD.l + ((inVal + 3) / 6) * pw;
+  }
+  function fn(x) {
+    const z = W_EXAMPLE * x;
+    return useRelu ? Math.max(0, z) : z;
+  }
+
+  c.beginPath();
+  for (let px = 0; px <= pw; px++) {
+    const inVal = -3 + (px / pw) * 6;
+    const outVal = fn(inVal);
+    const cx_ = PAD.l + px, cy_ = toY(outVal);
+    px === 0 ? c.moveTo(cx_, cy_) : c.lineTo(cx_, cy_);
+  }
+  c.strokeStyle = useRelu ? '#534ab7' : '#9a9a9f';
+  c.lineWidth = 2; c.stroke();
+
+  // Current input point
+  const outNow = fn(inputVal);
+  const dotX = toX(inputVal), dotY = toY(outNow);
+  c.beginPath(); c.arc(dotX, dotY, 5, 0, Math.PI * 2);
+  c.fillStyle = useRelu ? '#534ab7' : '#5a5a62'; c.fill();
+  c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
+
+  // Dashed drop lines
+  c.setLineDash([3, 3]); c.lineWidth = 0.8;
+  c.strokeStyle = useRelu ? 'rgba(83,74,183,0.4)' : 'rgba(90,90,98,0.4)';
+  c.beginPath(); c.moveTo(dotX, dotY); c.lineTo(dotX, PAD.t + ph); c.stroke();
+  c.beginPath(); c.moveTo(dotX, dotY); c.lineTo(PAD.l, dotY); c.stroke();
+  c.setLineDash([]);
+}
+
+function updateNonlin() {
+  const v = parseFloat(document.getElementById('nl-slider-linear').value);
+  document.getElementById('nl-val-linear').textContent = v.toFixed(1);
+  document.getElementById('nl-val-relu').textContent   = v.toFixed(1);
+  const linear = +(1.2 * v).toFixed(2);
+  const relu   = +Math.max(0, 1.2 * v).toFixed(2);
+  document.getElementById('nl-out-linear').textContent = `output = ${linear >= 0 && linear !== 0 ? '+' : ''}${linear}`;
+  document.getElementById('nl-out-relu').textContent   = `output = ${relu >= 0 && relu !== 0 ? '+' : ''}${relu}`;
+  drawNonlinCanvas('nl-canvas-linear', false, v);
+  drawNonlinCanvas('nl-canvas-relu',   true,  v);
+}
+
 /* ══════════ INIT ══════════ */
 
 renderInputs(); renderNeurons(); drawArchitecture();
+updateNonlin();
 </script>
 </body>
 </html>
