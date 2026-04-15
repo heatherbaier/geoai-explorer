@@ -71,30 +71,42 @@
 
   /* ── Nav dropdowns ── */
   .nav-dropdown { position: relative; display: flex; align-items: center; }
-  .nav-dropdown-btn { background: none; border: none; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; }
+  .nav-dropdown-btn { background: none; border: none; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; padding: 0 1rem; height: 52px; display: flex; align-items: center; font-size: 13px; color: var(--text2); transition: color .15s; white-space: nowrap; }
   .nav-dropdown-btn:hover { color: var(--text); }
   .nav-dropdown-menu { display: none; position: absolute; top: 52px; left: 0; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 100; overflow: hidden; }
   .nav-dropdown:hover .nav-dropdown-menu { display: block; }
   .nav-dropdown-menu a { display: block; padding: 9px 16px; font-size: 13px; color: var(--text2); text-decoration: none; transition: background .1s; }
   .nav-dropdown-menu a:hover { background: var(--surface2); color: var(--text); }
-  .nav-dropdown-menu a.active { color: var(--purple); font-weight: 500; background: var(--purple-bg, #eeedfe); }  
-  
+
   /* ── Hero ── */
-  .hero { max-width: 680px; margin: 4rem auto 2rem; padding: 0 1.5rem; }
+  .hero { max-width: 680px; margin: 4rem auto 2.5rem; padding: 0 1.5rem; }
   .hero h1 { font-size: 30px; font-weight: 600; line-height: 1.25; margin-bottom: 0.75rem; }
-  .hero p { color: var(--text2); font-size: 15px; line-height: 1.7; margin-bottom: 2rem; }
-  .algo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
-  .algo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; cursor: pointer; transition: border-color .15s; text-decoration: none; display: block; color: inherit; }
+  .hero p { color: var(--text2); font-size: 15px; line-height: 1.7; }
+
+  /* ── Section layout ── */
+  .section-wrap { max-width: 900px; margin: 0 auto 3rem; padding: 0 1.5rem; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .section-label.sup   { color: var(--blue-txt); border-color: var(--blue-bd); }
+  .section-label.unsup { color: var(--green-txt); border-color: var(--green-bd); }
+
+  /* start-here card */
+  .start-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; text-decoration: none; display: block; color: inherit; transition: border-color .15s; margin-bottom: 1rem; display: flex; align-items: center; gap: 1.25rem; }
+  .start-card:hover { border-color: var(--border2); }
+  .start-card-icon { font-size: 28px; flex-shrink: 0; }
+  .start-card-text h3 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .start-card-text p  { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .start-badge { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-bottom: 6px; background: var(--purple-bg,#eeedfe); color: var(--purple); }
+
+  /* algo grid */
+  .algo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+  .algo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.15rem; cursor: pointer; transition: border-color .15s; text-decoration: none; display: block; color: inherit; }
   .algo-card:hover { border-color: var(--border2); }
-  .algo-card.available { cursor: pointer; }
-  .algo-card.coming { opacity: .5; cursor: default; pointer-events: none; }
-  .algo-tag { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-bottom: 10px; }
-  .tag-sup { background: var(--blue-bg); color: var(--blue-txt); }
-  .tag-unsup { background: var(--green-bg); color: var(--green-txt); }
-  .tag-ensemble { background: var(--amber-bg); color: var(--amber-txt); }
+  .algo-tag { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-bottom: 8px; }
+  .tag-sup     { background: var(--blue-bg);  color: var(--blue-txt); }
+  .tag-unsup   { background: var(--green-bg); color: var(--green-txt); }
+  .tag-ensemble{ background: var(--amber-bg); color: var(--amber-txt); }
   .algo-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
   .algo-card p  { font-size: 12px; color: var(--text2); line-height: 1.5; }
-  .coming-label { font-size: 11px; color: var(--text3); margin-top: 8px; }
 
   @media (max-width: 700px) {
     .algo-grid { grid-template-columns: 1fr 1fr; }
@@ -133,33 +145,60 @@
   <p>Interactive activities for GIS 521. Each module walks you through an algorithm step by step — you make the decisions, the model builds in real time.</p>
 </div>
 
-<div class="algo-grid">
-  <a class="algo-card available" href="decision-tree/dt.html">
-    <div class="algo-tag tag-sup">Supervised</div>
-    <h3>Decision tree</h3>
-    <p>Build a flood risk classifier by choosing your own splits on parcel data.</p>
+<!-- Start here -->
+<div class="section-wrap">
+  <a class="start-card" href="/geoai-explorer/supervised-learning.html">
+    <div class="start-card-icon">🧭</div>
+    <div class="start-card-text">
+      <div class="start-badge">Start here</div>
+      <h3>What is machine learning?</h3>
+      <p>Before the algorithms — what ML actually does, inputs → model → outputs, supervised vs unsupervised, and a hands-on labeling exercise.</p>
+    </div>
   </a>
-  <a class="algo-card available" href="random-forest/rf.html">
-    <div class="algo-tag tag-ensemble">Ensemble</div>
-    <h3>Random forest</h3>
-    <p>See why 100 imperfect trees beat one perfect one.</p>
-  </a>
-  <a class="algo-card available" href="neural-network/nn_ff.html">
-    <div class="algo-tag tag-sup">Supervised</div>
-    <h3>Neural network</h3>
-    <p>Walk through a forward pass with real numbers.</p>
-  </a>
-  <!-- <a class="algo-card available" href="neural-network/nn_training.html">
-    <div class="algo-tag tag-sup">Supervised</div>
-    <h3>NN training</h3>
-    <p>Choose hyperparameters and watch the network learn from synthetic Phoenix data.</p>
-  </a> -->
-  <!-- <a class="algo-card coming" href="#">
-    <div class="algo-tag tag-unsup">Unsupervised</div>
-    <h3>K-means</h3>
-    <p>Place centroids and watch clusters form on spatial data.</p>
-    <div class="coming-label">Coming soon</div>
-  </a> -->
+</div>
+
+<!-- Supervised -->
+<div class="section-wrap">
+  <div class="section-label sup">Supervised learning</div>
+  <div class="algo-grid">
+    <a class="algo-card" href="/geoai-explorer/supervised-learning/dt.html">
+      <div class="algo-tag tag-sup">Supervised</div>
+      <h3>Decision tree</h3>
+      <p>Build a flood risk classifier by choosing your own splits on parcel data.</p>
+    </a>
+    <a class="algo-card" href="/geoai-explorer/supervised-learning/rf.html">
+      <div class="algo-tag tag-ensemble">Ensemble</div>
+      <h3>Random forest</h3>
+      <p>See why 100 imperfect trees beat one perfect one.</p>
+    </a>
+    <a class="algo-card" href="/geoai-explorer/supervised-learning/nn.html">
+      <div class="algo-tag tag-sup">Supervised</div>
+      <h3>Neural network</h3>
+      <p>Walk through a forward pass with real numbers — dot products, ReLU, softmax.</p>
+    </a>
+    <!-- <a class="algo-card" href="/geoai-explorer/supervised-learning/nn_training.html">
+      <div class="algo-tag tag-sup">Supervised</div>
+      <h3>NN training</h3>
+      <p>Choose hyperparameters and watch the network learn from synthetic Phoenix data.</p>
+    </a> -->
+  </div>
+</div>
+
+<!-- Unsupervised -->
+<div class="section-wrap">
+  <div class="section-label unsup">Unsupervised learning</div>
+  <div class="algo-grid">
+    <a class="algo-card" href="/geoai-explorer/unsupervised-learning/kmeans.html">
+      <div class="algo-tag tag-unsup">Unsupervised</div>
+      <h3>K-means</h3>
+      <p>Place centroids and watch clusters form across Phoenix neighborhoods.</p>
+    </a>
+    <!-- <a class="algo-card" href="/geoai-explorer/unsupervised-learning/dbscan.html">
+      <div class="algo-tag tag-unsup">Unsupervised</div>
+      <h3>DBSCAN</h3>
+      <p>Walk through density-based clustering step by step — core, border, and noise points.</p>
+    </a> -->
+  </div>
 </div>
 
 </body>
