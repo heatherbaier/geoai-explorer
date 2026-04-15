@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoAI — K-Means Clustering</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f8f8f6;
+    --surface:   #ffffff;
+    --surface2:  #f2f1ed;
+    --border:    rgba(0,0,0,0.10);
+    --border2:   rgba(0,0,0,0.18);
+    --text:      #1a1a1e;
+    --text2:     #5a5a62;
+    --text3:     #9a9a9f;
+    --blue-bg:   #e6f1fb; --blue-bd: #85b7eb; --blue-txt: #0c447c;
+    --green-bg:  #e1f5ee; --green-bd: #5dcaa5; --green-txt: #085041;
+    --red-bg:    #fcebeb; --red-bd: #f09595;   --red-txt: #a32d2d;
+    --amber-bg:  #faeeda; --amber-bd: #ef9f27; --amber-txt: #633806;
+    --purple-bg: #eeedfe; --purple-bd: #afa9ec; --purple: #534ab7; --purple-txt: #26215c;
+    --radius: 10px; --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16161a; --surface: #1e1e24; --surface2: #26262e;
+      --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
+      --text: #e8e8ec; --text2: #9a9aa4; --text3: #5a5a62;
+      --blue-bg: #0c2a44; --blue-bd: #185fa5; --blue-txt: #b5d4f4;
+      --green-bg: #04251c; --green-bd: #0f6e56; --green-txt: #9fe1cb;
+      --red-bg: #2a0a0a; --red-bd: #a32d2d; --red-txt: #f7c1c1;
+      --amber-bg: #2a1a04; --amber-bd: #854f0b; --amber-txt: #fac775;
+      --purple-bg: #1a1840; --purple-bd: #534ab7; --purple-txt: #cecbf6;
+    }
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 52px; }
+  .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 2rem; white-space: nowrap; text-decoration: none; }
+  .nav-brand span { color: var(--purple); }
+  .nav-tab { padding: 0 1rem; height: 52px; display: flex; align-items: center; font-size: 13px; color: var(--text2); border-bottom: 2px solid transparent; text-decoration: none; transition: color .15s; white-space: nowrap; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
+  .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
+
+  /* ── Nav dropdowns ── */
+  .nav-dropdown { position: relative; display: flex; align-items: center; }
+  .nav-dropdown-btn { background: none; border: none; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; }
+  .nav-dropdown-btn:hover { color: var(--text); }
+  .nav-dropdown-menu { display: none; position: absolute; top: 52px; left: 0; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 100; overflow: hidden; }
+  .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+  .nav-dropdown-menu a { display: block; padding: 9px 16px; font-size: 13px; color: var(--text2); text-decoration: none; transition: background .1s; }
+  .nav-dropdown-menu a:hover { background: var(--surface2); color: var(--text); }
+  .nav-dropdown-menu a.active { color: var(--purple); font-weight: 500; background: var(--purple-bg, #eeedfe); }
+    
+  .page-wrap { max-width: 1060px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.3rem; }
+  .page-header p  { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 600px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
+  .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+  .section { margin-bottom: 2.5rem; }
+  .section-header { margin-bottom: 1.25rem; }
+  .section-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin-bottom: 4px; }
+  .section-header h2 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .section-header p  { font-size: 13px; color: var(--text2); line-height: 1.7; max-width: 680px; }
+
+  /* context cards */
+  .concept-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .concept-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; }
+  .concept-card-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+  .concept-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .concept-card p  { font-size: 12px; color: var(--text2); line-height: 1.7; }
+  .concept-card p + p { margin-top: 6px; }
+
+  /* scenario banner */
+  .scenario-banner { background: var(--purple-bg); border: 1px solid var(--purple-bd); border-radius: var(--radius-lg); padding: 1.1rem 1.4rem; margin-bottom: 1.25rem; }
+  .scenario-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin-bottom: 6px; }
+  .scenario-banner p { font-size: 13px; color: var(--purple-txt); line-height: 1.75; }
+  .scenario-banner p + p { margin-top: 8px; }
+  @media (prefers-color-scheme: dark) {
+    .scenario-banner { background: #1a1840; border-color: #534ab7; }
+    .scenario-banner p, .scenario-eyebrow { color: #cecbf6; }
+  }
+
+  /* buttons */
+  button.btn { padding: 7px 16px; font-size: 13px; border-radius: 7px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); transition: background .15s; font-family: inherit; }
+  button.btn:hover { background: var(--border); }
+  button.btn.primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+  button.btn.primary:hover { opacity: .88; }
+  button.btn:disabled { opacity: .4; cursor: default; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  /* ── CENTROID PLACEMENT GAME ── */
+  .game-grid { display: grid; grid-template-columns: minmax(0,1fr) 280px; gap: 1.25rem; align-items: start; }
+  #scatter-canvas { display: block; border-radius: var(--radius); border: 1px solid var(--border); cursor: crosshair; width: 100%; background: var(--surface2); }
+  .game-status { background: var(--surface2); border-radius: 8px; padding: 10px 13px; font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+  .game-status strong { color: var(--text); }
+  .iter-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 8px; background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-bd); margin-bottom: 8px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: middle; }
+
+  /* k selector */
+  .k-selector { display: flex; gap: 6px; margin-bottom: 12px; }
+  .k-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .k-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+  /* speed toggle */
+  .speed-toggle { display: flex; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
+  .speed-btn { padding: 5px 10px; font-size: 11px; border: none; background: none; color: var(--text2); cursor: pointer; font-family: inherit; }
+  .speed-btn.active { background: var(--surface); color: var(--text); font-weight: 500; }
+
+  /* ── MAP + ELBOW ── */
+  .map-grid { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 1.25rem; align-items: start; }
+  #km-map { height: 420px; border-radius: var(--radius); border: 1px solid var(--border); }
+  #elbow-canvas { display: block; width: 100%; border-radius: 8px; background: var(--surface2); }
+  .k-toggle { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .kt-btn { padding: 5px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); cursor: pointer; transition: all .15s; font-family: inherit; }
+  .kt-btn.active { color: #fff; border-color: transparent; }
+
+  /* cluster color vars */
+  :root {
+    --c0: #534ab7; --c1: #0f6e56; --c2: #993c1d; --c3: #ba7517;
+  }
+
+  @media (max-width: 760px) {
+    .concept-grid { grid-template-columns: 1fr; }
+    .game-grid    { grid-template-columns: 1fr; }
+    .map-grid     { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/geoai-explorer/">Geo<span>AI</span> Explorer</a>
+  <a class="nav-tab" href="/geoai-explorer/">Home</a>
+  <a class="nav-tab" href="/geoai-explorer/supervised-learning/index.html">What is ML?</a>
+
+  <!-- Supervised dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-tab nav-dropdown-btn">Supervised ▾</button>
+    <div class="nav-dropdown-menu">
+      <a href="/geoai-explorer/supervised-learning/dt.html">Decision tree</a>
+      <a href="/geoai-explorer/supervised-learning/rf.html">Random forest</a>
+      <a href="/geoai-explorer/supervised-learning/nn_ff.html">Neural network</a>
+      <a href="/geoai-explorer/supervised-learning/nn_training.html">NN training</a>
+    </div>
+  </div>
+
+  <!-- Unsupervised dropdown -->
+  <div class="nav-dropdown">
+    <button class="nav-tab nav-dropdown-btn">Unsupervised ▾</button>
+    <div class="nav-dropdown-menu">
+      <a href="/geoai-explorer/unsupervised-learning/kmeans.html">K-means</a>
+    </div>
+  </div>
+</nav>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>K-Means Clustering</h1>
+    <p>Grouping Phoenix neighborhoods by socioeconomic and environmental profile — without any labels.</p>
+  </div>
+
+  <!-- ══════════════════════════ CONTEXT ══════════════════════════ -->
+
+  <div class="scenario-banner" style="margin-bottom:1.25rem;">
+    <div class="scenario-eyebrow">Your scenario</div>
+    <p>You're a GIS analyst at the City of Phoenix Office of Community Planning. Your team has been asked to identify which neighborhoods share similar socioeconomic and environmental conditions — not to predict a specific outcome, but to find natural groupings that could inform where to target resources, outreach, or further study.</p>
+    <p>You have five variables measured for 40 Phoenix-area neighborhoods: median household income, tree canopy coverage, population density, distance to the nearest park, and PM2.5 air pollution. Nobody has labeled these neighborhoods — there's no "correct" answer. Your job: use K-means to find the structure in the data, then interpret what the clusters actually represent.</p>
+  </div>
+
+  <div class="concept-grid" style="margin-bottom:2rem;">
+    <div class="concept-card">
+      <div class="concept-card-eyebrow">What K-means does</div>
+      <h3>Finding groups without labels</h3>
+      <p>K-means is an unsupervised algorithm — there are no labels, no right answers, no loss function to minimize. Instead it asks: given K groups, how should we divide these points so that each group is as tight (internally similar) as possible?</p>
+      <p>The result is K cluster assignments — every neighborhood belongs to exactly one cluster — plus a centroid (the average position) for each cluster. The algorithm finds this structure without ever being told what the groups should mean.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-card-eyebrow">How it works</div>
+      <h3>Three steps, repeated</h3>
+      <p><strong style="color:var(--text);">1. Initialize</strong> — place K centroids somewhere in the feature space. Where you start matters.</p>
+      <p><strong style="color:var(--text);">2. Assign</strong> — each point joins the cluster whose centroid is closest (by Euclidean distance in feature space).</p>
+      <p><strong style="color:var(--text);">3. Update</strong> — each centroid moves to the mean position of all points currently assigned to it.</p>
+      <p>Repeat steps 2 and 3 until the assignments stop changing — that's convergence. Usually takes 10–20 iterations.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-card-eyebrow">The hard question</div>
+      <h3>How many clusters?</h3>
+      <p>K-means requires you to choose K before running. Unlike supervised learning, there's no accuracy score to optimize — so how do you know if K=3 is better than K=4?</p>
+      <p>One common approach is the <strong style="color:var(--text);">elbow method</strong>: run K-means for K=1 through 8 and plot the total within-cluster variance (inertia). Where the curve bends sharply — the "elbow" — is often a good K. But there's no single right answer, and domain knowledge matters as much as the math.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ SECTION 1: PLACE CENTROIDS ══════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Section 1 — Interactive</div>
+      <h2>Place your own centroids</h2>
+      <p>Each dot is a Phoenix neighborhood plotted by income (x-axis) and tree canopy % (y-axis). Choose K, click to place centroids, then step through iterations to watch K-means converge. Try placing centroids in different spots — does initialization affect the final result?</p>
+    </div>
+
+    <div class="game-grid">
+      <!-- Canvas -->
+      <div>
+        <canvas id="scatter-canvas" height="420"></canvas>
+      </div>
+
+      <!-- Controls -->
+      <div>
+        <div class="panel-title">Controls</div>
+
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500;">Choose K (number of clusters)</div>
+          <div class="k-selector">
+            <button class="k-btn" onclick="setK(2)">2</button>
+            <button class="k-btn active" onclick="setK(3)">3</button>
+            <button class="k-btn" onclick="setK(4)">4</button>
+          </div>
+        </div>
+
+        <div class="game-status" id="game-status">
+          <strong>Step 1:</strong> Click on the scatter plot to place <strong id="k-display">3</strong> centroids. Try to space them out across different regions of the plot.
+        </div>
+
+        <div class="btn-row" style="margin-bottom:10px;">
+          <button class="btn primary" id="btn-step" onclick="stepIteration()" disabled>Step →</button>
+          <button class="btn" id="btn-run" onclick="runToConvergence()" disabled>Run to end</button>
+          <button class="btn" onclick="resetGame()">Reset</button>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500;">Animation speed</div>
+          <div class="speed-toggle">
+            <button class="speed-btn" onclick="setSpeed('slow')">Slow</button>
+            <button class="speed-btn active" onclick="setSpeed('medium')" id="sp-med">Medium</button>
+            <button class="speed-btn" onclick="setSpeed('fast')">Fast</button>
+          </div>
+        </div>
+
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">Legend</div>
+        <div id="scatter-legend" style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--text2);"></div>
+
+        <div style="margin-top:14px;font-size:11px;color:var(--text3);line-height:1.6;">
+          Y-axis = tree canopy %. Points higher up have more green cover. Notice which neighborhoods cluster together — and whether the clusters make geographic or social sense.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ SECTION 2+3: MAP + ELBOW ══════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Section 2 — Explore & interpret</div>
+      <h2>What do the clusters look like on a map?</h2>
+      <p>Toggle K below to re-run K-means with different numbers of clusters. Each neighborhood marker is colored by cluster assignment. Click any marker to see the neighborhood's feature values. Watch how the clusters change — and whether they reveal meaningful geographic patterns.</p>
+    </div>
+
+    <div class="map-grid">
+      <!-- Map -->
+      <div class="panel" style="padding:0.75rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+          <div class="panel-title" style="margin-bottom:0;">Phoenix neighborhoods — K-means assignments</div>
+          <div class="k-toggle" id="k-toggle"></div>
+        </div>
+        <div id="km-map"></div>
+        <div id="map-legend" style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Elbow + interpretation -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <div class="panel">
+          <div class="panel-title">Elbow plot — how many clusters?</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6;">Total within-cluster variance (inertia) for K=1 to 7. Lower is better — but adding more clusters always helps. Look for the <strong style="color:var(--text);">elbow</strong> where the improvement slows sharply.</div>
+          <canvas id="elbow-canvas" height="180"></canvas>
+          <div id="elbow-annotation" style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.6;"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">What do the clusters represent?</div>
+          <div id="cluster-interp" style="font-size:12px;color:var(--text2);line-height:1.8;font-style:italic;">Select K above to see cluster profiles.</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">K-means limitations</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.7;">
+            <p style="margin-bottom:6px;"><strong style="color:var(--text);">Assumes spherical clusters.</strong> K-means works well when clusters are roughly round and similarly sized. Elongated or non-convex shapes get split incorrectly.</p>
+            <p style="margin-bottom:6px;"><strong style="color:var(--text);">Sensitive to initialization.</strong> Different random starting centroids can produce different final clusters. Running multiple times and keeping the best result (K-means++) helps.</p>
+            <p><strong style="color:var(--text);">You interpret the clusters.</strong> The algorithm assigns numbers — it doesn't tell you what Cluster 2 means. That interpretation step requires domain knowledge, and it's where GIS expertise matters most.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════
+   SYNTHETIC PHOENIX NEIGHBORHOOD DATA
+   40 neighborhoods, 5 features each
+   income ($k), canopy (%), density (/km²), park_dist (km), pm25 (µg/m³)
+══════════════════════════════════════════════════════ */
+const HOODS = [
+  // High income, high canopy, low density
+  { name:'Paradise Valley',      lat:33.535, lng:-111.942, income:145, canopy:38, density:820,  park:0.8, pm25:7.2  },
+  { name:'Scottsdale North',     lat:33.618, lng:-111.924, income:132, canopy:32, density:1100, park:1.1, pm25:8.1  },
+  { name:'Arcadia',              lat:33.499, lng:-111.982, income:118, canopy:41, density:1340, park:0.6, pm25:7.8  },
+  { name:'Biltmore',             lat:33.519, lng:-112.027, income:124, canopy:35, density:980,  park:0.9, pm25:8.4  },
+  { name:'Desert Ridge',         lat:33.672, lng:-111.981, income:108, canopy:28, density:1450, park:1.2, pm25:9.1  },
+  { name:'Gainey Ranch',         lat:33.570, lng:-111.916, income:138, canopy:44, density:760,  park:0.7, pm25:7.5  },
+  { name:'Ahwatukee Foothills',  lat:33.327, lng:-112.005, income:102, canopy:31, density:1680, park:1.4, pm25:9.8  },
+  { name:'Moon Valley',          lat:33.608, lng:-112.095, income:97,  canopy:29, density:1820, park:1.0, pm25:10.2 },
+  // Middle income, moderate canopy
+  { name:'Tempe East',           lat:33.415, lng:-111.909, income:64,  canopy:18, density:3200, park:1.6, pm25:13.4 },
+  { name:'Mesa Fiesta',          lat:33.416, lng:-111.831, income:58,  canopy:15, density:3800, park:1.9, pm25:14.2 },
+  { name:'Chandler West',        lat:33.306, lng:-111.880, income:78,  canopy:22, density:2800, park:1.3, pm25:11.8 },
+  { name:'Gilbert Heritage',     lat:33.353, lng:-111.789, income:84,  canopy:24, density:2400, park:1.1, pm25:11.2 },
+  { name:'Glendale Central',     lat:33.537, lng:-112.186, income:55,  canopy:14, density:4100, park:2.1, pm25:15.1 },
+  { name:'Peoria Lakes',         lat:33.580, lng:-112.233, income:72,  canopy:19, density:2900, park:1.5, pm25:12.3 },
+  { name:'Surprise',             lat:33.630, lng:-112.368, income:68,  canopy:17, density:2600, park:1.8, pm25:13.1 },
+  { name:'Goodyear',             lat:33.435, lng:-112.358, income:74,  canopy:20, density:2200, park:1.7, pm25:12.8 },
+  { name:'Laveen',               lat:33.370, lng:-112.168, income:61,  canopy:13, density:3400, park:2.4, pm25:14.8 },
+  { name:'Avondale',             lat:33.435, lng:-112.350, income:53,  canopy:11, density:4600, park:2.6, pm25:16.2 },
+  // Lower income, low canopy, high density — urban core
+  { name:'South Mountain',       lat:33.358, lng:-112.072, income:38,  canopy:5,  density:7200, park:3.1, pm25:19.8 },
+  { name:'Maryvale',             lat:33.478, lng:-112.168, income:32,  canopy:4,  density:8100, park:3.4, pm25:21.2 },
+  { name:'Central City',         lat:33.458, lng:-112.072, income:29,  canopy:6,  density:8800, park:2.8, pm25:20.4 },
+  { name:'Alhambra',             lat:33.488, lng:-112.130, income:35,  canopy:5,  density:7600, park:3.2, pm25:20.1 },
+  { name:'Estrella',             lat:33.415, lng:-112.220, income:41,  canopy:7,  density:6400, park:2.9, pm25:18.6 },
+  { name:'Laveen South',         lat:33.335, lng:-112.180, income:36,  canopy:4,  density:7800, park:3.6, pm25:21.8 },
+  { name:'South Phoenix',        lat:33.390, lng:-112.078, income:27,  canopy:3,  density:9200, park:3.8, pm25:22.4 },
+  { name:'West McDowell',        lat:33.471, lng:-112.110, income:31,  canopy:5,  density:8400, park:3.1, pm25:20.8 },
+  // Boundary / mixed cases
+  { name:'ASU Campus area',      lat:33.421, lng:-111.934, income:48,  canopy:16, density:5200, park:1.4, pm25:15.8 },
+  { name:'Downtown Phoenix',     lat:33.448, lng:-112.074, income:52,  canopy:9,  density:6100, park:1.8, pm25:17.2 },
+  { name:'Midtown',              lat:33.468, lng:-112.074, income:61,  canopy:14, density:4800, park:1.6, pm25:14.9 },
+  { name:'Camelback East',       lat:33.510, lng:-111.990, income:88,  canopy:26, density:2100, park:1.2, pm25:10.8 },
+  { name:'North Mountain',       lat:33.588, lng:-112.072, income:76,  canopy:21, density:2700, park:1.5, pm25:12.1 },
+  { name:'Deer Valley',          lat:33.682, lng:-112.109, income:89,  canopy:23, density:1900, park:1.3, pm25:10.4 },
+  { name:'Cave Creek area',      lat:33.832, lng:-111.953, income:94,  canopy:33, density:1100, park:2.1, pm25:8.8  },
+  { name:'Tempe South',          lat:33.378, lng:-111.940, income:54,  canopy:12, density:5400, park:2.2, pm25:16.4 },
+  { name:'Mesa South',           lat:33.372, lng:-111.831, income:47,  canopy:10, density:6200, park:2.8, pm25:17.8 },
+  { name:'Tolleson',             lat:33.451, lng:-112.259, income:39,  canopy:6,  density:6800, park:3.5, pm25:20.6 },
+  { name:'El Mirage',            lat:33.612, lng:-112.329, income:44,  canopy:8,  density:5900, park:3.0, pm25:18.2 },
+  { name:'Sun City West',        lat:33.660, lng:-112.360, income:58,  canopy:24, density:2100, park:1.6, pm25:11.6 },
+  { name:'Queen Creek',          lat:33.249, lng:-111.634, income:86,  canopy:18, density:1600, park:2.3, pm25:10.9 },
+  { name:'San Tan Valley',       lat:33.196, lng:-111.538, income:72,  canopy:14, density:2400, park:2.8, pm25:12.7 },
+];
+
+// Normalize features to [0,1] for distance calculation
+const FEAT_KEYS = ['income','canopy','density','park','pm25'];
+const mins = {}, maxs = {};
+FEAT_KEYS.forEach(k => {
+  mins[k] = Math.min(...HOODS.map(h => h[k]));
+  maxs[k] = Math.max(...HOODS.map(h => h[k]));
+});
+function norm(val, k) { return (val - mins[k]) / (maxs[k] - mins[k]); }
+function normVec(h)   { return FEAT_KEYS.map(k => norm(h[k], k)); }
+
+// Scatter plot uses income (x) and canopy (y) as the 2D projection
+const CLUSTER_COLORS = ['#534ab7','#0f6e56','#993c1d','#ba7517'];
+const CLUSTER_LABELS_BG = ['#eeedfe','#e1f5ee','#faece7','#faeeda'];
+
+/* ══════════════════════════════════════════════════════
+   K-MEANS CORE
+══════════════════════════════════════════════════════ */
+function euclidean(a, b) {
+  return Math.sqrt(a.reduce((s,v,i) => s + (v-b[i])**2, 0));
+}
+
+function assignClusters(points, centroids) {
+  return points.map(pt => {
+    let best = 0, bestD = Infinity;
+    centroids.forEach((c,i) => {
+      const d = euclidean(pt, c);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    return best;
+  });
+}
+
+function updateCentroids(points, assignments, K) {
+  return Array.from({length:K}, (_,k) => {
+    const pts = points.filter((_,i) => assignments[i] === k);
+    if (!pts.length) return points[Math.floor(Math.random()*points.length)].slice();
+    return FEAT_KEYS.map((_,fi) => pts.reduce((s,p) => s+p[fi], 0) / pts.length);
+  });
+}
+
+function computeInertia(points, assignments, centroids) {
+  return points.reduce((s,pt,i) => s + euclidean(pt, centroids[assignments[i]])**2, 0);
+}
+
+function runKMeans(K, maxIter=100, initCentroids=null) {
+  const pts = HOODS.map(normVec);
+  let centroids = initCentroids
+    ? initCentroids.map(c => c.slice())
+    : (() => {
+        // K-means++ init
+        const chosen = [pts[Math.floor(Math.random()*pts.length)].slice()];
+        while (chosen.length < K) {
+          const dists = pts.map(p => Math.min(...chosen.map(c => euclidean(p,c)**2)));
+          const total = dists.reduce((a,b)=>a+b,0);
+          let r = Math.random()*total, cum=0;
+          for (let i=0;i<pts.length;i++) { cum+=dists[i]; if(cum>=r){chosen.push(pts[i].slice());break;}}
+        }
+        return chosen;
+      })();
+  let assignments = assignClusters(pts, centroids);
+  for (let iter=0; iter<maxIter; iter++) {
+    const newC = updateCentroids(pts, assignments, K);
+    const newA = assignClusters(pts, newC);
+    if (newA.every((a,i)=>a===assignments[i])) { centroids=newC; assignments=newA; break; }
+    centroids = newC; assignments = newA;
+  }
+  return { centroids, assignments, inertia: computeInertia(pts, assignments, centroids) };
+}
+
+/* ══════════════════════════════════════════════════════
+   SCATTER CANVAS GAME
+══════════════════════════════════════════════════════ */
+let K = 3;
+let userCentroids = [];     // [{x,y} in canvas coords]
+let assignments   = null;   // array of cluster indices
+let iterCount     = 0;
+let converged     = false;
+let animSpeed     = { slow:600, medium:250, fast:80 };
+let currentSpeed  = 'medium';
+let running       = false;
+
+const canvas = document.getElementById('scatter-canvas');
+const ctx    = canvas.getContext('2d');
+
+// Map income/canopy to canvas coords
+function toCanvas(income, canopy) {
+  const PAD = { t:16, r:16, b:40, l:52 };
+  const cW = canvas.width  - PAD.l - PAD.r;
+  const cH = canvas.height - PAD.t - PAD.b;
+  const x = PAD.l + ((income - mins.income) / (maxs.income - mins.income)) * cW;
+  const y = PAD.t + (1 - (canopy - mins.canopy) / (maxs.canopy - mins.canopy)) * cH;
+  return {x, y};
+}
+
+function fromCanvas(cx, cy) {
+  const PAD = { t:16, r:16, b:40, l:52 };
+  const cW = canvas.width  - PAD.l - PAD.r;
+  const cH = canvas.height - PAD.t - PAD.b;
+  const income = mins.income + ((cx - PAD.l) / cW) * (maxs.income - mins.income);
+  const canopy = mins.canopy + (1 - (cy - PAD.t) / cH) * (maxs.canopy - mins.canopy);
+  return {
+    income: Math.max(mins.income, Math.min(maxs.income, income)),
+    canopy:  Math.max(mins.canopy,  Math.min(maxs.canopy,  canopy))
+  };
+}
+
+function drawScatter() {
+  const W = canvas.width, H = canvas.height;
+  const PAD = { t:16, r:16, b:40, l:52 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface2') || '#f2f1ed';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid lines + axis tick labels
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)'; ctx.lineWidth = 0.5;
+  ctx.fillStyle = '#9a9a9f'; ctx.font = '9px -apple-system,sans-serif';
+
+  // Vertical grid + X tick labels (income)
+  const incomeRange = maxs.income - mins.income;
+  for (let i=0;i<=4;i++) {
+    const x = PAD.l + cW*(i/4);
+    ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t+cH); ctx.stroke();
+    const incVal = Math.round(mins.income + incomeRange*(i/4));
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('$' + incVal + 'k', x, PAD.t + cH + 5);
+  }
+
+  // Horizontal grid + Y tick labels (canopy)
+  const canopyRange = maxs.canopy - mins.canopy;
+  for (let i=0;i<=4;i++) {
+    const y = PAD.t + cH*(i/4);
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(PAD.l+cW, y); ctx.stroke();
+    const canVal = Math.round(maxs.canopy - canopyRange*(i/4));
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(canVal + '%', PAD.l - 5, y);
+  }
+
+  // Axis titles
+  ctx.fillStyle = '#9a9a9f'; ctx.font = '10px -apple-system,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('Median household income', PAD.l + cW/2, H - 2);
+
+  ctx.save();
+  ctx.translate(13, PAD.t + cH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('Tree canopy %', 0, 0);
+  ctx.restore();
+
+  // Lines from points to nearest centroid
+  if (assignments !== null && userCentroids.length === K) {
+    ctx.globalAlpha = 0.15; ctx.lineWidth = 0.8;
+    HOODS.forEach((h,i) => {
+      const {x,y} = toCanvas(h.income, h.canopy);
+      const c = userCentroids[assignments[i]];
+      ctx.strokeStyle = CLUSTER_COLORS[assignments[i]];
+      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(c.x,c.y); ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // Points
+  HOODS.forEach((h, i) => {
+    const {x,y} = toCanvas(h.income, h.canopy);
+    const clr = assignments !== null ? CLUSTER_COLORS[assignments[i]] : '#888780';
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle = clr; ctx.globalAlpha=0.8; ctx.fill();
+    ctx.globalAlpha=1; ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.2; ctx.stroke();
+  });
+
+  // User-placed centroids (drawn last so they're on top)
+  userCentroids.forEach((c,i) => {
+    ctx.beginPath(); ctx.arc(c.x,c.y,10,0,Math.PI*2);
+    ctx.fillStyle = CLUSTER_COLORS[i]; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='bold 12px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('✕',c.x,c.y);
+  });
+}
+
+function initCanvas() {
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = 420;
+  drawScatter();
+}
+
+canvas.addEventListener('click', e => {
+  if (converged || userCentroids.length >= K) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const cx = (e.clientX - rect.left) * scaleX;
+  const cy = (e.clientY - rect.top)  * scaleY;
+  userCentroids.push({x:cx, y:cy});
+  drawScatter();
+  updateLegend();
+
+  if (userCentroids.length === K) {
+    // Do first assignment with canvas centroids mapped to feature space
+    doFirstAssignment();
+    document.getElementById('btn-step').disabled = false;
+    document.getElementById('btn-run').disabled  = false;
+    updateStatus(`<strong>All ${K} centroids placed!</strong> Hit "Step →" to run one iteration, or "Run to end" to converge automatically.`);
+  } else {
+    updateStatus(`<strong>Step 1:</strong> Place ${K - userCentroids.length} more centroid${K - userCentroids.length > 1 ? 's' : ''}.`);
+  }
+});
+
+function doFirstAssignment() {
+  // Convert canvas centroid positions to normalized feature vectors
+  // We only have income/canopy from canvas — fill other dims with cluster mean approximations
+  const pts = HOODS.map(normVec);
+  const cNorm = userCentroids.map(c => {
+    const {income, canopy} = fromCanvas(c.x, c.y);
+    const base = FEAT_KEYS.map(k => norm(k === 'income' ? income : k === 'canopy' ? canopy : (mins[k]+maxs[k])/2, k));
+    return base;
+  });
+  assignments = assignClusters(pts, cNorm);
+  iterCount = 0;
+  drawScatter();
+}
+
+function stepIteration() {
+  if (converged || running) return;
+  const pts   = HOODS.map(normVec);
+  const cNorm = userCentroids.map(c => {
+    const {income, canopy} = fromCanvas(c.x, c.y);
+    return FEAT_KEYS.map(k => norm(k==='income'?income:k==='canopy'?canopy:(mins[k]+maxs[k])/2, k));
+  });
+
+  // Compute new centroids from full 5D space
+  const newCNorm = updateCentroids(pts, assignments, K);
+  const newA     = assignClusters(pts, newCNorm);
+
+  const changed = !newA.every((a,i)=>a===assignments[i]);
+  assignments = newA; iterCount++;
+
+  // Map new centroids back to canvas coords using income/canopy dims
+  userCentroids = newCNorm.map(c => {
+    const income = mins.income + c[0]*(maxs.income-mins.income);
+    const canopy = mins.canopy + c[1]*(maxs.canopy-mins.canopy);
+    return toCanvas(income, canopy);
+  });
+
+  drawScatter(); updateLegend();
+
+  if (!changed) {
+    converged = true;
+    document.getElementById('btn-step').disabled = true;
+    document.getElementById('btn-run').disabled  = true;
+    updateStatus(`<strong>Converged after ${iterCount} iteration${iterCount!==1?'s':''}!</strong> The cluster assignments stopped changing. Try resetting with different starting centroids — does the result change?`);
+  } else {
+    updateStatus(`<strong>Iteration ${iterCount}</strong> — centroids moved, assignments updated. ${K - new Set(assignments).size === 0 ? '' : ''} Keep stepping to see convergence.`);
+  }
+}
+
+async function runToConvergence() {
+  if (running || converged) return;
+  running = true;
+  document.getElementById('btn-run').disabled = true;
+  document.getElementById('btn-step').disabled = true;
+  while (!converged) {
+    stepIteration();
+    if (!converged) await new Promise(r => setTimeout(r, animSpeed[currentSpeed]));
+  }
+  running = false;
+}
+
+function resetGame() {
+  userCentroids = []; assignments = null; iterCount = 0; converged = false; running = false;
+  document.getElementById('btn-step').disabled = true;
+  document.getElementById('btn-run').disabled  = true;
+  updateStatus(`<strong>Step 1:</strong> Click on the scatter plot to place <strong>${K}</strong> centroids. Try to space them out across different regions.`);
+  updateLegend();
+  drawScatter();
+}
+
+function setK(k) {
+  K = k;
+  document.querySelectorAll('.k-btn').forEach((b,i) => b.classList.toggle('active', i+2===k));
+  document.getElementById('k-display').textContent = k;
+  resetGame();
+}
+
+function setSpeed(s) {
+  currentSpeed = s;
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase()===s));
+}
+
+function updateStatus(html) {
+  document.getElementById('game-status').innerHTML = html;
+}
+
+function updateLegend() {
+  const leg = document.getElementById('scatter-legend');
+  if (!userCentroids.length) { leg.innerHTML = '<span style="color:var(--text3);font-style:italic;">Place centroids to see legend</span>'; return; }
+  leg.innerHTML = Array.from({length:K},(_,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="width:12px;height:12px;border-radius:50%;background:${CLUSTER_COLORS[i]};display:inline-block;flex-shrink:0;"></span>
+      <span>Cluster ${i+1}</span>
+      ${assignments ? `<span style="color:var(--text3);font-size:11px;">(${assignments.filter(a=>a===i).length} neighborhoods)</span>` : ''}
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   LEAFLET MAP
+══════════════════════════════════════════════════════ */
+let kmMap = null;
+let kmMarkers = [];
+let mapK = 3;
+
+const K_CONFIGS = {
+  2: { label:'K=2', color:'#534ab7', bg:'#eeedfe' },
+  3: { label:'K=3', color:'#0f6e56', bg:'#e1f5ee' },
+  4: { label:'K=4', color:'#993c1d', bg:'#faece7' },
+};
+
+// Pre-computed cluster interpretations for K=2,3,4
+const INTERP = {
+  2: [
+    { name:'Cluster 1 — Affluent & green',   color:'#534ab7', desc:'High income, high canopy, low density. Primarily northern Phoenix suburbs and Scottsdale — well-resourced neighborhoods with low environmental stress.' },
+    { name:'Cluster 2 — Urban core & vulnerable', color:'#0f6e56', desc:'Lower income, sparse canopy, high density, poor air quality. South and central Phoenix neighborhoods with compounding environmental disadvantage.' },
+  ],
+  3: [
+    { name:'Cluster 1 — Affluent & green',    color:'#534ab7', desc:'Highest income tier, strong canopy cover, lowest density. Paradise Valley, Arcadia, Scottsdale North — the most resource-rich neighborhoods in the metro.' },
+    { name:'Cluster 2 — Middle suburban',     color:'#0f6e56', desc:'Moderate income and density, some green space. Chandler, Gilbert, Goodyear, Peoria — the broad middle tier of Phoenix suburbia.' },
+    { name:'Cluster 3 — Urban disadvantaged', color:'#993c1d', desc:'Lower income, very low canopy, high density, worst air quality. South Phoenix, Maryvale, Alhambra — neighborhoods with highest environmental vulnerability.' },
+  ],
+  4: [
+    { name:'Cluster 1 — Luxury enclaves',     color:'#534ab7', desc:'Top income tier, highest canopy, lowest density. Paradise Valley, Arcadia, Gainey Ranch — the wealthiest 20% of the metro.' },
+    { name:'Cluster 2 — Established suburbs', color:'#0f6e56', desc:'Upper-middle income, moderate canopy. Biltmore, Camelback East, Ahwatukee — established residential areas with good amenities.' },
+    { name:'Cluster 3 — Outer suburbs',       color:'#993c1d', desc:'Moderate income, low to moderate canopy, growing areas. Surprise, Goodyear, Queen Creek — newer development on the suburban fringe.' },
+    { name:'Cluster 4 — Urban core',          color:'#ba7517', desc:'Lowest income, minimal canopy, highest density and pollution. Central city neighborhoods with the most acute environmental stress.' },
+  ],
+};
+
+function initMap() {
+  kmMap = L.map('km-map', { zoomControl: true, scrollWheelZoom: false }).setView([33.48, -112.00], 10);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxZoom: 18
+  }).addTo(kmMap);
+}
+
+function renderMapForK(k) {
+  mapK = k;
+  const { assignments: asgn } = runKMeans(k);
+
+  kmMarkers.forEach(m => kmMap.removeLayer(m));
+  kmMarkers = [];
+
+  HOODS.forEach((h,i) => {
+    const ci  = asgn[i];
+    const clr = CLUSTER_COLORS[ci];
+    const m = L.circleMarker([h.lat, h.lng], {
+      radius: 8, color: '#fff', weight: 1.5, fillColor: clr, fillOpacity: 0.85
+    }).addTo(kmMap);
+
+    m.bindPopup(`
+      <div style="font-size:12px;line-height:1.8;min-width:170px;">
+        <b style="font-size:13px;">${h.name}</b><br>
+        <span style="display:inline-block;padding:1px 8px;border-radius:5px;font-size:11px;font-weight:600;background:${CLUSTER_LABELS_BG[ci]};color:${clr};">Cluster ${ci+1}</span><br><br>
+        <b>Median income:</b> $${h.income.toLocaleString()}k<br>
+        <b>Tree canopy:</b> ${h.canopy}%<br>
+        <b>Pop. density:</b> ${h.density.toLocaleString()}/km²<br>
+        <b>Dist. to park:</b> ${h.park}km<br>
+        <b>PM2.5:</b> ${h.pm25} µg/m³
+      </div>`);
+    kmMarkers.push(m);
+  });
+
+  // Update map legend
+  const leg = document.getElementById('map-legend');
+  leg.innerHTML = Array.from({length:k},(_,ci)=>`
+    <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);">
+      <span style="width:10px;height:10px;border-radius:50%;background:${CLUSTER_COLORS[ci]};display:inline-block;flex-shrink:0;"></span>
+      Cluster ${ci+1} (${asgn.filter(a=>a===ci).length})
+    </div>`).join('');
+
+  // Update K toggle
+  document.querySelectorAll('.kt-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.k) === k);
+    b.style.background = parseInt(b.dataset.k) === k ? CLUSTER_COLORS[0] : '';
+  });
+
+  // Update interpretation
+  const interp = INTERP[k];
+  document.getElementById('cluster-interp').innerHTML = interp.map(cl =>
+    `<div style="margin-bottom:10px;padding:9px 11px;border-radius:8px;border-left:3px solid ${cl.color};background:var(--surface2);">
+      <div style="font-size:12px;font-weight:600;color:${cl.color};margin-bottom:3px;">${cl.name}</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;">${cl.desc}</div>
+    </div>`).join('');
+
+  updateElbow(k);
+}
+
+function buildKToggle() {
+  const wrap = document.getElementById('k-toggle');
+  [2,3,4].forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'kt-btn';
+    b.dataset.k = k;
+    b.textContent = `K = ${k}`;
+    b.onclick = () => renderMapForK(k);
+    wrap.appendChild(b);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   ELBOW PLOT
+══════════════════════════════════════════════════════ */
+function computeElbowData() {
+  return Array.from({length:7},(_,i) => {
+    const k = i+1;
+    if (k === 1) {
+      const pts = HOODS.map(normVec);
+      const mean = FEAT_KEYS.map((_,fi)=>pts.reduce((s,p)=>s+p[fi],0)/pts.length);
+      return pts.reduce((s,p)=>s+euclidean(p,mean)**2,0);
+    }
+    // Run 3 times, take best
+    let best = Infinity;
+    for (let r=0;r<3;r++) { const {inertia} = runKMeans(k); if (inertia<best) best=inertia; }
+    return best;
+  });
+}
+
+const ELBOW_DATA = computeElbowData();
+
+function updateElbow(activeK) {
+  const cv   = document.getElementById('elbow-canvas');
+  const ectx = cv.getContext('2d');
+  cv.width   = cv.offsetWidth * window.devicePixelRatio;
+  cv.height  = 180 * window.devicePixelRatio;
+  cv.style.height = '180px';
+  ectx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W = cv.offsetWidth, H = 180;
+
+  const pad = {t:14,r:16,b:30,l:48};
+  const cW = W-pad.l-pad.r, cH = H-pad.t-pad.b;
+  const maxV = ELBOW_DATA[0]*1.05, minV = 0;
+
+  ectx.clearRect(0,0,W,H);
+  ectx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface2')||'#f2f1ed';
+  ectx.fillRect(0,0,W,H);
+
+  // Grid
+  ectx.strokeStyle='rgba(0,0,0,0.06)'; ectx.lineWidth=0.5;
+  for (let i=0;i<=3;i++) {
+    const y = pad.t + cH*(i/3);
+    ectx.beginPath(); ectx.moveTo(pad.l,y); ectx.lineTo(pad.l+cW,y); ectx.stroke();
+    const val = maxV - (maxV-minV)*(i/3);
+    ectx.fillStyle='#9a9a9f'; ectx.font='9px -apple-system,sans-serif'; ectx.textAlign='right';
+    ectx.fillText(val.toFixed(1), pad.l-4, y+3);
+  }
+
+  // X axis labels
+  ELBOW_DATA.forEach((_,i)=>{
+    const x = pad.l + cW*(i/6);
+    ectx.fillStyle='#9a9a9f'; ectx.font='9px -apple-system,sans-serif'; ectx.textAlign='center';
+    ectx.fillText(`K=${i+1}`, x, H-8);
+  });
+
+  // Line
+  ectx.strokeStyle='#534ab7'; ectx.lineWidth=2; ectx.lineJoin='round';
+  ectx.beginPath();
+  ELBOW_DATA.forEach((v,i)=>{
+    const x = pad.l + cW*(i/6);
+    const y = pad.t + cH*(1-(v-minV)/(maxV-minV));
+    i===0?ectx.moveTo(x,y):ectx.lineTo(x,y);
+  });
+  ectx.stroke();
+
+  // Dots
+  ELBOW_DATA.forEach((v,i)=>{
+    const x = pad.l + cW*(i/6);
+    const y = pad.t + cH*(1-(v-minV)/(maxV-minV));
+    const isActive = i+1===activeK;
+    ectx.beginPath(); ectx.arc(x,y,isActive?6:4,0,Math.PI*2);
+    ectx.fillStyle = isActive ? '#534ab7' : '#9a9a9f'; ectx.fill();
+    if (isActive) {
+      ectx.strokeStyle='#fff'; ectx.lineWidth=2; ectx.stroke();
+    }
+  });
+
+  // Elbow annotation
+  const diffs = ELBOW_DATA.slice(1).map((v,i)=>ELBOW_DATA[i]-v);
+  const drops = diffs.map((d,i)=>d/ELBOW_DATA[i]);
+  const elbowK = drops.indexOf(Math.max(...drops.slice(0,5)))+2;
+  document.getElementById('elbow-annotation').innerHTML =
+    `The curve shows the biggest drop between K=${elbowK-1} and K=${elbowK} — suggesting <strong style="color:var(--text);">K=${elbowK}</strong> as a natural elbow. Your currently selected K=${activeK} is highlighted. There's no single right answer — the elbow is a guide, not a rule.`;
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  initCanvas(); drawScatter(); updateLegend();
+  updateStatus(`<strong>Step 1:</strong> Click on the scatter plot to place <strong>3</strong> centroids. Try to space them out across different regions of the plot.`);
+  initMap();
+  buildKToggle();
+  renderMapForK(3);
+});
+
+window.addEventListener('resize', () => { initCanvas(); drawScatter(); });
+</script>
+</body>
+</html>
