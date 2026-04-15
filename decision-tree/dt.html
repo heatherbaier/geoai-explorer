@@ -160,116 +160,79 @@
   <!-- <a class="nav-tab" href="/geoai-explorer/neural-network/nn_training.html">NN training</a> -->
 </nav>
 
-<div style="max-width:1100px;margin:0 auto;padding:1.25rem 1.5rem 0;">
-  <div style="margin-bottom:0.25rem;">
-    <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">Supervised · Decision tree</span>
-  </div>
-  <div style="font-size:24px;font-weight:600;margin-bottom:6px;">Flood risk prediction</div>
-  <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;">15 parcels, 4 features. You choose every split — the tree builds as you decide.</div>
+<style>
+  /* ── Context section (mirrors nn_ff.html) ── */
+  .context-section { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.5rem 0; }
+  .page-header { margin-bottom: 1.5rem; }
+  .page-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.3rem; }
+  .page-header p  { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 600px; }
+  .scenario-banner { background: var(--purple-bg, #eeedfe); border: 1px solid var(--purple-bd, #afa9ec); border-radius: var(--radius-lg); padding: 1.1rem 1.4rem; margin-bottom: 1.25rem; }
+  .scenario-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin-bottom: 6px; }
+  .scenario-banner p { font-size: 13px; color: var(--purple-txt, #26215c); line-height: 1.75; }
+  .scenario-banner p + p { margin-top: 8px; }
+  .context-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .context-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; }
+  .context-card-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+  .context-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .context-card p  { font-size: 12px; color: var(--text2); line-height: 1.7; }
+  .context-card p + p { margin-top: 6px; }
+  .var-list { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .var-list li { font-size: 12px; color: var(--text2); line-height: 1.5; padding-left: 12px; position: relative; }
+  .var-list li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--blue-bd); }
+  .var-list li strong { color: var(--text); font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    .scenario-banner { background: #1a1840; border-color: #534ab7; }
+    .scenario-banner p { color: #cecbf6; }
+  }
+  @media (max-width: 780px) { .context-grid { grid-template-columns: 1fr; } }
+</style>
 
-  <!-- ── Intro cards ── -->
-  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem;">
+<div class="context-section">
 
-    <div class="panel">
-      <div class="panel-title">the scenario</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.7;">
-        A county planning office wants to predict which parcels are at HIGH flood risk, using only features they can measure from GIS layers — no historical insurance data needed.<br><br>
-        You have 15 labeled parcels (past flood events confirmed the risk), each described by 4 features:
-      </div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px;">
-        <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">dist. to stream</strong> <span style="color:var(--text2);">— proximity to nearest waterway (m)</span></div>
-        <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">imp. surface %</strong> <span style="color:var(--text2);">— % of parcel covered by pavement/rooftop</span></div>
-        <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">slope</strong> <span style="color:var(--text2);">— average slope in degrees</span></div>
-        <div style="font-size:12px;padding:5px 9px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">drainage class</strong> <span style="color:var(--text2);">— soil drainage capacity (poor / mod / good)</span></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">how a decision tree works</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">A decision tree is a series of <strong style="color:var(--text);">if/then rules</strong> learned from data. Starting from the full dataset, it repeatedly asks: <em>"which feature and threshold best separates the two classes?"</em></div>
-      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="background:var(--blue-bg);color:var(--blue-txt);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:11px;">1</span>
-          <span style="color:var(--text2);">Pick the feature + threshold that creates the <strong style="color:var(--text);">purest split</strong> — one side mostly YES, one side mostly NO.</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="background:var(--blue-bg);color:var(--blue-txt);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:11px;">2</span>
-          <span style="color:var(--text2);">Repeat on each branch until a branch is <strong style="color:var(--text);">pure enough</strong> to stop — that branch becomes a leaf node with a final prediction.</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <span style="background:var(--blue-bg);color:var(--blue-txt);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:11px;">3</span>
-          <span style="color:var(--text2);">Label each leaf by <strong style="color:var(--text);">majority vote</strong> — whichever class appears most in that leaf becomes the prediction.</span>
-        </div>
-      </div>
-      <div style="margin-top:10px;background:var(--amber-bg);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--amber-txt);">
-        <strong>Key metric: Gini impurity.</strong> 0 = perfectly pure (all one class). 0.5 = maximally mixed (50/50 split). You want splits that drive both sides toward 0.
-      </div>
-    </div>
-
+  <div class="page-header">
+    <h1>Decision Tree</h1>
+    <p>Predicting flood risk across 15 parcels using GIS-derived features.</p>
   </div>
 
-  <!-- ── Example tree — full width ── -->
-  <div class="panel" style="margin-bottom:1rem;">
-    <div class="panel-title">example finished tree — species habitat suitability (a different problem)</div>
-    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.8fr);gap:1.5rem;align-items:center;">
-      <div style="font-size:12px;color:var(--text2);line-height:1.7;">
-        This is a completed decision tree for predicting suitable wetland bird habitat — a different geospatial problem, shown so you can see the structure you're about to build.<br><br>
-        <strong style="color:var(--text);">Anatomy of a decision tree:</strong>
-        <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <span style="width:10px;height:10px;border-radius:2px;background:#e6f1fb;border:1.5px solid #85b7eb;flex-shrink:0;margin-top:2px;"></span>
-            <span><strong style="color:var(--text);">Decision node</strong> — asks a yes/no question. All parcels flow in, split into two groups based on the answer.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <span style="width:10px;height:10px;border-radius:2px;background:#fcebeb;border:1.5px solid #f09595;flex-shrink:0;margin-top:2px;"></span>
-            <span><strong style="color:var(--text);">Leaf node (prediction)</strong> — the end of a branch. No more splitting. Majority class = the tree's prediction for any parcel that lands here.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <span style="width:10px;height:10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);flex-shrink:0;margin-top:2px;"></span>
-            <span><strong style="color:var(--text);">Gini impurity</strong> — shown at each node. Dropping from 0.48 → 0.18 means this split substantially separated the classes.</span>
-          </div>
-        </div>
-      </div>
-      <div>
-        <svg viewBox="0 0 520 240" width="100%" style="display:block;">
-          <defs>
-            <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-              <path d="M2 2L8 5L2 8" fill="none" stroke="#888780" stroke-width="1.5"/>
-            </marker>
-          </defs>
-          <!-- root -->
-          <rect x="155" y="8" width="210" height="44" rx="8" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1.5"/>
-          <text x="260" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0c447c" font-family="sans-serif">water dist. ≤ 200m?</text>
-          <text x="260" y="43" text-anchor="middle" font-size="10" fill="#185fa5" font-family="sans-serif">gini: 0.480 → 0.180 after split</text>
-          <!-- edges root -->
-          <path d="M200,52 C200,82 100,88 100,118" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
-          <path d="M320,52 C320,82 420,88 420,118" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
-          <text x="145" y="90" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">YES (≤ 200m)</text>
-          <text x="375" y="90" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">NO (&gt; 200m)</text>
-          <!-- left internal node -->
-          <rect x="20" y="118" width="160" height="44" rx="8" fill="#e6f1fb" stroke="#85b7eb" stroke-width="1.5"/>
-          <text x="100" y="136" text-anchor="middle" font-size="12" font-weight="600" fill="#0c447c" font-family="sans-serif">canopy cover &gt; 40%?</text>
-          <text x="100" y="153" text-anchor="middle" font-size="10" fill="#185fa5" font-family="sans-serif">gini: 0.380 → 0.080</text>
-          <!-- right leaf — not suitable -->
-          <rect x="340" y="118" width="160" height="44" rx="8" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="2"/>
-          <text x="420" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUITABLE</text>
-          <text x="420" y="153" text-anchor="middle" font-size="10" fill="#0f6e56" font-family="sans-serif">42 parcels · 95% NO</text>
-          <!-- edges left -->
-          <path d="M65,162 C65,188 45,192 45,202" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
-          <path d="M135,162 C135,188 155,192 155,202" fill="none" stroke="#aaa" stroke-width="1.2" marker-end="url(#arr2)"/>
-          <text x="28" y="188" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">YES</text>
-          <text x="172" y="188" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">NO</text>
-          <!-- LL leaf — suitable -->
-          <rect x="0" y="202" width="90" height="34" rx="7" fill="#fcebeb" stroke="#f09595" stroke-width="2"/>
-          <text x="45" y="216" text-anchor="middle" font-size="11" font-weight="700" fill="#a32d2d" font-family="sans-serif">SUITABLE</text>
-          <text x="45" y="229" text-anchor="middle" font-size="9" fill="#a32d2d" font-family="sans-serif">31 parcels · 94% YES</text>
-          <!-- LR leaf — not suitable -->
-          <rect x="110" y="202" width="90" height="34" rx="7" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="2"/>
-          <text x="155" y="216" text-anchor="middle" font-size="11" font-weight="700" fill="#085041" font-family="sans-serif">NOT SUIT.</text>
-          <text x="155" y="229" text-anchor="middle" font-size="9" fill="#0f6e56" font-family="sans-serif">18 parcels · 89% NO</text>
-        </svg>
-      </div>
+  <!-- Scenario banner -->
+  <div class="scenario-banner">
+    <div class="scenario-eyebrow">Your scenario</div>
+    <p>You're a GIS analyst at a county planning office. Last spring's storms flooded dozens of properties, and your team has been asked to build a model that can flag high-risk parcels before next season — so emergency managers can pre-position resources and planners can prioritize stormwater upgrades.</p>
+    <p>You have 15 labeled parcels where past flood events have been confirmed or ruled out. Each parcel is described by four features measurable directly from GIS layers — no historical insurance data required. Your job: build a decision tree by hand, choosing every split yourself, so you understand exactly what rules the model is learning before you trust it on new data.</p>
+  </div>
+
+  <!-- Three context cards -->
+  <div class="context-grid">
+
+    <!-- Card 1: Background -->
+    <div class="context-card">
+      <div class="context-card-eyebrow">Background</div>
+      <h3>What drives flood risk?</h3>
+      <p>Flood risk is the product of water accumulation and a parcel's ability to drain or resist it. Proximity to a stream determines exposure — parcels close to a channel are first to inundate when it overflows. But exposure alone doesn't determine damage: a well-drained parcel on a steep slope sheds water quickly, while a flat, paved parcel with poor soils holds it.</p>
+      <p>The four features in this dataset each capture a different piece of that picture — together they give a reasonably complete picture of risk from GIS layers alone, without needing any flood insurance or claims history.</p>
     </div>
+
+    <!-- Card 2: Variables -->
+    <div class="context-card">
+      <div class="context-card-eyebrow">Model inputs</div>
+      <h3>Why these four features?</h3>
+      <ul class="var-list">
+        <li><strong>Distance to stream (m)</strong> — The single strongest predictor. Parcels within 50–100m of a channel face direct inundation when water levels rise. Beyond ~200m, risk drops sharply for most storm events.</li>
+        <li><strong>Impervious surface (%)</strong> — Roads, rooftops, and parking lots prevent infiltration. High impervious cover means runoff accumulates quickly and has nowhere to go — raising downstream risk and local ponding.</li>
+        <li><strong>Slope (°)</strong> — Steep parcels shed water downhill. Flat parcels let it pool. A low slope combined with poor drainage is a reliable risk indicator even far from streams.</li>
+        <li><strong>Drainage class</strong> — Soil drainage capacity (poor / moderate / good) captures infiltration potential. Poor-draining soils saturate quickly, turning even modest rainfall into standing water.</li>
+      </ul>
+    </div>
+
+    <!-- Card 3: Why a decision tree -->
+    <div class="context-card">
+      <div class="context-card-eyebrow">The model</div>
+      <h3>Why use a decision tree?</h3>
+      <p>A decision tree is one of the most interpretable models in machine learning — it produces explicit if/then rules that a planner or emergency manager can read and verify. "If distance to stream ≤ 75m AND drainage class is poor → HIGH RISK" is a rule you can defend in a public meeting.</p>
+      <p>Trees are also well-suited to mixed feature types. This dataset has both numeric features (distance, slope, impervious %) and a categorical one (drainage class) — a decision tree handles both natively without any special encoding.</p>
+      <p>The key concept you'll practice here is <strong>Gini impurity</strong>: a measure of how mixed the classes are at each node. A good split drives impurity toward zero on both sides — one branch mostly HIGH RISK, the other mostly LOW RISK.</p>
+    </div>
+
   </div>
 </div>
 
