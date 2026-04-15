@@ -178,7 +178,7 @@
   <a class="nav-tab" href="neural-network/nn.html">Neural Network</a>
   <a class="nav-tab" onclick="showPage('dtree')" href="#">Decision tree</a>
   <a class="nav-tab" href="random-forest/rf.html">Random forest</a>
-  <a class="nav-tab" href="#">K-means <span class="nav-badge">soon</span></a>
+  <!-- <a class="nav-tab" href="#">K-means <span class="nav-badge">soon</span></a> -->
 </nav>
 
 <!-- ═══════════════════════════════ HOME ════════════════════════════════ -->
@@ -188,6 +188,11 @@
     <p>Interactive activities for GIS 521. Each module walks you through an algorithm step by step — you make the decisions, the model builds in real time.</p>
   </div>
   <div class="algo-grid">
+    <div class="algo-card available" onclick="window.location.href='neural-network/nn.html'">
+      <div class="algo-tag tag-sup">Supervised</div>
+      <h3>Neural network</h3>
+      <p>Walk through a forward pass with real numbers.</p>
+    </div>    
     <div class="algo-card available" onclick="showPage('dtree')">
       <div class="algo-tag tag-sup">Supervised</div>
       <h3>Decision tree</h3>
@@ -198,17 +203,12 @@
       <h3>Random forest</h3>
       <p>See why 100 imperfect trees beat one perfect one.</p>
     </div>
-    <div class="algo-card available" onclick="window.location.href='neural-network/nn.html'">
-      <div class="algo-tag tag-sup">Supervised</div>
-      <h3>Neural network</h3>
-      <p>Walk through a forward pass with real numbers.</p>
-    </div>
-    <div class="algo-card coming">
+    <!-- <div class="algo-card coming">
       <div class="algo-tag tag-unsup">Unsupervised</div>
       <h3>K-means</h3>
       <p>Place centroids and watch clusters form on spatial data.</p>
       <div class="coming-label">Coming soon</div>
-    </div>
+    </div> -->
   </div>
 </div>
 
