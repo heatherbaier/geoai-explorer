@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoAI — What is Machine Learning?</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f8f8f6;
+    --surface:   #ffffff;
+    --surface2:  #f2f1ed;
+    --border:    rgba(0,0,0,0.10);
+    --border2:   rgba(0,0,0,0.18);
+    --text:      #1a1a1e;
+    --text2:     #5a5a62;
+    --text3:     #9a9a9f;
+    --blue-bg:   #e6f1fb;
+    --blue-bd:   #85b7eb;
+    --blue-txt:  #0c447c;
+    --green-bg:  #e1f5ee;
+    --green-bd:  #5dcaa5;
+    --green-txt: #085041;
+    --red-bg:    #fcebeb;
+    --red-bd:    #f09595;
+    --red-txt:   #a32d2d;
+    --amber-bg:  #faeeda;
+    --amber-bd:  #ef9f27;
+    --amber-txt: #633806;
+    --purple-bg: #eeedfe;
+    --purple-bd: #afa9ec;
+    --purple:    #534ab7;
+    --purple-txt:#26215c;
+    --radius:    10px;
+    --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #16161a; --surface:   #1e1e24; --surface2:  #26262e;
+      --border:    rgba(255,255,255,0.10); --border2:   rgba(255,255,255,0.18);
+      --text:      #e8e8ec; --text2:     #9a9aa4; --text3:     #5a5a62;
+      --blue-bg:   #0c2a44; --blue-bd:   #185fa5; --blue-txt:  #b5d4f4;
+      --green-bg:  #04251c; --green-bd:  #0f6e56; --green-txt: #9fe1cb;
+      --red-bg:    #2a0a0a; --red-bd:    #a32d2d; --red-txt:   #f7c1c1;
+      --amber-bg:  #2a1a04; --amber-bd:  #854f0b; --amber-txt: #fac775;
+      --purple-bg: #1a1840; --purple-bd: #534ab7; --purple-txt:#cecbf6;
+    }
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* ── Nav ── */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 52px; }
+  .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 2rem; white-space: nowrap; text-decoration: none; }
+  .nav-brand span { color: var(--purple); }
+  .nav-tab { padding: 0 1rem; height: 52px; display: flex; align-items: center; font-size: 13px; color: var(--text2); border-bottom: 2px solid transparent; text-decoration: none; transition: color .15s; white-space: nowrap; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
+  .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
+
+  /* ── Layout ── */
+  .page-wrap { max-width: 1060px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.3rem; }
+  .page-header p  { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 600px; }
+
+  /* ── Panels ── */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
+  .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+  /* ── Section divider ── */
+  .section { margin-bottom: 2.5rem; }
+  .section-header { margin-bottom: 1.25rem; }
+  .section-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin-bottom: 4px; }
+  .section-header h2 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .section-header p  { font-size: 13px; color: var(--text2); line-height: 1.7; max-width: 680px; }
+
+  /* ── Concept cards ── */
+  .concept-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .concept-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; }
+  .concept-card-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+  .concept-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .concept-card p  { font-size: 12px; color: var(--text2); line-height: 1.7; }
+  .concept-card p + p { margin-top: 6px; }
+
+  /* ── Supervised vs unsupervised comparison ── */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .compare-card { border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+  .compare-card.sup   { background: var(--blue-bg);   border: 1px solid var(--blue-bd); }
+  .compare-card.unsup { background: var(--amber-bg);  border: 1px solid var(--amber-bd); }
+  .compare-card h3  { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .compare-card.sup   h3 { color: var(--blue-txt); }
+  .compare-card.unsup h3 { color: var(--amber-txt); }
+  .compare-card p    { font-size: 12px; line-height: 1.7; }
+  .compare-card.sup   p { color: var(--blue-txt); }
+  .compare-card.unsup p { color: var(--amber-txt); }
+  .compare-card ul   { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+  .compare-card li   { font-size: 12px; padding-left: 12px; position: relative; line-height: 1.5; }
+  .compare-card.sup   li { color: var(--blue-txt); }
+  .compare-card.unsup li { color: var(--amber-txt); }
+  .compare-card.sup   li::before { content:''; position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--blue-bd); }
+  .compare-card.unsup li::before { content:''; position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--amber-bd); }
+
+  /* ── Pipeline diagram ── */
+  .pipeline-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .pipeline { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .pipe-step { flex-shrink: 0; text-align: center; cursor: pointer; }
+  .pipe-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 16px; min-width: 110px; transition: border-color .15s, background .15s; }
+  .pipe-step.active .pipe-box  { background: var(--purple-bg); border-color: var(--purple); }
+  .pipe-step:hover .pipe-box   { border-color: var(--purple-bd); }
+  .pipe-box-icon { font-size: 18px; margin-bottom: 4px; }
+  .pipe-box-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .pipe-box-sub   { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .pipe-step.active .pipe-box-label { color: var(--purple); }
+  .pipe-arrow { font-size: 18px; color: var(--text3); padding: 0 6px; flex-shrink: 0; }
+  .pipe-detail { margin-top: 14px; padding: 12px 14px; background: var(--purple-bg); border: 1px solid var(--purple-bd); border-radius: 9px; font-size: 13px; color: var(--purple-txt); line-height: 1.7; min-height: 60px; transition: all .2s; }
+  .pipe-detail strong { font-weight: 600; }
+
+  /* ── Rule writing game ── */
+  .game-wrap { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 1.25rem; align-items: start; }
+  .examples-grid { display: flex; flex-direction: column; gap: 8px; }
+  .example-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; transition: background .15s; }
+  .example-row.revealed { background: var(--surface); }
+  .example-features { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
+  .feat-pill { background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--text2); white-space: nowrap; }
+  .feat-pill strong { color: var(--text); font-weight: 600; }
+  .example-label { flex-shrink: 0; width: 80px; text-align: center; }
+  .label-badge { display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+  .label-yes { background: var(--red-bg);   color: var(--red-txt); }
+  .label-no  { background: var(--green-bg); color: var(--green-txt); }
+  .label-hidden { background: var(--surface2); color: var(--text3); border: 1px dashed var(--border2); cursor: default; }
+
+  /* ── Labeling game ── */
+  button.btn:hover { background: var(--border); }
+  button.btn.primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+  button.btn.primary:hover { opacity: .88; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Test results */
+  .test-results { margin-top: 10px; }
+  .test-result-row { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 6px 10px; border-radius: 7px; margin-bottom: 5px; }
+  .test-result-row.pass { background: var(--green-bg); color: var(--green-txt); }
+  .test-result-row.fail { background: var(--red-bg);   color: var(--red-txt); }
+  .score-banner { border-radius: 9px; padding: 11px 14px; font-size: 13px; line-height: 1.6; margin-top: 10px; }
+  .score-banner strong { font-weight: 600; display: block; margin-bottom: 2px; }
+  .score-good { background: var(--green-bg); border: 1px solid var(--green-bd); color: var(--green-txt); }
+  .score-mid  { background: var(--amber-bg); border: 1px solid var(--amber-bd); color: var(--amber-txt); }
+  .score-bad  { background: var(--red-bg);   border: 1px solid var(--red-bd);   color: var(--red-txt); }
+
+  /* ML reveal */
+  .ml-reveal { display: none; margin-top: 14px; }
+  .ml-reveal.show { display: block; }
+  .ml-reveal-inner { background: var(--purple-bg); border: 1px solid var(--purple-bd); border-radius: 10px; padding: 14px 16px; font-size: 13px; color: var(--purple-txt); line-height: 1.7; }
+  .ml-reveal-inner strong { font-weight: 600; }
+
+  /* ── Key takeaways ── */
+  .takeaway-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+  .takeaway-card { background: var(--surface2); border-radius: var(--radius-lg); padding: 1rem 1.1rem; border-left: 3px solid var(--purple); }
+  .takeaway-num  { font-size: 11px; font-weight: 600; color: var(--purple); margin-bottom: 4px; letter-spacing: .04em; }
+  .takeaway-card h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+  .takeaway-card p  { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+  /* ── Module links ── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 10px; margin-top: 1.25rem; }
+  .module-link { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; text-decoration: none; transition: border-color .15s; }
+  .module-link:hover { border-color: var(--border2); }
+  .module-tag  { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-bottom: 8px; }
+  .tag-sup  { background: var(--blue-bg); color: var(--blue-txt); }
+  .tag-ens  { background: var(--amber-bg); color: var(--amber-txt); }
+  .module-link h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .module-link p  { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  @media (max-width: 700px) {
+    .concept-grid  { grid-template-columns: 1fr; }
+    .compare-grid  { grid-template-columns: 1fr; }
+    .game-wrap     { grid-template-columns: 1fr; }
+    .takeaway-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/geoai-explorer/">Geo<span>AI</span> Explorer</a>
+  <a class="nav-tab" href="/geoai-explorer/">Home</a>
+  <a class="nav-tab active" href="/geoai-explorer/supervised-learning.html">What is ML?</a>
+  <a class="nav-tab" href="/geoai-explorer/decision-tree/dt.html">Decision tree</a>
+  <a class="nav-tab" href="/geoai-explorer/random-forest/rf.html">Random forest</a>
+  <a class="nav-tab" href="/geoai-explorer/neural-network/nn.html">Neural network</a>
+  <!-- <a class="nav-tab" href="/geoai-explorer/neural-network/nn_training.html">NN training</a> -->
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>What is machine learning?</h1>
+    <p>Before diving into specific algorithms, let's build an honest mental model of what ML is actually doing — and what it isn't.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 1 — What ML actually is
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Section 1</div>
+      <h2>What machine learning actually does</h2>
+      <p>Machine learning is not magic, and it's not a brain. It's a process for automatically finding patterns in data — patterns that would take a human too long to find by hand, or that are too complex to write as explicit rules.</p>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-card-eyebrow">Traditional programming</div>
+        <h3>You write the rules</h3>
+        <p>A human expert looks at the problem and writes explicit if/then rules. "If a parcel is within 100m of a stream AND has poor drainage → flag as high risk."</p>
+        <p>This works when the rules are simple and well-understood. It breaks down when the problem is complex, the rules interact in non-obvious ways, or the rules change over time.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-eyebrow">Machine learning</div>
+        <h3>The data writes the rules</h3>
+        <p>Instead of writing rules yourself, you provide <strong style="color:var(--text);">labeled examples</strong> — inputs paired with correct outputs. The algorithm finds the pattern that maps inputs to outputs across all your examples.</p>
+        <p>The rules still exist — they're just extracted from data automatically rather than written by hand. This is the fundamental shift ML introduces.</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-eyebrow">Where it's used in GIS</div>
+        <h3>Common use cases</h3>
+        <p><strong style="color:var(--text);">Land cover classification</strong> — given satellite imagery, predict whether each pixel is forest, urban, water, or cropland. Features are pixel band values; labels come from field surveys or manual annotation.</p>
+        <p><strong style="color:var(--text);">Species distribution modeling</strong> — given environmental variables (elevation, temperature, precipitation), predict where a species is likely to occur. Labels are presence/absence records from field observations.</p>
+        <p><strong style="color:var(--text);">Urban heat prediction</strong> — given neighborhood features (canopy, impervious surface, building density), predict surface temperature anomaly. Labels come from thermal satellite measurements.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 2 — Supervised vs unsupervised
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Section 2</div>
+      <h2>Supervised vs unsupervised learning</h2>
+      <p>The single biggest distinction in ML is whether your training data has labels. This changes everything — the algorithm, the output, and what you can even ask the model to do.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card sup">
+        <h3>Supervised learning</h3>
+        <p>Training data has labels — correct answers the model learns to reproduce. The model learns a mapping from inputs to outputs by comparing its predictions to the known correct answers and adjusting.</p>
+        <ul>
+          <li>You need labeled examples (expensive to collect)</li>
+          <li>Output is a prediction: a class or a number</li>
+          <li>You can evaluate it objectively — right or wrong</li>
+          <li>Examples: flood risk (YES/NO), UHI intensity (high/medium/low), species presence/absence</li>
+        </ul>
+      </div>
+      <div class="compare-card unsup">
+        <h3>Unsupervised learning</h3>
+        <p>Training data has no labels — no correct answers. The model finds structure in the inputs on its own: groups of similar examples, patterns, or compressed representations.</p>
+        <ul>
+          <li>No labels needed — just features</li>
+          <li>Output is structure: clusters, components, anomalies</li>
+          <li>Harder to evaluate — "correct" isn't well defined</li>
+          <li>Examples: grouping neighborhoods by land use, detecting anomalous sensor readings, compressing satellite imagery</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Same data, different questions</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;font-size:13px;color:var(--text2);line-height:1.7;">
+        <div>
+          <strong style="color:var(--text);display:block;margin-bottom:6px;">Supervised question:</strong>
+          "Given these 15 parcels with known flood outcomes, build a model that predicts flood risk for new parcels."<br><br>
+          The algorithm knows what it's trying to predict. Every update to the model is guided by comparing predictions to known labels.
+        </div>
+        <div>
+          <strong style="color:var(--text);display:block;margin-bottom:6px;">Unsupervised question:</strong>
+          "Given these 15 parcels with no labels at all, find groups of similar parcels."<br><br>
+          The algorithm has no target to aim for. It finds structure based purely on which parcels have similar feature values — and you interpret what those groups mean afterward.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 3 — Inputs → Model → Outputs
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Section 3</div>
+      <h2>Inputs → Model → Outputs</h2>
+      <p>Every ML system has the same basic structure. Click each step in the pipeline below to understand what's actually happening at that stage.</p>
+    </div>
+
+    <div class="pipeline-wrap">
+      <div class="pipeline" id="pipeline">
+        <div class="pipe-step active" onclick="selectPipe(0)" id="pipe-0">
+          <div class="pipe-box">
+            <div class="pipe-box-icon">📋</div>
+            <div class="pipe-box-label">Raw data</div>
+            <div class="pipe-box-sub">The real world</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="selectPipe(1)" id="pipe-1">
+          <div class="pipe-box">
+            <div class="pipe-box-icon">🔢</div>
+            <div class="pipe-box-label">Features</div>
+            <div class="pipe-box-sub">Numbers the model reads</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="selectPipe(2)" id="pipe-2">
+          <div class="pipe-box">
+            <div class="pipe-box-icon">🏷️</div>
+            <div class="pipe-box-label">Labels</div>
+            <div class="pipe-box-sub">The right answers</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="selectPipe(3)" id="pipe-3">
+          <div class="pipe-box">
+            <div class="pipe-box-icon">⚙️</div>
+            <div class="pipe-box-label">Training</div>
+            <div class="pipe-box-sub">Learning the pattern</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="selectPipe(4)" id="pipe-4">
+          <div class="pipe-box">
+            <div class="pipe-box-icon">🧠</div>
+            <div class="pipe-box-label">Model</div>
+            <div class="pipe-box-sub">The learned function</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="selectPipe(5)" id="pipe-5">
+          <div class="pipe-box">
+            <div class="pipe-box-icon">🔮</div>
+            <div class="pipe-box-label">Prediction</div>
+            <div class="pipe-box-sub">New data, new output</div>
+          </div>
+        </div>
+      </div>
+      <div class="pipe-detail" id="pipe-detail">
+        <strong>Raw data</strong> — everything you have about the problem before any processing. Field measurements, sensor readings, survey responses, satellite pixel values, administrative records. At this stage it might be in spreadsheets, shapefiles, images, or databases. The model cannot read any of this directly — it first needs to be translated into a consistent numerical format.
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:1rem;">
+      <div class="panel-title">A concrete example — flood risk prediction</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="background:var(--surface2);">
+              <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--text3);font-size:11px;font-weight:600;letter-spacing:.04em;">PARCEL</th>
+              <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--blue-txt);font-size:11px;">dist. to stream (m) <span style="font-weight:400;color:var(--text3);">← feature</span></th>
+              <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--blue-txt);font-size:11px;">imp. surface % <span style="font-weight:400;color:var(--text3);">← feature</span></th>
+              <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--blue-txt);font-size:11px;">slope (°) <span style="font-weight:400;color:var(--text3);">← feature</span></th>
+              <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--blue-txt);font-size:11px;">drainage <span style="font-weight:400;color:var(--text3);">← feature</span></th>
+              <th style="padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--red-txt);font-size:11px;">flood risk <span style="font-weight:400;color:var(--text3);">← label</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);background:rgba(228,75,74,0.04);">
+              <td style="padding:6px 10px;color:var(--text2);">Parcel 1</td>
+              <td style="padding:6px 10px;">40</td><td style="padding:6px 10px;">80%</td>
+              <td style="padding:6px 10px;">2°</td><td style="padding:6px 10px;">poor</td>
+              <td style="padding:6px 10px;"><span style="font-weight:600;color:var(--red-txt);">HIGH RISK</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;color:var(--text2);">Parcel 7</td>
+              <td style="padding:6px 10px;">210</td><td style="padding:6px 10px;">22%</td>
+              <td style="padding:6px 10px;">11°</td><td style="padding:6px 10px;">good</td>
+              <td style="padding:6px 10px;"><span style="font-weight:600;color:var(--green-txt);">LOW RISK</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:rgba(228,75,74,0.04);">
+              <td style="padding:6px 10px;color:var(--text2);">Parcel 13</td>
+              <td style="padding:6px 10px;">88</td><td style="padding:6px 10px;">55%</td>
+              <td style="padding:6px 10px;">6°</td><td style="padding:6px 10px;">mod</td>
+              <td style="padding:6px 10px;"><span style="font-weight:600;color:var(--red-txt);">HIGH RISK</span></td>
+            </tr>
+            <tr>
+              <td style="padding:6px 10px;color:var(--text2);">New parcel ★</td>
+              <td style="padding:6px 10px;">65</td><td style="padding:6px 10px;">71%</td>
+              <td style="padding:6px 10px;">3°</td><td style="padding:6px 10px;">poor</td>
+              <td style="padding:6px 10px;color:var(--text3);font-style:italic;">← model predicts this</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;">The first three rows are training data — the model sees features AND labels. The last row is new data — the model only sees features, and must predict the label. Every ML task has this structure.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 4 — Labeling game
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Section 4 — Interactive</div>
+      <h2>You are the labeler</h2>
+      <p>Before a supervised model can train, someone has to create the labels. Below are 10 neighborhoods described by five features. For each one, decide whether it is <strong style="color:var(--text);">HIGH</strong> or <strong style="color:var(--text);">LOW</strong> environmental vulnerability — then reveal how an expert labeled them and see where you agreed or disagreed.</p>
+    </div>
+
+    <div style="background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:1.25rem;font-size:13px;color:var(--amber-txt);line-height:1.7;">
+      <strong>What is environmental vulnerability?</strong> A neighborhood's exposure to environmental hazards combined with its capacity to cope — considering access to green space, healthcare, income, and air quality. There's no single universally agreed-upon definition, which is part of the point.
+    </div>
+
+    <div class="game-wrap">
+
+      <!-- Left: neighborhood cards -->
+      <div>
+        <div class="panel-title" style="margin-bottom:10px;">10 neighborhoods — label each one</div>
+        <div id="label-grid"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn primary" id="reveal-btn" onclick="revealLabels()" style="display:none;">Reveal expert labels</button>
+          <button class="btn" onclick="resetLabels()">Start over</button>
+        </div>
+        <div id="reveal-result" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- Right: explainer -->
+      <div>
+        <div class="panel">
+          <div class="panel-title">What you're doing — and why it matters</div>
+          <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px;">You just did the hardest part of supervised machine learning: <strong style="color:var(--text);">creating the labels</strong>. Every supervised model needs someone to do exactly this — look at examples and decide what the correct output is.</p>
+          <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px;">Notice how some neighborhoods felt obvious, and some were genuinely difficult. The difficult ones — where reasonable people disagree — are called <strong style="color:var(--text);">boundary cases</strong>. They're where models also struggle, because the training signal itself is ambiguous.</p>
+          <p style="font-size:12px;color:var(--text2);line-height:1.7;">When you trained a model on labels you created, you're also encoding your judgment into it. A different labeler might produce slightly different labels — and a slightly different model. This is why label quality and labeler consistency matter enormously.</p>
+        </div>
+
+        <div class="panel" style="margin-top:1rem;">
+          <div class="panel-title">Feature guide</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="font-size:12px;padding:6px 10px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">Pop. density</strong> <span style="color:var(--text2);">— people per km². Higher density can amplify exposure to hazards.</span></div>
+            <div style="font-size:12px;padding:6px 10px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">Median income</strong> <span style="color:var(--text2);">— USD/year. Lower income correlates with less capacity to cope with environmental stress.</span></div>
+            <div style="font-size:12px;padding:6px 10px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">Tree cover %</strong> <span style="color:var(--text2);">— fraction of neighborhood with canopy. Reduces heat exposure and air pollution.</span></div>
+            <div style="font-size:12px;padding:6px 10px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">Dist. to hospital</strong> <span style="color:var(--text2);">— km to nearest emergency facility. Greater distance = reduced adaptive capacity.</span></div>
+            <div style="font-size:12px;padding:6px 10px;background:var(--surface2);border-radius:6px;"><strong style="color:var(--text);">Air quality index</strong> <span style="color:var(--text2);">— 0–500 scale. Higher = worse. Values above 100 are considered unhealthy for sensitive groups.</span></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:1rem;">
+          <div class="panel-title">Discussion questions</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+            Where did you agree with the expert label — and where did you disagree?<br>
+            Which neighborhoods felt hardest to label? What made them ambiguous?<br>
+            If two GIS analysts labeled this dataset independently, how different might their labels be?<br>
+            What does that tell you about models trained on those labels?
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 5 — Key takeaways
+  ══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Section 5</div>
+      <h2>Key takeaways</h2>
+    </div>
+
+    <div class="takeaway-grid">
+      <div class="takeaway-card">
+        <div class="takeaway-num">01</div>
+        <h4>ML learns rules from data</h4>
+        <p>You don't program the rules — you provide labeled examples and the algorithm finds the rules. The model is the compressed representation of those patterns.</p>
+      </div>
+      <div class="takeaway-card">
+        <div class="takeaway-num">02</div>
+        <h4>Everything is a number</h4>
+        <p>A model cannot read text, images, or geographic features directly. Everything — pixels, categories, coordinates — must be translated into a numeric feature vector before the model can process it.</p>
+      </div>
+      <div class="takeaway-card">
+        <div class="takeaway-num">03</div>
+        <h4>Supervised needs labels</h4>
+        <p>Labels are the most expensive part of supervised learning. Collecting them requires domain expertise, field work, or historical records. The quality of your labels sets a ceiling on model performance.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 6 — Next steps
+  ══════════════════════════════════════ -->
+  <div class="section" style="margin-bottom:0;">
+    <div class="section-header">
+      <div class="section-eyebrow">Now try the algorithms</div>
+      <h2>See supervised learning in action</h2>
+      <p>Each module below builds a supervised classifier from scratch — you make the decisions, the model builds in real time.</p>
+    </div>
+    <div class="module-grid">
+      <a class="module-link" href="/geoai-explorer/decision-tree/dt.html">
+        <div class="module-tag tag-sup">Supervised</div>
+        <h4>Decision tree</h4>
+        <p>Build a flood risk classifier by choosing your own splits on parcel data.</p>
+      </a>
+      <a class="module-link" href="/geoai-explorer/random-forest/rf.html">
+        <div class="module-tag tag-ens">Ensemble</div>
+        <h4>Random forest</h4>
+        <p>See why 100 imperfect trees beat one perfect one.</p>
+      </a>
+      <a class="module-link" href="/geoai-explorer/neural-network/nn_ff.html">
+        <div class="module-tag tag-sup">Supervised</div>
+        <h4>Neural network</h4>
+        <p>Walk through a forward pass with real numbers — dot products, ReLU, softmax.</p>
+      </a>
+      <a class="module-link" href="/geoai-explorer/neural-network/nn_training.html">
+        <div class="module-tag tag-sup">Supervised</div>
+        <h4>NN training</h4>
+        <p>Choose hyperparameters and watch the network learn from synthetic data.</p>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════ PIPELINE ══════════════════════ */
+const PIPE_DETAILS = [
+  `<strong>Raw data</strong> — everything you have about the problem before any processing. Field measurements, sensor readings, survey responses, satellite pixel values, administrative records. At this stage it might be in spreadsheets, shapefiles, images, or databases. The model cannot read any of this directly — it first needs to be translated into a consistent numerical format.`,
+  `<strong>Features</strong> — the numeric representation of your raw data that the model actually reads. Each example becomes a <em>row</em> of numbers: one value per feature. A neighborhood becomes [8500, 32000, 12, 2.1, 118] (density, income, tree cover, hospital distance, AQI). The choice of which features to include — and how to encode them — is called <em>feature engineering</em>, and it's often the most important step in the whole pipeline.`,
+  `<strong>Labels</strong> — the correct outputs for your training examples. In supervised learning, someone (a human expert, a historical record, a field survey) has already determined the right answer for each training example. Without labels, you cannot train a supervised model. Labels are expensive to collect, can contain errors, and reflect the biases of whoever created them.`,
+  `<strong>Training</strong> — the process of adjusting the model's internal parameters so its predictions match the labels as closely as possible. The algorithm repeatedly looks at examples, makes a prediction, compares it to the label, and nudges the parameters in the direction that reduces the error. This happens thousands or millions of times. A decision tree finds the best splits. A neural network updates its weights via backpropagation. The algorithm is different; the idea is the same.`,
+  `<strong>Model</strong> — the result of training: a learned function that maps inputs to outputs. It's not a database of all the training examples — it has compressed the patterns into parameters. A decision tree stores a set of if/then rules. A neural network stores millions of weights. You can now give the model a new input it has never seen, and it will produce a prediction based on the patterns it learned. This generalization to new data is the whole point.`,
+  `<strong>Prediction</strong> — applying the trained model to new data. The new example has features but no label — that's what you want to know. The model takes the feature vector, runs it through the learned function, and outputs a prediction. In classification this is a class (HIGH / LOW vulnerability). In regression it's a continuous value (predicted temperature in °C). The model never "knows" the true answer for new data — it can only predict based on patterns from training.`,
+];
+
+function selectPipe(i) {
+  document.querySelectorAll('.pipe-step').forEach((el, j) => el.classList.toggle('active', j === i));
+  document.getElementById('pipe-detail').innerHTML = PIPE_DETAILS[i];
+}
+
+/* ══════════════════════ LABELING GAME ══════════════════════ */
+const NEIGHBORHOODS = [
+  { name:'Riverside East',    density:12400, income:28000, trees:8,  hospital:0.8, aqi:142, label:'HIGH' },
+  { name:'Oakwood Heights',   density:2100,  income:94000, trees:41, hospital:1.2, aqi:38,  label:'LOW'  },
+  { name:'Millbrook Flats',   density:8800,  income:41000, trees:14, hospital:3.1, aqi:97,  label:'HIGH' },
+  { name:'Greenview Terrace', density:3400,  income:76000, trees:38, hospital:0.9, aqi:44,  label:'LOW'  },
+  { name:'Port Corridor',     density:15200, income:22000, trees:4,  hospital:4.8, aqi:168, label:'HIGH' },
+  { name:'Birchwood Commons', density:4100,  income:58000, trees:29, hospital:1.6, aqi:52,  label:'LOW'  },
+  { name:'Eastgate Industrial',density:9600, income:31000, trees:7,  hospital:2.9, aqi:131, label:'HIGH' },
+  { name:'Hillside Reserve',  density:1800,  income:112000,trees:55, hospital:2.2, aqi:29,  label:'LOW'  },
+  { name:'Lakefront South',   density:6200,  income:48000, trees:22, hospital:1.4, aqi:88,  label:'LOW'  },  // boundary
+  { name:'Central Station',   density:18000, income:35000, trees:5,  hospital:0.6, aqi:115, label:'HIGH' },
+];
+
+let studentLabels = {};
+let revealed = false;
+
+function renderLabelGrid() {
+  const grid = document.getElementById('label-grid');
+  const allLabeled = NEIGHBORHOODS.every(n => studentLabels[n.name]);
+  if (allLabeled && !revealed) {
+    document.getElementById('reveal-btn').style.display = 'inline-block';
+  }
+
+  grid.innerHTML = NEIGHBORHOODS.map((n, i) => {
+    const student = studentLabels[n.name];
+    const isRevealed = revealed;
+    const agree = student === n.label;
+
+    let borderColor = 'var(--border2)';
+    let bg = 'var(--surface)';
+    if (isRevealed && student) {
+      borderColor = agree ? 'var(--green-bd)' : 'var(--red-bd)';
+      bg = agree ? 'var(--green-bg)' : 'var(--red-bg)';
+    } else if (student === 'HIGH') {
+      borderColor = 'var(--red-bd)'; bg = 'var(--red-bg)';
+    } else if (student === 'LOW') {
+      borderColor = 'var(--green-bd)'; bg = 'var(--green-bg)';
+    }
+
+    const expertBadge = isRevealed
+      ? `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:${n.label==='HIGH'?'var(--red-bg)':'var(--green-bg)'};color:${n.label==='HIGH'?'var(--red-txt)':'var(--green-txt)'};">Expert: ${n.label}</span>`
+      : '';
+
+    const agreeBadge = (isRevealed && student)
+      ? `<span style="font-size:11px;margin-left:4px;color:${agree?'var(--green-txt)':'var(--red-txt)'};">${agree?'✓ agree':'✗ disagree'}</span>`
+      : '';
+
+    const btnHigh = `<button onclick="setLabel('${n.name}','HIGH')"
+      style="padding:4px 12px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;
+        border:1px solid ${student==='HIGH'?'var(--red-bd)':'var(--border2)'};
+        background:${student==='HIGH'?'var(--red-bg)':'var(--surface2)'};
+        color:${student==='HIGH'?'var(--red-txt)':'var(--text2)'};
+        ${isRevealed?'opacity:.6;cursor:default;':''}"
+      ${isRevealed?'disabled':''}>HIGH</button>`;
+
+    const btnLow = `<button onclick="setLabel('${n.name}','LOW')"
+      style="padding:4px 12px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;
+        border:1px solid ${student==='LOW'?'var(--green-bd)':'var(--border2)'};
+        background:${student==='LOW'?'var(--green-bg)':'var(--surface2)'};
+        color:${student==='LOW'?'var(--green-txt)':'var(--text2)'};
+        ${isRevealed?'opacity:.6;cursor:default;':''}"
+      ${isRevealed?'disabled':''}>LOW</button>`;
+
+    return `<div style="background:${bg};border:1px solid ${borderColor};border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;transition:background .2s,border-color .2s;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px;">${n.name}</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <span style="font-size:11px;padding:2px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);"><strong style="color:var(--text);">${n.density.toLocaleString()}</strong> /km²</span>
+            <span style="font-size:11px;padding:2px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);">\$<strong style="color:var(--text);">${n.income.toLocaleString()}</strong>/yr</span>
+            <span style="font-size:11px;padding:2px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);"><strong style="color:var(--text);">${n.trees}%</strong> trees</span>
+            <span style="font-size:11px;padding:2px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);"><strong style="color:var(--text);">${n.hospital}</strong>km hosp.</span>
+            <span style="font-size:11px;padding:2px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);">AQI <strong style="color:${n.aqi>100?'var(--red-txt)':'var(--text)'};">${n.aqi}</strong></span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+          <div style="display:flex;gap:5px;">${btnHigh}${btnLow}</div>
+          <div style="display:flex;align-items:center;gap:4px;">${expertBadge}${agreeBadge}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setLabel(name, val) {
+  if (revealed) return;
+  studentLabels[name] = val;
+  const allLabeled = NEIGHBORHOODS.every(n => studentLabels[n.name]);
+  if (allLabeled) document.getElementById('reveal-btn').style.display = 'inline-block';
+  renderLabelGrid();
+}
+
+function revealLabels() {
+  revealed = true;
+  document.getElementById('reveal-btn').style.display = 'none';
+  renderLabelGrid();
+
+  const agreed  = NEIGHBORHOODS.filter(n => studentLabels[n.name] === n.label).length;
+  const total   = NEIGHBORHOODS.length;
+  const pct     = Math.round(agreed / total * 100);
+  const boundary = NEIGHBORHOODS.filter(n => studentLabels[n.name] && studentLabels[n.name] !== n.label).map(n => n.name);
+
+  let cls = pct >= 80 ? 'score-good' : pct >= 60 ? 'score-mid' : 'score-bad';
+  let msg;
+  if (pct === 100) {
+    msg = `<strong>You agreed with the expert on all ${total} neighborhoods.</strong> Your judgment aligns closely with the labeling criteria used here. Notice that this agreement itself is a kind of validation — but a different expert might have made different calls.`;
+  } else if (pct >= 70) {
+    msg = `<strong>You agreed on ${agreed}/${total} (${pct}%).</strong> Strong alignment overall. ${boundary.length > 0 ? `The disagreements — <em>${boundary.join(', ')}</em> — are the interesting ones. What features made those feel ambiguous to you?` : ''}`;
+  } else {
+    msg = `<strong>You agreed on ${agreed}/${total} (${pct}%).</strong> There were meaningful differences in judgment. That's not a problem — it's the point. ${boundary.length > 0 ? `Look at <em>${boundary.join(', ')}</em>. What did you weight differently?` : ''} These are the cases where label quality and labeler agreement matter most.`;
+  }
+
+  document.getElementById('reveal-result').innerHTML = `<div class="score-banner ${cls}" style="margin-top:0;">${msg}</div>`;
+}
+
+function resetLabels() {
+  studentLabels = {};
+  revealed = false;
+  document.getElementById('reveal-btn').style.display = 'none';
+  document.getElementById('reveal-result').innerHTML = '';
+  renderLabelGrid();
+}
+
+renderLabelGrid();
+</script>
+</body>
+</html>
