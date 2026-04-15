@@ -218,6 +218,7 @@
   <a class="nav-tab" href="../index.html">Decision Tree</a>
   <a class="nav-tab" href="../random-forest/rf.html">Random Forest</a>
   <a class="nav-tab active" href="#">Neural Network <span class="nav-badge">FF</span></a>
+  <a class="nav-tab" href="nn_training.html">NN Training</a>
 </nav>
 
 <div class="page-wrap">
@@ -318,7 +319,7 @@
             <div class="layer-divider-line"></div>
           </div>
           <div class="relu-explainer">
-            <strong>ReLU(z) = max(0, z)</strong> — if the dot product is negative, the neuron outputs 0 (it doesn't fire). Positive values pass through unchanged. Apply ReLU to each neuron's dot product below.
+            <strong>ReLU(z) = max(0, z)</strong> — ReLU looks at the dot product z, not the individual weights. Even if some weights are negative (which is normal and meaningful — a negative weight means "more of this input pushes against this neuron firing"), the dot product z can still be positive or negative depending on the full weighted sum. ReLU asks one question: is z &gt; 0? If yes, pass z forward unchanged. If z ≤ 0, output 0 — the neuron doesn't fire. The weights themselves are never clipped.
           </div>
           <div class="relu-grid" id="relu-grid"></div>
         </div>
@@ -350,14 +351,20 @@
       <div class="panel">
         <div class="panel-title">How to read each layer</div>
         <div class="info-box">
-          <strong>Dot product</strong> — each neuron multiplies every standardized input by its own weight and sums the results. Weights live on the edges, not inside the circles.
+          <strong>Dot product (z)</strong> — each neuron multiplies every standardized input by its own weight and sums the results. Weights can be positive or negative — a negative weight means that input works against this neuron firing. The result z can also be positive or negative.
         </div>
         <div class="info-box">
-          <strong>ReLU</strong> — max(0, z). Negative dot products are clipped to zero. This non-linearity lets the network learn patterns that a simple weighted sum cannot.
+          <strong>ReLU</strong> — max(0, z). ReLU looks at the dot product z, not the weights. If z &gt; 0, the neuron fires and z passes forward. If z ≤ 0, the neuron outputs 0. Negative weights are never clipped — only a negative z value causes the neuron to go silent.
         </div>
         <div class="info-box">
           <strong>Softmax</strong> — converts two raw output scores (logits) into probabilities. The class with the higher probability is the network's prediction.
         </div>
+      </div>
+
+      <div class="panel" style="margin-top:1.25rem; background:var(--purple-bg); border-color:var(--purple-bd);">
+        <div class="panel-title" style="color:var(--purple);">Want to see how weights get learned?</div>
+        <p style="font-size:12px;color:var(--purple-txt);line-height:1.6;margin-bottom:10px;">These weights are random. In a real model they're learned from data through backpropagation. Try the training module to watch that happen.</p>
+        <a href="nn_training.html" style="font-size:12px;font-weight:600;color:var(--purple);text-decoration:none;">Go to training module →</a>
       </div>
     </div>
 

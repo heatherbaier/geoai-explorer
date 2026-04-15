@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoAI — Neural Network Training</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f8f8f6;
+    --surface:   #ffffff;
+    --surface2:  #f2f1ed;
+    --border:    rgba(0,0,0,0.10);
+    --border2:   rgba(0,0,0,0.18);
+    --text:      #1a1a1e;
+    --text2:     #5a5a62;
+    --text3:     #9a9a9f;
+    --blue-bg:   #e6f1fb;
+    --blue-bd:   #85b7eb;
+    --blue-txt:  #0c447c;
+    --green-bg:  #e1f5ee;
+    --green-bd:  #5dcaa5;
+    --green-txt: #085041;
+    --red-bg:    #fcebeb;
+    --red-bd:    #f09595;
+    --red-txt:   #a32d2d;
+    --amber-bg:  #faeeda;
+    --amber-bd:  #ef9f27;
+    --amber-txt: #633806;
+    --purple-bg: #eeedfe;
+    --purple-bd: #afa9ec;
+    --purple:    #534ab7;
+    --purple-txt:#26215c;
+    --radius:    10px;
+    --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #16161a; --surface:   #1e1e24; --surface2:  #26262e;
+      --border:    rgba(255,255,255,0.10); --border2:   rgba(255,255,255,0.18);
+      --text:      #e8e8ec; --text2:     #9a9aa4; --text3:     #5a5a62;
+      --blue-bg:   #0c2a44; --blue-bd:   #185fa5; --blue-txt:  #b5d4f4;
+      --green-bg:  #04251c; --green-bd:  #0f6e56; --green-txt: #9fe1cb;
+      --red-bg:    #2a0a0a; --red-bd:    #a32d2d; --red-txt:   #f7c1c1;
+      --amber-bg:  #2a1a04; --amber-bd:  #854f0b; --amber-txt: #fac775;
+      --purple-bg: #1a1840; --purple-bd: #534ab7; --purple-txt:#cecbf6;
+    }
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; height: 52px; }
+  .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); margin-right: 2rem; white-space: nowrap; text-decoration: none; }
+  .nav-brand span { color: var(--purple); }
+  .nav-tab { padding: 0 1rem; height: 52px; display: flex; align-items: center; font-size: 13px; color: var(--text2); border-bottom: 2px solid transparent; text-decoration: none; transition: color .15s; white-space: nowrap; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 500; }
+  .nav-badge { background: var(--surface2); color: var(--text3); font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-left: 5px; }
+
+  .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+  .page-header { margin-bottom: 1.5rem; }
+  .page-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.3rem; }
+  .page-header p  { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 640px; }
+  .page-header .header-link { font-size: 12px; color: var(--purple); text-decoration: none; margin-top: 6px; display: inline-block; }
+  .page-header .header-link:hover { text-decoration: underline; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; }
+  .panel-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+  button.btn { padding: 7px 16px; font-size: 13px; border-radius: 7px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); transition: background .15s; font-family: inherit; }
+  button.btn:hover { background: var(--border); }
+  button.btn.primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+  button.btn.primary:hover { opacity: .88; }
+  button.btn:disabled { opacity: .4; cursor: default; }
+
+  /* ── Hyperparameter 2x2 grid ── */
+  .hp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+
+  /* ── Map ── */
+  #map { height: 420px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }  .map-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .map-toggle { display: flex; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
+  .map-toggle button { padding: 5px 12px; font-size: 12px; border: none; background: none; color: var(--text2); cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+  .map-toggle button.active { background: var(--purple); color: #fff; }
+  .map-legend { display: flex; gap: 12px; }
+  .map-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Hyperparameter panel ── */
+  .hp-section { margin-bottom: 14px; }
+  .hp-label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; display: flex; align-items: baseline; gap: 8px; }
+  .hp-label span { font-size: 11px; font-weight: 400; color: var(--text3); }
+  .hp-options { display: flex; flex-direction: column; gap: 5px; }
+  .hp-option { display: flex; align-items: flex-start; gap: 8px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); cursor: pointer; transition: border-color .15s, background .15s; }
+  .hp-option:hover { border-color: var(--purple-bd); }
+  .hp-option.selected { border-color: var(--purple); background: var(--purple-bg); }
+  .hp-option input[type=radio] { margin-top: 2px; flex-shrink: 0; accent-color: var(--purple); }
+  .hp-option-text { flex: 1; }
+  .hp-option-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .hp-option.selected .hp-option-name { color: var(--purple); }
+  .hp-option-desc { font-size: 11px; color: var(--text3); line-height: 1.4; margin-top: 1px; }
+
+  /* ── Bottom grid: loss + weights + diagnostics ── */
+  .bottom-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) 280px; gap: 1.25rem; align-items: start; }
+
+  /* ── Loss curve ── */
+  #loss-canvas { display: block; width: 100%; border-radius: 8px; background: var(--surface2); }
+  .loss-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 10px; }
+  .loss-stat { background: var(--surface2); border-radius: 8px; padding: 8px 10px; text-align: center; }
+  .loss-stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text3); margin-bottom: 2px; }
+  .loss-stat-value { font-size: 17px; font-weight: 600; color: var(--text); font-family: "SF Mono","Consolas",monospace; }
+
+  /* ── Weight heatmap ── */
+  .weight-grid { display: grid; gap: 4px; }
+  .weight-row { display: flex; gap: 4px; align-items: center; }
+  .weight-cell { flex: 1; height: 32px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; font-family: "SF Mono","Consolas",monospace; transition: background .3s, color .3s; }
+  .weight-row-label { font-size: 10px; color: var(--text3); width: 28px; flex-shrink: 0; text-align: right; font-weight: 600; }
+  .weight-col-labels { display: flex; gap: 4px; margin-left: 36px; margin-bottom: 2px; }
+  .weight-col-label  { flex: 1; font-size: 10px; color: var(--text3); text-align: center; font-weight: 600; }
+
+  /* ── Diagnostics ── */
+  .diag-box { border-radius: 9px; padding: 11px 13px; font-size: 12px; line-height: 1.65; margin-bottom: 10px; }
+  .diag-box strong { font-weight: 600; display: block; margin-bottom: 3px; font-size: 13px; }
+  .diag-neutral  { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+  .diag-good     { background: var(--green-bg); border: 1px solid var(--green-bd); color: var(--green-txt); }
+  .diag-bad      { background: var(--red-bg);   border: 1px solid var(--red-bd);   color: var(--red-txt); }
+  .diag-warn     { background: var(--amber-bg); border: 1px solid var(--amber-bd); color: var(--amber-txt); }
+
+  /* ── Training controls bar ── */
+  .train-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 1.25rem 0; }
+  .train-bar .speed-label { font-size: 12px; color: var(--text2); }
+  .speed-toggle { display: flex; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
+  .speed-toggle button { padding: 5px 10px; font-size: 11px; border: none; background: none; color: var(--text2); cursor: pointer; font-family: inherit; }
+  .speed-toggle button.active { background: var(--surface); color: var(--text); font-weight: 500; }
+  .epoch-counter { margin-left: auto; font-size: 12px; color: var(--text2); font-family: "SF Mono","Consolas",monospace; }
+
+  /* ── CTA banner ── */
+  .cta-banner { background: var(--green-bg); border: 1px solid var(--green-bd); border-radius: var(--radius-lg); padding: 1rem 1.25rem; display: none; margin-top: 1.25rem; }
+  .cta-banner strong { font-size: 14px; font-weight: 600; color: #04342c; display: block; margin-bottom: 4px; }
+  .cta-banner p { font-size: 13px; color: var(--green-txt); line-height: 1.6; margin-bottom: 10px; }
+  .cta-banner a.btn { display: inline-block; text-decoration: none; background: var(--purple); color: #fff; border-color: var(--purple); padding: 8px 20px; border-radius: 7px; font-size: 13px; font-weight: 500; }
+  .cta-banner a.btn:hover { opacity: .88; }
+
+  /* accuracy badge */
+  .acc-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 8px; margin-left: 6px; }
+  .acc-badge.good { background: var(--green-bg); color: var(--green-txt); }
+  .acc-badge.bad  { background: var(--red-bg);   color: var(--red-txt); }
+  .acc-badge.mid  { background: var(--amber-bg); color: var(--amber-txt); }
+
+  @media (max-width: 900px) {
+    .hp-grid     { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="../index.html">GeoAI <span>Explorer</span></a>
+  <a class="nav-tab" href="../index.html">Home</a>
+  <a class="nav-tab" href="../index.html">Decision Tree</a>
+  <a class="nav-tab" href="../random-forest/rf.html">Random Forest</a>
+  <a class="nav-tab active" href="#">Neural Network <span class="nav-badge">Training</span></a>
+  <a class="nav-tab" href="nn_ff.html">NN Forward Pass</a>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>Neural Network — Model Training</h1>
+    <p>Choose your hyperparameters, hit Train, and watch the network learn to predict urban heat island intensity from 60 synthetic Phoenix neighborhoods. See what happens when you choose well — and when you don't.</p>
+    <a class="header-link" href="nn_ff.html">← Already understand training? Go to the forward pass walkthrough</a>
+  </div>
+
+  <!-- ═══ HYPERPARAMETERS: 2x2 grid ═══ -->
+  <div class="hp-grid">
+
+    <!-- Learning rate -->
+    <div class="panel">
+      <div class="panel-title">Learning rate — how big each weight update step is</div>
+      <div class="hp-options" id="hp-lr">
+        <label class="hp-option" onclick="selectHP('lr','0.001',this)">
+          <input type="radio" name="lr" value="0.001"> <div class="hp-option-text">
+            <div class="hp-option-name">0.001 — Cautious</div>
+            <div class="hp-option-desc">Small, careful steps. Unlikely to overshoot, but may need many epochs to get anywhere.</div>
+          </div>
+        </label>
+        <label class="hp-option selected" onclick="selectHP('lr','0.01',this)">
+          <input type="radio" name="lr" value="0.01" checked> <div class="hp-option-text">
+            <div class="hp-option-name">0.01 — Balanced</div>
+            <div class="hp-option-desc">A reasonable starting point for small networks. Watch the loss curve closely.</div>
+          </div>
+        </label>
+        <label class="hp-option" onclick="selectHP('lr','0.1',this)">
+          <input type="radio" name="lr" value="0.1"> <div class="hp-option-text">
+            <div class="hp-option-name">0.1 — Aggressive</div>
+            <div class="hp-option-desc">Large steps — can converge fast or cause the loss to bounce and spike.</div>
+          </div>
+        </label>
+        <label class="hp-option" onclick="selectHP('lr','0.5',this)">
+          <input type="radio" name="lr" value="0.5"> <div class="hp-option-text">
+            <div class="hp-option-name">0.5 — Bold</div>
+            <div class="hp-option-desc">Things could get chaotic. What do you think will happen to the loss?</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Epochs -->
+    <div class="panel">
+      <div class="panel-title">Epochs — full passes through the training data</div>
+      <div class="hp-options" id="hp-epochs">
+        <label class="hp-option" onclick="selectHP('epochs','50',this)">
+          <input type="radio" name="epochs" value="50"> <div class="hp-option-text">
+            <div class="hp-option-name">50 epochs — Quick run</div>
+            <div class="hp-option-desc">May not be enough to converge, depending on your learning rate.</div>
+          </div>
+        </label>
+        <label class="hp-option selected" onclick="selectHP('epochs','200',this)">
+          <input type="radio" name="epochs" value="200" checked> <div class="hp-option-text">
+            <div class="hp-option-name">200 epochs — Standard</div>
+            <div class="hp-option-desc">Usually enough to see meaningful convergence on a dataset this size.</div>
+          </div>
+        </label>
+        <label class="hp-option" onclick="selectHP('epochs','500',this)">
+          <input type="radio" name="epochs" value="500"> <div class="hp-option-text">
+            <div class="hp-option-name">500 epochs — Extended</div>
+            <div class="hp-option-desc">Useful for cautious learning rates. Watch for where the loss stops improving.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Hidden neurons -->
+    <div class="panel">
+      <div class="panel-title">Hidden neurons — width of the hidden layer</div>
+      <div class="hp-options" id="hp-hidden">
+        <label class="hp-option" onclick="selectHP('hidden','2',this)">
+          <input type="radio" name="hidden" value="2"> <div class="hp-option-text">
+            <div class="hp-option-name">2 neurons — Minimal</div>
+            <div class="hp-option-desc">Very limited capacity. Can the network learn with only 2 units?</div>
+          </div>
+        </label>
+        <label class="hp-option selected" onclick="selectHP('hidden','3',this)">
+          <input type="radio" name="hidden" value="3" checked> <div class="hp-option-text">
+            <div class="hp-option-name">3 neurons — Default</div>
+            <div class="hp-option-desc">Matches the forward pass module. Reasonable for a 4-feature problem.</div>
+          </div>
+        </label>
+        <label class="hp-option" onclick="selectHP('hidden','6',this)">
+          <input type="radio" name="hidden" value="6"> <div class="hp-option-text">
+            <div class="hp-option-name">6 neurons — Wider</div>
+            <div class="hp-option-desc">More capacity. Does extra width help on a 60-example dataset?</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Batch size -->
+    <div class="panel">
+      <div class="panel-title">Batch size — examples per weight update</div>
+      <div class="hp-options" id="hp-batch">
+        <label class="hp-option" onclick="selectHP('batch','60',this)">
+          <input type="radio" name="batch" value="60"> <div class="hp-option-text">
+            <div class="hp-option-name">Full batch (60) — gradient descent</div>
+            <div class="hp-option-desc">Smooth, stable loss curve. Every update uses all 60 examples.</div>
+          </div>
+        </label>
+        <label class="hp-option selected" onclick="selectHP('batch','8',this)">
+          <input type="radio" name="batch" value="8" checked> <div class="hp-option-text">
+            <div class="hp-option-name">Mini-batch (8) — SGD</div>
+            <div class="hp-option-desc">Noisier loss curve but faster convergence. Most common real-world choice.</div>
+          </div>
+        </label>
+        <label class="hp-option" onclick="selectHP('batch','1',this)">
+          <input type="radio" name="batch" value="1"> <div class="hp-option-text">
+            <div class="hp-option-name">Stochastic (1) — one at a time</div>
+            <div class="hp-option-desc">Very noisy — loss jumps around a lot. Can escape local minima.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ MAP ═══ -->
+  <div class="panel" style="margin-bottom:1.25rem;">
+    <div class="panel-title">Training data — 60 synthetic Phoenix neighborhoods</div>
+    <div class="map-controls">
+      <div class="map-toggle">
+        <button class="active" onclick="setMapMode('true')" id="btn-true">True labels</button>
+        <button onclick="setMapMode('pred')" id="btn-pred">Model predictions</button>
+      </div>
+      <div class="map-legend">
+        <div class="map-legend-item"><div class="legend-dot" style="background:#e24b4a;"></div>High UHI</div>
+        <div class="map-legend-item"><div class="legend-dot" style="background:#ef9f27;"></div>Moderate</div>
+        <div class="map-legend-item"><div class="legend-dot" style="background:#1d9e75;"></div>Low UHI</div>
+      </div>
+      <div style="margin-left:auto;font-size:11px;color:var(--text3);">Click any marker for feature details</div>
+    </div>
+    <div id="map"></div>
+  </div>
+
+  <!-- ═══ TRAINING CONTROLS BAR ═══ -->
+  <div class="train-bar">
+    <button class="btn primary" id="btn-train" onclick="startTraining()">Train network</button>
+    <button class="btn" id="btn-reset" onclick="resetTraining()">Reset</button>
+    <div class="speed-label">Animation speed:</div>
+    <div class="speed-toggle">
+      <button onclick="setSpeed('slow')"   id="sp-slow">Slow</button>
+      <button onclick="setSpeed('medium')" id="sp-medium" class="active">Medium</button>
+      <button onclick="setSpeed('fast')"   id="sp-fast">Fast</button>
+    </div>
+    <div class="epoch-counter" id="epoch-counter">Epoch — / —</div>
+  </div>
+
+  <!-- ═══ BOTTOM: loss curve + weight heatmap + diagnostics ═══ -->
+  <div class="bottom-grid">
+
+    <!-- Loss curve -->
+    <div class="panel">
+      <div class="panel-title">Loss over training</div>
+      <canvas id="loss-canvas" height="180"></canvas>
+      <div class="loss-stats">
+        <div class="loss-stat"><div class="loss-stat-label">Starting loss</div><div class="loss-stat-value" id="stat-start">—</div></div>
+        <div class="loss-stat"><div class="loss-stat-label">Current loss</div><div class="loss-stat-value" id="stat-current">—</div></div>
+        <div class="loss-stat"><div class="loss-stat-label">Accuracy</div><div class="loss-stat-value" id="stat-acc">—</div></div>
+      </div>
+    </div>
+
+    <!-- Weight heatmap -->
+    <div class="panel">
+      <div class="panel-title">Layer 1 weights — live heatmap</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.6;">Each cell = weight from input (column) to neuron (row). <span style="background:#e24b4a;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;">red</span> = strong positive &nbsp;<span style="background:#185fa5;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;">blue</span> = strong negative, gray = near zero.<br><strong style="color:var(--text2);">Note:</strong> negative weights are meaningful — they mean "more of this input pushes against this neuron firing." ReLU never clips weights, only the neuron's output z.</div>
+      <div class="weight-col-labels" id="weight-col-labels"></div>
+      <div class="weight-grid" id="weight-grid"></div>
+      <div style="margin-top:14px;">
+        <div class="panel-title" style="margin-bottom:6px;">What the network learned</div>
+        <div id="weight-interp" style="font-size:12px;color:var(--text2);line-height:1.7;font-style:italic;">Train the network to see weight interpretation.</div>
+      </div>
+    </div>
+
+    <!-- Diagnostics -->
+    <div class="panel">
+      <div class="panel-title">Training diagnostics</div>
+      <div id="diag-content">
+        <div class="diag-box diag-neutral">
+          <strong>Ready to train</strong>
+          Choose your hyperparameters on the left, then hit Train. Try different combinations and compare what happens to the loss curve.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ CTA BANNER ═══ -->
+  <div class="cta-banner" id="cta-banner">
+    <strong>Training complete!</strong>
+    <p>You've seen how the network learns to assign weights to each feature. Now go to the forward pass module and work through the math by hand — using the same kind of learned weights your network just found.</p>
+    <a class="btn" href="nn_ff.html">Go to forward pass walkthrough →</a>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════
+   SYNTHETIC DATA GENERATION
+   60 Phoenix-area neighborhoods with realistic UHI rules:
+   High UHI:   high impervious + low canopy (+ maybe tall buildings)
+   Low UHI:    high canopy + low impervious + close to park
+   Medium UHI: mixed signals
+══════════════════════════════════════════════════════ */
+
+function rng(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+const rand = rng(42);
+
+const PHX_LAT_MIN = 33.25, PHX_LAT_MAX = 33.72;
+const PHX_LNG_MIN = -112.35, PHX_LNG_MAX = -111.75;
+
+const MEANS = [25, 55, 10, 280];
+const STDS  = [18, 22,  6, 190];
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function stdz(v, i) { return (v - MEANS[i]) / STDS[i]; }
+
+function generateData() {
+  const pts = [];
+  for (let i = 0; i < 75; i++) {
+    // Even class split: 25 high, 25 medium, 25 low
+    let label;
+    if (i < 25) label = 'high';
+    else if (i < 50) label = 'medium';
+    else label = 'low';
+
+    let canopy, imperv, height, distPark;
+    // Wide, overlapping ranges so the problem is genuinely hard
+    if (label === 'high') {
+      canopy   = clamp(Math.round(3  + rand()*28), 1, 35);
+      imperv   = clamp(Math.round(60 + rand()*35), 55, 99);
+      height   = clamp(Math.round(8  + rand()*22), 5, 35);
+      distPark = clamp(Math.round(180 + rand()*550), 100, 800);
+    } else if (label === 'medium') {
+      canopy   = clamp(Math.round(15 + rand()*30), 10, 55);
+      imperv   = clamp(Math.round(35 + rand()*35), 28, 75);
+      height   = clamp(Math.round(4  + rand()*14), 3, 20);
+      distPark = clamp(Math.round(80 + rand()*380), 50, 550);
+    } else {
+      canopy   = clamp(Math.round(28 + rand()*42), 20, 75);
+      imperv   = clamp(Math.round(5  + rand()*35), 3, 45);
+      height   = clamp(Math.round(2  + rand()*12), 2, 15);
+      distPark = clamp(Math.round(20 + rand()*250), 15, 320);
+    }
+
+    // Add label noise: ~12% of examples get their label flipped to adjacent class
+    let finalLabel = label;
+    const noise = rand();
+    if (noise < 0.12) {
+      if (label === 'high')   finalLabel = 'medium';
+      if (label === 'medium') finalLabel = noise < 0.06 ? 'high' : 'low';
+      if (label === 'low')    finalLabel = 'medium';
+    }
+
+    const lat = PHX_LAT_MIN + rand() * (PHX_LAT_MAX - PHX_LAT_MIN);
+    const lng = PHX_LNG_MIN + rand() * (PHX_LNG_MAX - PHX_LNG_MIN);
+
+    // 3-class one-hot: [high, medium, low]
+    const yOH = finalLabel === 'high' ? [1,0,0] : finalLabel === 'medium' ? [0,1,0] : [0,0,1];
+    const yIdx = finalLabel === 'high' ? 0 : finalLabel === 'medium' ? 1 : 2;
+
+    pts.push({ lat, lng, canopy, imperv, height, distPark,
+               label: finalLabel, yOH, yIdx,
+               features: [canopy, imperv, height, distPark] });
+  }
+  return pts;
+}
+
+const DATA = generateData();
+const X = DATA.map(d => d.features.map((v,i) => stdz(v,i)));
+const Y = DATA.map(d => d.yOH);   // one-hot arrays
+const YIDX = DATA.map(d => d.yIdx); // class indices
+
+/* ══════════════════════════════════════════════════════
+   LEAFLET MAP
+══════════════════════════════════════════════════════ */
+
+const map = L.map('map', { zoomControl: true }).setView([33.45, -112.07], 10);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO', maxZoom: 18
+}).addTo(map);
+
+let mapMode = 'true';
+let markers = [];
+let modelPreds = null;
+
+function makeIcon(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.8);box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>`,
+    iconSize: [12,12], iconAnchor: [6,6]
+  });
+}
+
+function labelColor(label) {
+  if (label === 'high')   return '#e24b4a';
+  if (label === 'medium') return '#ef9f27';
+  return '#1d9e75';
+}
+
+function predColor(pred) {
+  if (!pred) return '#9a9a9f';
+  if (pred.predLabel === 'high')   return '#e24b4a';
+  if (pred.predLabel === 'medium') return '#ef9f27';
+  return '#1d9e75';
+}
+
+function buildMarkers() {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  DATA.forEach((d, i) => {
+    const color = mapMode === 'true'
+      ? labelColor(d.label)
+      : predColor(modelPreds ? modelPreds[i] : null);
+
+    let predLine = '<br><i style="color:#9a9a9f;">Train to see prediction</i>';
+    if (modelPreds) {
+      const p = modelPreds[i];
+      const correct = p.predLabel === d.label;
+      predLine = `<br><b>Predicted:</b> <span style="color:${labelColor(p.predLabel)};font-weight:600;">${p.predLabel.charAt(0).toUpperCase()+p.predLabel.slice(1)}</span>
+        <span style="font-size:11px;color:${correct?'#0f6e56':'#a32d2d'}">${correct ? '✓ correct' : '✗ wrong'}</span>
+        <br><span style="font-size:11px;color:#9a9a9f;">P(H)=${(p.high*100).toFixed(0)}% P(M)=${(p.medium*100).toFixed(0)}% P(L)=${(p.low*100).toFixed(0)}%</span>`;
+    }
+
+    const popup = `
+      <div style="font-size:12px;line-height:1.8;min-width:170px;">
+        <b style="font-size:13px;">Neighborhood ${i+1}</b><br>
+        <b>Tree canopy:</b> ${d.canopy}%<br>
+        <b>Impervious:</b> ${d.imperv}%<br>
+        <b>Bldg height:</b> ${d.height}m<br>
+        <b>Dist. park:</b> ${d.distPark}m<br>
+        <b>True UHI:</b> <span style="color:${labelColor(d.label)};font-weight:600;">${d.label.charAt(0).toUpperCase()+d.label.slice(1)}</span>
+        ${predLine}
+      </div>`;
+
+    const m = L.marker([d.lat, d.lng], { icon: makeIcon(color) })
+               .bindPopup(popup).addTo(map);
+    markers.push(m);
+  });
+}
+
+function setMapMode(mode) {
+  mapMode = mode;
+  document.getElementById('btn-true').classList.toggle('active', mode === 'true');
+  document.getElementById('btn-pred').classList.toggle('active', mode === 'pred');
+  buildMarkers();
+}
+
+buildMarkers();
+
+/* ══════════════════════════════════════════════════════
+   HYPERPARAMETER STATE
+══════════════════════════════════════════════════════ */
+
+let HP = { lr: 0.01, epochs: 200, hidden: 3, batch: 8 };
+
+function selectHP(key, val, el) {
+  HP[key] = parseFloat(val);
+  el.closest('.hp-options').querySelectorAll('.hp-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ══════════════════════════════════════════════════════
+   NEURAL NETWORK — forward + backward pass
+   Architecture: 4 → H → 1 (binary classification)
+   Hidden: ReLU, Output: Sigmoid, Loss: Binary cross-entropy
+══════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════
+   NEURAL NETWORK — 3-class softmax
+   Architecture: 4 → H (ReLU) → 3 (softmax)
+   Loss: categorical cross-entropy
+══════════════════════════════════════════════════════ */
+
+let W1, b1, W2, b2;
+
+function initWeights(H) {
+  const scale1 = Math.sqrt(2 / 4);
+  const scale2 = Math.sqrt(2 / H);
+  W1 = Array.from({length:H}, () => Array.from({length:4}, () => (rand()*2-1)*scale1));
+  b1 = Array(H).fill(0);
+  // 3 output neurons: [high, medium, low]
+  W2 = Array.from({length:3}, () => Array.from({length:H}, () => (rand()*2-1)*scale2));
+  b2 = [0, 0, 0];
+}
+
+function relu(x)     { return Math.max(0, x); }
+function reluGrad(x) { return x > 0 ? 1 : 0; }
+
+function softmax(arr) {
+  const maxV = Math.max(...arr);
+  const exps = arr.map(v => Math.exp(v - maxV));
+  const sum  = exps.reduce((a,b) => a+b, 0);
+  return exps.map(e => e / sum);
+}
+
+function forward(x) {
+  const H  = W1.length;
+  const z1 = W1.map((row,j) => row.reduce((s,w,i) => s + w*x[i], 0) + b1[j]);
+  const a1 = z1.map(relu);
+  const z2 = W2.map((row,k) => row.reduce((s,w,j) => s + w*a1[j], 0) + b2[k]);
+  const a2 = softmax(z2);
+  return { z1, a1, z2, a2 };
+}
+
+function batchGradients(batch) {
+  const H   = W1.length;
+  const dW1 = W1.map(r => r.map(() => 0));
+  const db1 = Array(H).fill(0);
+  const dW2 = W2.map(r => r.map(() => 0));
+  const db2 = [0, 0, 0];
+  let loss   = 0;
+
+  batch.forEach(({x, yOH}) => {
+    const {z1, a1, z2, a2} = forward(x);
+    const eps = 1e-7;
+    // Categorical cross-entropy loss
+    loss += -yOH.reduce((s, yt, k) => s + yt * Math.log(a2[k] + eps), 0);
+
+    // dL/dz2 = a2 - y  (softmax + cross-entropy combined gradient)
+    const dL_dz2 = a2.map((p, k) => p - yOH[k]);
+
+    // Backprop output layer
+    W2.forEach((row, k) => {
+      row.forEach((_, j) => { dW2[k][j] += dL_dz2[k] * a1[j]; });
+      db2[k] += dL_dz2[k];
+    });
+
+    // Backprop hidden layer
+    a1.forEach((_, j) => {
+      const dL_da1j = W2.reduce((s, row, k) => s + dL_dz2[k] * row[j], 0);
+      const dL_dz1j = dL_da1j * reluGrad(z1[j]);
+      x.forEach((xi, i) => { dW1[j][i] += dL_dz1j * xi; });
+      db1[j] += dL_dz1j;
+    });
+  });
+
+  const n = batch.length;
+  return {
+    dW1: dW1.map(r => r.map(v => v/n)),
+    db1: db1.map(v => v/n),
+    dW2: dW2.map(r => r.map(v => v/n)),
+    db2: db2.map(v => v/n),
+    loss: loss / n
+  };
+}
+
+function updateWeights(grads, lr) {
+  W1 = W1.map((row,j) => row.map((w,i) => w - lr * grads.dW1[j][i]));
+  b1 = b1.map((b,j)   => b - lr * grads.db1[j]);
+  W2 = W2.map((row,k) => row.map((w,j) => w - lr * grads.dW2[k][j]));
+  b2 = b2.map((b,k)   => b - lr * grads.db2[k]);
+}
+
+function computeAccuracy() {
+  let correct = 0;
+  X.forEach((x, i) => {
+    const {a2} = forward(x);
+    const pred = a2.indexOf(Math.max(...a2));
+    if (pred === YIDX[i]) correct++;
+  });
+  return correct / X.length;
+}
+
+// Returns array of {high, medium, low} probability objects
+function getAllPreds() {
+  return X.map(x => {
+    const {a2} = forward(x);
+    return { high: a2[0], medium: a2[1], low: a2[2],
+             predLabel: ['high','medium','low'][a2.indexOf(Math.max(...a2))] };
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   LOSS CANVAS
+══════════════════════════════════════════════════════ */
+
+let lossHistory = [];
+let canvas, ctx, canvasW, canvasH;
+
+function initCanvas() {
+  canvas  = document.getElementById('loss-canvas');
+  canvasW = canvas.offsetWidth;
+  canvasH = 180;
+  canvas.width  = canvasW * window.devicePixelRatio;
+  canvas.height = canvasH * window.devicePixelRatio;
+  canvas.style.height = canvasH + 'px';
+  ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  drawLoss();
+}
+
+function drawLoss() {
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvasW, canvasH);
+
+  const pad = { t:12, r:16, b:30, l:44 };
+  const W = canvasW - pad.l - pad.r;
+  const H = canvasH - pad.t - pad.b;
+
+  // Background
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface2') || '#f2f1ed';
+  ctx.fillRect(0, 0, canvasW, canvasH);
+
+  if (lossHistory.length < 2) {
+    ctx.fillStyle = '#9a9a9f';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Loss curve will appear here during training', canvasW/2, canvasH/2);
+    return;
+  }
+
+  const maxL  = Math.max(...lossHistory) * 1.05;
+  const minL  = Math.max(0, Math.min(...lossHistory) * 0.95);
+  const total = HP.epochs;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + H * (i/4);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + W, y); ctx.stroke();
+    const val = maxL - (maxL - minL) * (i/4);
+    ctx.fillStyle = '#9a9a9f';
+    ctx.font = '9px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(2), pad.l - 4, y + 3);
+  }
+
+  // X axis labels
+  ctx.fillStyle = '#9a9a9f';
+  ctx.font = '9px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  [0, Math.round(total/4), Math.round(total/2), Math.round(3*total/4), total].forEach(ep => {
+    const x = pad.l + W * (ep / total);
+    ctx.fillText(ep, x, canvasH - 8);
+  });
+  ctx.fillText('Epoch', pad.l + W/2, canvasH - 1);
+
+  // Loss line
+  ctx.strokeStyle = '#534ab7';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  lossHistory.forEach((l, i) => {
+    const x = pad.l + W * (i / (total - 1));
+    const y = pad.t + H * (1 - (l - minL) / (maxL - minL));
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Current point dot
+  const lastIdx = lossHistory.length - 1;
+  const lx = pad.l + W * (lastIdx / (total - 1));
+  const ll = lossHistory[lastIdx];
+  const ly = pad.t + H * (1 - (ll - minL) / (maxL - minL));
+  ctx.fillStyle = '#534ab7';
+  ctx.beginPath(); ctx.arc(lx, ly, 4, 0, Math.PI*2); ctx.fill();
+}
+
+/* ══════════════════════════════════════════════════════
+   WEIGHT HEATMAP
+══════════════════════════════════════════════════════ */
+
+const FEAT_NAMES = ['Canopy', 'Imperv', 'Height', 'Dist.pk'];
+
+function weightColor(w) {
+  const v = Math.max(-1, Math.min(1, w));
+  if (v > 0) {
+    const t = v;
+    const r = Math.round(226 * t + 242 * (1-t));
+    const g = Math.round(75  * t + 241 * (1-t));
+    const b = Math.round(74  * t + 237 * (1-t));
+    return { bg: `rgb(${r},${g},${b})`, text: t > 0.5 ? '#fff' : '#1a1a1e' };
+  } else {
+    const t = -v;
+    const r = Math.round(24  * t + 242 * (1-t));
+    const g = Math.round(95  * t + 241 * (1-t));
+    const b = Math.round(165 * t + 237 * (1-t));
+    return { bg: `rgb(${r},${g},${b})`, text: t > 0.5 ? '#fff' : '#1a1a1e' };
+  }
+}
+
+function renderWeightGrid() {
+  if (!W1) return;
+  const H = W1.length;
+
+  const colLabels = document.getElementById('weight-col-labels');
+  colLabels.innerHTML = FEAT_NAMES.map(n => `<div class="weight-col-label">${n}</div>`).join('');
+
+  const grid = document.getElementById('weight-grid');
+  grid.innerHTML = '';
+  W1.forEach((row, j) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'weight-row';
+    const lbl = document.createElement('div');
+    lbl.className = 'weight-row-label';
+    lbl.textContent = `N${j+1}`;
+    rowEl.appendChild(lbl);
+    row.forEach(w => {
+      const cell = document.createElement('div');
+      cell.className = 'weight-cell';
+      const {bg, text} = weightColor(w);
+      cell.style.background = bg;
+      cell.style.color = text;
+      cell.textContent = w.toFixed(2);
+      rowEl.appendChild(cell);
+    });
+    grid.appendChild(rowEl);
+  });
+}
+
+function interpretWeights() {
+  if (!W1) return;
+  const H = W1.length;
+  const FEAT_FULL = ['tree canopy', 'impervious surface', 'building height', 'distance to park'];
+  let lines = [];
+
+  W1.forEach((row, j) => {
+    const maxI   = row.reduce((mi, v, i) => Math.abs(v) > Math.abs(row[mi]) ? i : mi, 0);
+    const maxW   = row[maxI];
+    const dir    = maxW > 0 ? 'increases with' : 'decreases with';
+    lines.push(`N${j+1} responds most strongly to <b>${FEAT_FULL[maxI]}</b> (w=${maxW.toFixed(2)}) — it ${dir} higher ${FEAT_FULL[maxI]}.`);
+  });
+
+  document.getElementById('weight-interp').innerHTML = lines.join('<br><br>');
+}
+
+/* ══════════════════════════════════════════════════════
+   DIAGNOSTICS
+══════════════════════════════════════════════════════ */
+
+function diagnoseLoss(isFinal) {
+  if (lossHistory.length < 5) return;
+  const n      = lossHistory.length;
+  const first5 = lossHistory.slice(0, 5).reduce((s,v) => s+v, 0) / 5;
+  const last5  = lossHistory.slice(-5).reduce((s,v) => s+v, 0) / 5;
+  const prev5  = n >= 10 ? lossHistory.slice(-10,-5).reduce((s,v) => s+v, 0) / 5 : first5;
+  const curLoss = lossHistory[n-1];
+  const acc    = computeAccuracy();
+  const accPct = (acc * 100).toFixed(0);
+
+  // Detect behaviours
+  const isExploding   = last5 > first5 * 2.0;
+  const isOscillating = !isExploding && lossHistory.slice(-Math.min(20,n)).some((v,i,a) => i > 0 && Math.abs(v - a[i-1]) > 0.2);
+  const lossDropPct   = (first5 - last5) / first5;
+  const isStuck       = !isExploding && !isOscillating && lossDropPct < 0.05 && n > 30;
+  const isConverged   = !isExploding && Math.abs(last5 - prev5) < 0.002 && n >= 10;
+
+  let html = '';
+
+  if (isFinal) {
+    // ─── Final summary ───
+    if (isExploding) {
+      html += `<div class="diag-box diag-bad"><strong>Loss diverged</strong>The loss increased rather than decreased. The learning rate was likely too large — updates overshot the minimum. Try lr=0.01 or smaller.</div>`;
+    } else if (isOscillating) {
+      html += `<div class="diag-box diag-warn"><strong>Unstable training</strong>The loss oscillated throughout training. Try a smaller learning rate or a larger batch size to get smoother, more stable gradients.</div>`;
+    } else if (isStuck) {
+      html += `<div class="diag-box diag-warn"><strong>Barely moved</strong>The loss dropped less than 5% over ${n} epochs. With lr=${HP.lr} this network is learning very slowly — try more epochs or a larger learning rate.</div>`;
+    } else if (acc >= 0.90) {
+      html += `<div class="diag-box diag-good"><strong>Strong convergence — ${accPct}% accuracy</strong>The network learned to separate High UHI from Low/Moderate with high accuracy. Final loss: ${curLoss.toFixed(3)}. Toggle the map to "Model predictions" to see where it got things right and wrong.</div>`;
+    } else if (acc >= 0.75) {
+      html += `<div class="diag-box diag-good"><strong>Good convergence — ${accPct}% accuracy</strong>Solid result. Final loss: ${curLoss.toFixed(3)}. Some misclassifications remain — likely the "moderate" examples that sit between the two classes.</div>`;
+    } else {
+      html += `<div class="diag-box diag-warn"><strong>Partial convergence — ${accPct}% accuracy</strong>The loss dropped but accuracy is modest. This can happen if the network got stuck in a local minimum. Try re-running with the same settings (weights re-initialize randomly) or adjusting the learning rate.</div>`;
+    }
+  } else {
+    // ─── Mid-training update ───
+    if (isExploding) {
+      html += `<div class="diag-box diag-bad"><strong>Loss is increasing</strong>Updates are overshooting the minimum. The learning rate may be too high.</div>`;
+    } else if (isOscillating) {
+      html += `<div class="diag-box diag-warn"><strong>Loss oscillating</strong>Bouncing rather than smoothly decreasing — classic sign of a learning rate on the edge. Keep watching.</div>`;
+    } else if (isStuck) {
+      html += `<div class="diag-box diag-warn"><strong>Learning very slowly</strong>Loss has barely moved. With lr=${HP.lr} this may need many more epochs, or try a larger learning rate.</div>`;
+    } else if (isConverged) {
+      html += `<div class="diag-box diag-good"><strong>Loss plateauing — ${accPct}% accuracy</strong>The curve is flattening out. More epochs may not help much from here — this looks like convergence.</div>`;
+    } else {
+      html += `<div class="diag-box diag-neutral"><strong>Training in progress</strong>Loss: ${curLoss.toFixed(3)}, accuracy: ${accPct}%. Still learning — keep watching.</div>`;
+    }
+  }
+
+  // ─── Supplemental notes ───
+  if (HP.lr >= 0.5 && !isExploding) {
+    html += `<div class="diag-box diag-warn"><strong>High learning rate note</strong>lr=${HP.lr} is bold — notice how the loss curve shape compares to a run with lr=0.01. The erratic pattern is the learning rate's fingerprint.</div>`;
+  }
+  if (HP.lr <= 0.001 && n > 30 && !isStuck) {
+    html += `<div class="diag-box diag-neutral"><strong>Slow and steady</strong>lr=${HP.lr} takes very small steps. The loss is still improving — it just needs more epochs to get there.</div>`;
+  }
+  if (HP.batch === 1) {
+    html += `<div class="diag-box diag-neutral"><strong>Stochastic noise</strong>Batch size 1 means every weight update is based on a single example — hence the jagged loss curve. Faster updates, but much noisier signal.</div>`;
+  }
+  if (HP.batch === 60) {
+    html += `<div class="diag-box diag-neutral"><strong>Full-batch smoothness</strong>All 60 examples per update gives the cleanest possible gradient signal — notice the smooth loss curve compared to smaller batch sizes.</div>`;
+  }
+
+  document.getElementById('diag-content').innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════
+   TRAINING LOOP
+══════════════════════════════════════════════════════ */
+
+let trainingRunning = false;
+let animSpeed = { slow: 120, medium: 40, fast: 8 };
+let currentSpeed = 'medium';
+
+function setSpeed(s) {
+  currentSpeed = s;
+  ['slow','medium','fast'].forEach(sp => document.getElementById('sp-'+sp).classList.toggle('active', sp===s));
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(rand() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+async function startTraining() {
+  if (trainingRunning) return;
+  trainingRunning = true;
+  document.getElementById('btn-train').disabled = true;
+  document.getElementById('cta-banner').style.display = 'none';
+
+  const { lr, epochs, hidden, batch } = HP;
+  initWeights(hidden);
+  lossHistory = [];
+  modelPreds  = null;
+
+  initCanvas();
+  renderWeightGrid();
+  document.getElementById('stat-start').textContent    = '—';
+  document.getElementById('stat-current').textContent  = '—';
+  document.getElementById('stat-acc').textContent      = '—';
+  document.getElementById('diag-content').innerHTML    =
+    '<div class="diag-box diag-neutral"><strong>Training started</strong>Watch the loss curve and weight heatmap update as the network learns.</div>';
+
+  const indices = X.map((_,i) => i);
+
+  for (let ep = 0; ep < epochs; ep++) {
+    if (!trainingRunning) break;
+
+    const shuffled = shuffle(indices);
+    let epochLoss  = 0, nBatches = 0;
+
+    for (let b = 0; b < shuffled.length; b += batch) {
+      const batchItems = shuffled.slice(b, b + batch).map(i => ({x: X[i], yOH: Y[i]}));
+      const grads = batchGradients(batchItems);
+      updateWeights(grads, lr);
+      epochLoss += grads.loss;
+      nBatches++;
+    }
+
+    lossHistory.push(epochLoss / nBatches);
+
+    if (ep === 0) {
+      document.getElementById('stat-start').textContent = (epochLoss/nBatches).toFixed(3);
+    }
+
+    document.getElementById('stat-current').textContent = (epochLoss/nBatches).toFixed(3);
+    document.getElementById('stat-acc').textContent     = (computeAccuracy()*100).toFixed(0) + '%';
+    document.getElementById('epoch-counter').textContent = `Epoch ${ep+1} / ${epochs}`;
+
+    drawLoss();
+    renderWeightGrid();
+
+    if (ep % 15 === 0) diagnoseLoss(false);
+
+    await new Promise(r => setTimeout(r, animSpeed[currentSpeed]));
+  }
+
+  // Training complete
+  trainingRunning = false;
+  document.getElementById('btn-train').disabled = false;
+  document.getElementById('epoch-counter').textContent = `Complete — ${epochs} epochs`;
+
+  const acc = computeAccuracy();
+  document.getElementById('stat-acc').textContent = (acc*100).toFixed(0) + '%';
+  modelPreds = getAllPreds();
+  if (mapMode === 'pred') buildMarkers();
+
+  diagnoseLoss(true);
+  interpretWeights();
+
+  document.getElementById('cta-banner').style.display = 'block';
+}
+
+function resetTraining() {
+  trainingRunning = false;
+  lossHistory     = [];
+  modelPreds      = null;
+  W1 = b1 = W2 = b2 = null;
+  document.getElementById('btn-train').disabled        = false;
+  document.getElementById('epoch-counter').textContent = 'Epoch — / —';
+  document.getElementById('stat-start').textContent    = '—';
+  document.getElementById('stat-current').textContent  = '—';
+  document.getElementById('stat-acc').textContent      = '—';
+  document.getElementById('diag-content').innerHTML    =
+    '<div class="diag-box diag-neutral"><strong>Ready to train</strong>Choose your hyperparameters and hit Train. Try different combinations and compare what happens to the loss curve.</div>';
+  document.getElementById('weight-grid').innerHTML     = '';
+  document.getElementById('weight-col-labels').innerHTML = '';
+  document.getElementById('weight-interp').innerHTML   = 'Train the network to see weight interpretation.';
+  document.getElementById('cta-banner').style.display  = 'none';
+  if (mapMode === 'pred') buildMarkers();
+  initCanvas();
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+
+window.addEventListener('load', () => {
+  initCanvas();
+});
+</script>
+</body>
+</html>
