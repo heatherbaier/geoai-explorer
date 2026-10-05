@@ -81,25 +81,40 @@
   .section-header { margin-bottom: 1.25rem; }
   .section-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin-bottom: 4px; }
   .section-header h2 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
-  .section-header p  { font-size: 13px; color: var(--text2); line-height: 1.7; max-width: 680px; }
-
-  /* context cards */
-  .concept-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
-  .concept-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.1rem; }
-  .concept-card-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
-  .concept-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-  .concept-card p  { font-size: 12px; color: var(--text2); line-height: 1.7; }
-  .concept-card p + p { margin-top: 6px; }
+  .section-header p  { font-size: 13px; color: var(--text2); line-height: 1.7; max-width: 720px; }
+  .section-header p + p { margin-top: 6px; }
 
   /* scenario banner */
   .scenario-banner { background: var(--purple-bg); border: 1px solid var(--purple-bd); border-radius: var(--radius-lg); padding: 1.1rem 1.4rem; margin-bottom: 1.25rem; }
   .scenario-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); margin-bottom: 6px; }
-  .scenario-banner p { font-size: 13px; color: var(--purple-txt); line-height: 1.75; }
+  .scenario-banner p { font-size: 13px; color: var(--purple-txt); line-height: 1.75; max-width: 820px; }
   .scenario-banner p + p { margin-top: 8px; }
   @media (prefers-color-scheme: dark) {
     .scenario-banner { background: #1a1840; border-color: #534ab7; }
     .scenario-banner p, .scenario-eyebrow { color: #cecbf6; }
   }
+
+  /* data box */
+  .data-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.4rem; margin-bottom: 2.5rem; }
+  .data-box > p { font-size: 13px; color: var(--text2); line-height: 1.7; max-width: 820px; }
+  .var-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin: 1rem 0; }
+  .var-card { background: var(--surface2); border-radius: var(--radius); padding: .9rem 1rem; }
+  .var-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .var-unit { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+  .var-card p { font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+  .var-card p + p { margin-top: 6px; }
+  .var-card strong { color: var(--text); font-weight: 600; }
+  .data-notes { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin-bottom: 1rem; }
+  .data-note { border-left: 3px solid var(--purple-bd); padding: 2px 0 2px 12px; font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+  .data-note strong { color: var(--text); font-weight: 600; }
+  .data-table { border-collapse: collapse; font-size: 12.5px; width: 100%; max-width: 460px; }
+  .data-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text3); border-bottom: 1px solid var(--border2); padding: 5px 10px 5px 0; }
+  .data-table td { padding: 5px 10px 5px 0; border-bottom: 1px solid var(--border); color: var(--text2); }
+  .data-table td.num, .data-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  details.all-stations { margin-top: 10px; font-size: 12.5px; color: var(--text2); }
+  details.all-stations summary { cursor: pointer; color: var(--purple); font-weight: 500; }
+  .all-stations-scroll { max-height: 320px; overflow-y: auto; margin-top: 8px; max-width: 460px; }
+  .source { font-size: 11px; color: var(--text3); margin-top: 10px; }
 
   /* buttons */
   button.btn { padding: 7px 16px; font-size: 13px; border-radius: 7px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); transition: background .15s; font-family: inherit; }
@@ -109,41 +124,84 @@
   button.btn:disabled { opacity: .4; cursor: default; }
   .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
-  /* ── CENTROID PLACEMENT GAME ── */
-  .game-grid { display: grid; grid-template-columns: minmax(0,1fr) 280px; gap: 1.25rem; align-items: start; }
-  #scatter-canvas { display: block; border-radius: var(--radius); border: 1px solid var(--border); cursor: crosshair; width: 100%; background: var(--surface2); }
-  .game-status { background: var(--surface2); border-radius: 8px; padding: 10px 13px; font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
-  .game-status strong { color: var(--text); }
-  .iter-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 8px; background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-bd); margin-bottom: 8px; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: middle; }
+  /* ── PART 1: STEP-BY-STEP ── */
+  .game-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 1.25rem; align-items: start; }
+  .plot-wrap { position: relative; }
+  #scatter-canvas { display: block; border-radius: var(--radius); border: 1px solid var(--border); width: 100%; background: var(--surface2); }
+  #scatter-canvas.placing { cursor: crosshair; }
+  .plot-tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; padding: 4px 8px; font-size: 11.5px; color: var(--text); white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.1); display: none; z-index: 5; }
+  .plot-caption { font-size: 11.5px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
 
-  /* k selector */
-  .k-selector { display: flex; gap: 6px; margin-bottom: 12px; }
+  .k-selector { display: flex; gap: 6px; }
   .k-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
   .k-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .k-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .k-row-label { font-size: 12.5px; color: var(--text); font-weight: 500; line-height: 1.4; }
+  .k-row-label span { display: block; font-size: 11px; color: var(--text3); font-weight: 400; }
 
-  /* speed toggle */
-  .speed-toggle { display: flex; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
-  .speed-btn { padding: 5px 10px; font-size: 11px; border: none; background: none; color: var(--text2); cursor: pointer; font-family: inherit; }
-  .speed-btn.active { background: var(--surface); color: var(--text); font-weight: 500; }
+  .steps { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .step { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; transition: background .15s, border-color .15s; }
+  .step-title { display: flex; gap: 8px; align-items: baseline; font-size: 12.5px; font-weight: 600; color: var(--text2); }
+  .step-num { flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--surface2); color: var(--text3); font-size: 10.5px; display: inline-flex; align-items: center; justify-content: center; }
+  .step p { font-size: 12px; color: var(--text3); line-height: 1.55; margin: 3px 0 0 26px; }
+  .step.active { background: var(--purple-bg); border-color: var(--purple-bd); }
+  .step.active .step-title { color: var(--text); }
+  .step.active .step-num { background: var(--purple); color: #fff; }
+  .step.active p { color: var(--text2); }
 
-  /* ── MAP + ELBOW ── */
+  .game-status { background: var(--surface2); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; min-height: 58px; }
+  .game-status strong { color: var(--text); }
+  .spread-box { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 10px; font-size: 12px; color: var(--text2); line-height: 1.55; }
+  .spread-val { font-size: 18px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .spread-change { font-size: 11.5px; color: var(--green-txt); margin-left: 6px; }
+
+  /* ── PART 2: MAP + CHOOSING K ── */
   .map-grid { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 1.25rem; align-items: start; }
-  #km-map { height: 420px; border-radius: var(--radius); border: 1px solid var(--border); }
+  #km-map { height: 430px; border-radius: var(--radius); border: 1px solid var(--border); }
   #elbow-canvas { display: block; width: 100%; border-radius: 8px; background: var(--surface2); }
-  .k-toggle { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-  .kt-btn { padding: 5px 14px; font-size: 12px; font-weight: 600; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); cursor: pointer; transition: all .15s; font-family: inherit; }
-  .kt-btn.active { color: #fff; border-color: transparent; }
+  .k-toggle { display: flex; gap: 6px; flex-wrap: wrap; }
+  .kt-btn { padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); cursor: pointer; transition: all .15s; font-family: inherit; }
+  .kt-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .map-legend { display: flex; gap: 6px 14px; margin-top: 8px; flex-wrap: wrap; font-size: 11.5px; color: var(--text2); }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .panel p.small { font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+  .panel p.small + p.small { margin-top: 6px; }
+  .panel p.small strong { color: var(--text); }
 
-  /* cluster color vars */
-  :root {
-    --c0: #534ab7; --c1: #0f6e56; --c2: #993c1d; --c3: #ba7517;
-  }
+  /* ── PART 3: NAMING + KÖPPEN ── */
+  .name-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+  .name-card { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid; border-radius: var(--radius); padding: .85rem 1rem; display: flex; flex-direction: column; gap: 8px; }
+  .name-card-head { font-size: 12px; font-weight: 600; }
+  .name-card-stats { display: flex; gap: 14px; font-size: 12px; color: var(--text2); }
+  .name-card-stats b { display: block; font-size: 15px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .name-card-list { font-size: 11.5px; color: var(--text3); line-height: 1.5; }
+  .name-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 9px; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); }
+  .name-input:focus { outline: 2px solid var(--purple-bd); outline-offset: 0; }
+  .kg-breakdown { display: none; border-top: 1px solid var(--border); padding-top: 8px; }
+  .kg-revealed .kg-breakdown { display: block; }
+  .kg-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 5px 0 6px; }
+  .kg-rows { font-size: 11.5px; color: var(--text2); line-height: 1.6; }
+  .kg-label { font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text3); }
 
-  @media (max-width: 760px) {
-    .concept-grid { grid-template-columns: 1fr; }
-    .game-grid    { grid-template-columns: 1fr; }
-    .map-grid     { grid-template-columns: 1fr; }
+  .compare-section { display: none; }
+  .kg-revealed .compare-section { display: block; }
+  .kg-revealed #btn-reveal-wrap { display: none; }
+  .compare-maps { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+  .compare-map { height: 340px; border-radius: var(--radius); border: 1px solid var(--border); }
+  .kg-key { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 6px 18px; font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .kg-key div { display: flex; gap: 7px; align-items: baseline; }
+  .kg-key .dot { position: relative; top: 1px; }
+  .kg-key strong { color: var(--text); }
+  .questions { padding-left: 1.2rem; font-size: 13px; color: var(--text2); line-height: 1.7; }
+  .questions li + li { margin-top: 6px; }
+
+  .limits p { font-size: 12.5px; color: var(--text2); line-height: 1.7; }
+  .limits p + p { margin-top: 8px; }
+  .limits strong { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .game-grid, .map-grid, .compare-maps, .var-grid, .data-notes { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -169,7 +227,7 @@
   <div class="nav-dropdown">
     <button class="nav-tab nav-dropdown-btn">Unsupervised ▾</button>
     <div class="nav-dropdown-menu">
-      <a href="/geoai-explorer/unsupervised-learning/kmeans.html">K-means</a>
+      <a class="active" href="/geoai-explorer/unsupervised-learning/kmeans.html">K-means</a>
     </div>
   </div>
 </nav>
@@ -178,139 +236,203 @@
 
   <div class="page-header">
     <h1>K-Means Clustering</h1>
-    <p>Grouping Phoenix neighborhoods by socioeconomic and environmental profile — without any labels.</p>
+    <p>Grouping US weather stations into climate zones using winter temperature and yearly precipitation.</p>
   </div>
 
-  <!-- ══════════════════════════ CONTEXT ══════════════════════════ -->
-
-  <div class="scenario-banner" style="margin-bottom:1.25rem;">
-    <div class="scenario-eyebrow">Your scenario</div>
-    <p>You're a GIS analyst at the City of Phoenix Office of Community Planning. Your team has been asked to identify which neighborhoods share similar socioeconomic and environmental conditions — not to predict a specific outcome, but to find natural groupings that could inform where to target resources, outreach, or further study.</p>
-    <p>You have five variables measured for 40 Phoenix-area neighborhoods: median household income, tree canopy coverage, population density, distance to the nearest park, and PM2.5 air pollution. Nobody has labeled these neighborhoods — there's no "correct" answer. Your job: use K-means to find the structure in the data, then interpret what the clusters actually represent.</p>
+  <!-- ══════════════════════════ SCENARIO ══════════════════════════ -->
+  <div class="scenario-banner">
+    <div class="scenario-eyebrow">Scenario</div>
+    <p>Climate zones are one of the most widely used maps in geography. The USDA plant hardiness zones on seed packets, the climate zones in building energy codes, and the Köppen map in most textbooks all group places that have similar climates. Grouping is useful because places with similar climates deal with similar issues: how much heating homes need, which crops grow well, and how much water a city has to store for the dry months.</p>
+    <p>Most of these maps are built from rules that people decided on in advance. Köppen, for example, calls a place a desert if its yearly precipitation is below a cutoff that depends on its temperature. In this activity you'll work the other way around. You'll start with the data and let the patterns in it decide the groups.</p>
+    <p>You have climate data for 70 weather stations across the lower 48 states. K-means will sort them into groups so that stations with similar climates end up together. You choose how many groups you want (that number is <strong>K</strong>). You don't tell it what the groups should be or give it examples of correct answers, which is why K-means is called <em>unsupervised</em> learning. At the end you'll name your groups and compare them with the Köppen zones, to see where a data-driven map agrees with the traditional one and where it doesn't.</p>
   </div>
 
-  <div class="concept-grid" style="margin-bottom:2rem;">
-    <div class="concept-card">
-      <div class="concept-card-eyebrow">What K-means does</div>
-      <h3>Finding groups without labels</h3>
-      <p>K-means is an unsupervised algorithm — there are no labels, no right answers, no loss function to minimize. Instead it asks: given K groups, how should we divide these points so that each group is as tight (internally similar) as possible?</p>
-      <p>The result is K cluster assignments — every neighborhood belongs to exactly one cluster — plus a centroid (the average position) for each cluster. The algorithm finds this structure without ever being told what the groups should mean.</p>
+  <!-- ══════════════════════════ DATA ══════════════════════════ -->
+  <div class="data-box">
+    <div class="panel-title">The data</div>
+    <p>Each weather station has two numbers. Both are 30-year averages (1991–2020).</p>
+
+    <div class="var-grid">
+      <div class="var-card">
+        <h3>January temperature</h3>
+        <div class="var-unit">degrees Fahrenheit (°F)</div>
+        <p>The average temperature in January, combining daytime highs and nighttime lows. It tells you how cold winters get.</p>
+        <p><strong>Why we use it:</strong> summers are warm across most of the US, but winters are very different from place to place, from 8°F in Fargo, ND to 70°F in Key West, FL. So winter temperature does a better job of telling climates apart than summer temperature.</p>
+      </div>
+      <div class="var-card">
+        <h3>Yearly precipitation</h3>
+        <div class="var-unit">inches per year</div>
+        <p>The total amount of rain plus melted snow that falls in an average year.</p>
+        <p><strong>Why we use it:</strong> it separates dry places like Las Vegas (4 inches) from wet places like Mobile, AL (65 inches). Temperature and precipitation together are the starting point for most climate classifications.</p>
+      </div>
     </div>
-    <div class="concept-card">
-      <div class="concept-card-eyebrow">How it works</div>
-      <h3>Three steps, repeated</h3>
-      <p><strong style="color:var(--text);">1. Initialize</strong> — place K centroids somewhere in the feature space. Where you start matters.</p>
-      <p><strong style="color:var(--text);">2. Assign</strong> — each point joins the cluster whose centroid is closest (by Euclidean distance in feature space).</p>
-      <p><strong style="color:var(--text);">3. Update</strong> — each centroid moves to the mean position of all points currently assigned to it.</p>
-      <p>Repeat steps 2 and 3 until the assignments stop changing — that's convergence. Usually takes 10–20 iterations.</p>
+
+    <div class="data-notes">
+      <div class="data-note"><strong>Location is not part of the data.</strong> K-means only sees the two climate numbers. It never sees latitude or longitude. We use the coordinates afterward, only to put the results on a map. So if the groups form clear regions on the map, that pattern came from the climate data alone.</div>
+      <div class="data-note"><strong>Both variables are rescaled.</strong> Before running K-means, each variable is rescaled to run from 0 (the lowest station) to 1 (the highest station). This keeps one variable from counting more than the other just because its numbers are bigger.</div>
     </div>
-    <div class="concept-card">
-      <div class="concept-card-eyebrow">The hard question</div>
-      <h3>How many clusters?</h3>
-      <p>K-means requires you to choose K before running. Unlike supervised learning, there's no accuracy score to optimize — so how do you know if K=3 is better than K=4?</p>
-      <p>One common approach is the <strong style="color:var(--text);">elbow method</strong>: run K-means for K=1 through 8 and plot the total within-cluster variance (inertia). Where the curve bends sharply — the "elbow" — is often a good K. But there's no single right answer, and domain knowledge matters as much as the math.</p>
-    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Station</th><th class="num">January temp (°F)</th><th class="num">Precipitation (in)</th></tr></thead>
+      <tbody id="sample-rows"></tbody>
+    </table>
+    <details class="all-stations">
+      <summary>Show all 70 stations</summary>
+      <div class="all-stations-scroll">
+        <table class="data-table">
+          <thead><tr><th>Station</th><th class="num">January temp (°F)</th><th class="num">Precipitation (in)</th></tr></thead>
+          <tbody id="all-rows"></tbody>
+        </table>
+      </div>
+    </details>
+    <div class="source">Values rounded from NOAA's U.S. Climate Normals, 1991–2020.</div>
   </div>
 
-  <!-- ══════════════════════════ SECTION 1: PLACE CENTROIDS ══════════════════════════ -->
+  <!-- ══════════════════════════ PART 1 ══════════════════════════ -->
   <div class="section">
     <div class="section-header">
-      <div class="section-eyebrow">Section 1 — Interactive</div>
-      <h2>Place your own centroids</h2>
-      <p>Each dot is a Phoenix neighborhood plotted by income (x-axis) and tree canopy % (y-axis). Choose K, click to place centroids, then step through iterations to watch K-means converge. Try placing centroids in different spots — does initialization affect the final result?</p>
+      <div class="section-eyebrow">Part 1</div>
+      <h2>Run K-means one step at a time</h2>
+      <p>Each dot is one weather station, placed by its January temperature (left to right) and its yearly precipitation (bottom to top). Stations that are close together on this plot have similar climates. Hover over a dot to see which station it is.</p>
+      <p>K-means divides the dots into K groups so that every station is as close as possible to the center of its group. Follow the steps on the right to see how it does that.</p>
     </div>
 
     <div class="game-grid">
-      <!-- Canvas -->
-      <div>
-        <canvas id="scatter-canvas" height="420"></canvas>
+      <div class="plot-wrap">
+        <canvas id="scatter-canvas"></canvas>
+        <div class="plot-tip" id="plot-tip"></div>
+        <div class="plot-caption">✕ = group center. Lines connect each station to the center of its group.</div>
       </div>
 
-      <!-- Controls -->
-      <div>
-        <div class="panel-title">Controls</div>
+      <div class="panel">
+        <div class="panel-title">How K-means works</div>
 
-        <div style="margin-bottom:12px;">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500;">Choose K (number of clusters)</div>
-          <div class="k-selector">
-            <button class="k-btn" onclick="setK(2)">2</button>
-            <button class="k-btn active" onclick="setK(3)">3</button>
-            <button class="k-btn" onclick="setK(4)">4</button>
-          </div>
+        <div class="k-row">
+          <div class="k-row-label">Choose K<span>How many groups do you want?</span></div>
+          <div class="k-selector" id="k-selector"></div>
         </div>
 
-        <div class="game-status" id="game-status">
-          <strong>Step 1:</strong> Click on the scatter plot to place <strong id="k-display">3</strong> centroids. Try to space them out across different regions of the plot.
+        <ol class="steps">
+          <li class="step" id="step-1">
+            <div class="step-title"><span class="step-num">1</span>Place starting centers</div>
+            <p>Click on the plot to place <span class="k-word">3</span> centers. These are just starting guesses, so anywhere works.</p>
+          </li>
+          <li class="step" id="step-2">
+            <div class="step-title"><span class="step-num">2</span>Assign stations to the nearest center</div>
+            <p>Each station joins the group of whichever center is closest to it on the plot.</p>
+          </li>
+          <li class="step" id="step-3">
+            <div class="step-title"><span class="step-num">3</span>Move each center to the middle of its group</div>
+            <p>Each center moves to the average January temperature and average precipitation of the stations in its group.</p>
+          </li>
+          <li class="step" id="step-4">
+            <div class="step-title"><span class="step-num">4</span>Repeat steps 2 and 3</div>
+            <p>After the centers move, some stations may now be closer to a different center, so they're assigned again. When no station changes groups, K-means is finished.</p>
+          </li>
+        </ol>
+
+        <div class="game-status" id="game-status"></div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="btn-step" onclick="nextStep()" disabled>Next step</button>
+          <button class="btn" id="btn-run" onclick="runToEnd()" disabled>Run to finish</button>
+          <button class="btn" onclick="resetGame()">Start over</button>
         </div>
 
-        <div class="btn-row" style="margin-bottom:10px;">
-          <button class="btn primary" id="btn-step" onclick="stepIteration()" disabled>Step →</button>
-          <button class="btn" id="btn-run" onclick="runToConvergence()" disabled>Run to end</button>
-          <button class="btn" onclick="resetGame()">Reset</button>
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500;">Animation speed</div>
-          <div class="speed-toggle">
-            <button class="speed-btn" onclick="setSpeed('slow')">Slow</button>
-            <button class="speed-btn active" onclick="setSpeed('medium')" id="sp-med">Medium</button>
-            <button class="speed-btn" onclick="setSpeed('fast')">Fast</button>
-          </div>
-        </div>
-
-        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">Legend</div>
-        <div id="scatter-legend" style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--text2);"></div>
-
-        <div style="margin-top:14px;font-size:11px;color:var(--text3);line-height:1.6;">
-          Y-axis = tree canopy %. Points higher up have more green cover. Notice which neighborhoods cluster together — and whether the clusters make geographic or social sense.
+        <div class="spread-box">
+          <div>Within-group spread: <span class="spread-val" id="spread-val">–</span><span class="spread-change" id="spread-change"></span></div>
+          <div style="margin-top:4px;">This adds up how far each station is from its group's center (each distance is squared first). K-means is trying to make this number as small as possible, and it should go down with each step.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════ SECTION 2+3: MAP + ELBOW ══════════════════════════ -->
+  <!-- ══════════════════════════ PART 2 ══════════════════════════ -->
   <div class="section">
     <div class="section-header">
-      <div class="section-eyebrow">Section 2 — Explore & interpret</div>
-      <h2>What do the clusters look like on a map?</h2>
-      <p>Toggle K below to re-run K-means with different numbers of clusters. Each neighborhood marker is colored by cluster assignment. Click any marker to see the neighborhood's feature values. Watch how the clusters change — and whether they reveal meaningful geographic patterns.</p>
+      <div class="section-eyebrow">Part 2</div>
+      <h2>Map the groups and choose K</h2>
+      <p>Here the computer runs K-means for you, all the way to the finish. It does this many times with different random starting centers and keeps the run with the lowest within-group spread. Groups are numbered from coldest to warmest average January temperature.</p>
+      <p>Pick a value of K and look at where each group's stations are on the map. Keep in mind that K-means never saw where any station is. Click a station to see its values.</p>
     </div>
 
     <div class="map-grid">
-      <!-- Map -->
       <div class="panel" style="padding:0.75rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-          <div class="panel-title" style="margin-bottom:0;">Phoenix neighborhoods — K-means assignments</div>
+          <div class="panel-title" style="margin-bottom:0;">Weather stations colored by K-means group</div>
           <div class="k-toggle" id="k-toggle"></div>
         </div>
         <div id="km-map"></div>
-        <div id="map-legend" style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;"></div>
+        <div class="map-legend" id="map-legend"></div>
       </div>
 
-      <!-- Elbow + interpretation -->
-      <div style="display:flex;flex-direction:column;gap:1.25rem;">
-        <div class="panel">
-          <div class="panel-title">Elbow plot — how many clusters?</div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6;">Total within-cluster variance (inertia) for K=1 to 7. Lower is better — but adding more clusters always helps. Look for the <strong style="color:var(--text);">elbow</strong> where the improvement slows sharply.</div>
-          <canvas id="elbow-canvas" height="180"></canvas>
-          <div id="elbow-annotation" style="margin-top:8px;font-size:12px;color:var(--text2);line-height:1.6;"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-title">What do the clusters represent?</div>
-          <div id="cluster-interp" style="font-size:12px;color:var(--text2);line-height:1.8;font-style:italic;">Select K above to see cluster profiles.</div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-title">K-means limitations</div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.7;">
-            <p style="margin-bottom:6px;"><strong style="color:var(--text);">Assumes spherical clusters.</strong> K-means works well when clusters are roughly round and similarly sized. Elongated or non-convex shapes get split incorrectly.</p>
-            <p style="margin-bottom:6px;"><strong style="color:var(--text);">Sensitive to initialization.</strong> Different random starting centroids can produce different final clusters. Running multiple times and keeping the best result (K-means++) helps.</p>
-            <p><strong style="color:var(--text);">You interpret the clusters.</strong> The algorithm assigns numbers — it doesn't tell you what Cluster 2 means. That interpretation step requires domain knowledge, and it's where GIS expertise matters most.</p>
-          </div>
-        </div>
+      <div class="panel">
+        <div class="panel-title">Choosing K</div>
+        <p class="small">K-means doesn't decide how many groups there should be. You do. One way to decide is to run K-means for several values of K and check the within-group spread each time. That's the same number you watched go down in Part 1.</p>
+        <p class="small">Adding groups always lowers the spread, because every station ends up closer to some center. So the goal isn't the lowest number. Look for the point where adding another group stops helping much. On the plot, that shows up as a bend in the line, often called the <strong>elbow</strong>.</p>
+        <canvas id="elbow-canvas" style="margin:10px 0 8px;"></canvas>
+        <p class="small" id="elbow-annotation"></p>
+        <p class="small">The elbow is a guide, not a rule. A good K also has to make sense for your purpose. Can you describe each group in a few words? Would the groups be useful?</p>
       </div>
     </div>
+  </div>
+
+  <!-- ══════════════════════════ PART 3 ══════════════════════════ -->
+  <div class="section" id="part3">
+    <div class="section-header">
+      <div class="section-eyebrow">Part 3</div>
+      <h2>Name your groups and compare them to Köppen</h2>
+      <p>K-means numbers the groups, but it can't tell you what they mean. That part is up to you. Look at each group's averages and where its stations are on the map, then give it a short name that describes its climate (for example, "cold winters, moderate precipitation").</p>
+      <p>These are the groups for <strong>K = <span id="naming-k">4</span></strong>, the value selected in Part 2. Your names are kept for each K, so you can switch K and come back.</p>
+    </div>
+
+    <div class="name-grid" id="name-grid"></div>
+
+    <div id="btn-reveal-wrap" class="btn-row" style="margin-bottom:1rem;">
+      <button class="btn primary" onclick="revealKoppen()">Compare with Köppen zones</button>
+      <span style="font-size:12px;color:var(--text3);">Name your groups first, then compare.</span>
+    </div>
+
+    <div class="compare-section">
+      <div class="panel" style="margin-bottom:1.25rem;">
+        <div class="panel-title">The Köppen climate classification</div>
+        <p class="small" style="margin-bottom:10px;max-width:820px;">The Köppen system is the most widely used climate classification. Climatologist Wladimir Köppen created it around 1900. It sorts places using fixed rules about temperature and precipitation, including <em>which months</em> the precipitation falls in. Each station's Köppen code is grouped into one of six broad types below. Each group card above now shows which Köppen types its stations belong to.</p>
+        <div class="kg-key" id="kg-key"></div>
+      </div>
+
+      <div class="compare-maps">
+        <div class="panel" style="padding:0.75rem;">
+          <div class="panel-title">Your K-means groups</div>
+          <div class="compare-map" id="map-yours"></div>
+          <div class="map-legend" id="legend-yours"></div>
+        </div>
+        <div class="panel" style="padding:0.75rem;">
+          <div class="panel-title">Köppen zones</div>
+          <div class="compare-map" id="map-koppen"></div>
+          <div class="map-legend" id="legend-koppen"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Questions to discuss</div>
+        <ol class="questions">
+          <li>Which of your groups line up well with a single Köppen zone? Which ones mix several zones together?</li>
+          <li>Find Seattle and Portland, OR. Which K-means group are they in, and which stations is that group mostly made of? Köppen puts them in the same zone as San Francisco. Why might the two approaches disagree? (Hint: what does Köppen look at that our two variables don't?)</li>
+          <li>Climate changes gradually across space, but every station has to belong to exactly one group. Find a station near the edge of its group on the map, such as Kansas City or Oklahoma City. Try a few values of K. Does it always stay in the same group?</li>
+          <li>If you could add a third variable, what would you add? How do you think it would change the groups?</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ LIMITATIONS ══════════════════════════ -->
+  <div class="panel limits">
+    <div class="panel-title">Limitations of K-means</div>
+    <p><strong>It only knows what you give it.</strong> Our data has winter temperature and total precipitation. It has nothing about summer heat or which part of the year the precipitation falls in, so K-means can't tell Seattle's dry summers apart from Philadelphia's wet ones.</p>
+    <p><strong>Every station has to belong to exactly one group.</strong> Real climates blend into each other gradually, but K-means draws hard lines. A station that sits between two groups goes to whichever center is slightly closer.</p>
+    <p><strong>It works best when groups are round and similar in size.</strong> K-means measures straight-line distance to a center, so it tends to make compact groups of similar size. If the real groups are long and stretched out, or very different in size, it can split or merge them in ways that don't make sense.</p>
+    <p><strong>The starting centers can change the result.</strong> As you may have seen in Part 1, different starting centers can lead to different final groups. In practice, people run K-means many times and keep the run with the lowest within-group spread, which is what Part 2 does.</p>
+    <p><strong>You have to choose K and interpret the groups.</strong> The algorithm doesn't know how many climate zones there "should" be or what they mean. Those decisions come from you and your knowledge of geography.</p>
   </div>
 
 </div>
@@ -318,566 +440,701 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ══════════════════════════════════════════════════════
-   SYNTHETIC PHOENIX NEIGHBORHOOD DATA
-   40 neighborhoods, 5 features each
-   income ($k), canopy (%), density (/km²), park_dist (km), pm25 (µg/m³)
+   DATA
+   70 weather stations, lower 48 states
+   jan = average January temperature (°F), precip = yearly precipitation (in)
+   kg  = Köppen climate code
 ══════════════════════════════════════════════════════ */
-const HOODS = [
-  // High income, high canopy, low density
-  { name:'Paradise Valley',      lat:33.535, lng:-111.942, income:145, canopy:38, density:820,  park:0.8, pm25:7.2  },
-  { name:'Scottsdale North',     lat:33.618, lng:-111.924, income:132, canopy:32, density:1100, park:1.1, pm25:8.1  },
-  { name:'Arcadia',              lat:33.499, lng:-111.982, income:118, canopy:41, density:1340, park:0.6, pm25:7.8  },
-  { name:'Biltmore',             lat:33.519, lng:-112.027, income:124, canopy:35, density:980,  park:0.9, pm25:8.4  },
-  { name:'Desert Ridge',         lat:33.672, lng:-111.981, income:108, canopy:28, density:1450, park:1.2, pm25:9.1  },
-  { name:'Gainey Ranch',         lat:33.570, lng:-111.916, income:138, canopy:44, density:760,  park:0.7, pm25:7.5  },
-  { name:'Ahwatukee Foothills',  lat:33.327, lng:-112.005, income:102, canopy:31, density:1680, park:1.4, pm25:9.8  },
-  { name:'Moon Valley',          lat:33.608, lng:-112.095, income:97,  canopy:29, density:1820, park:1.0, pm25:10.2 },
-  // Middle income, moderate canopy
-  { name:'Tempe East',           lat:33.415, lng:-111.909, income:64,  canopy:18, density:3200, park:1.6, pm25:13.4 },
-  { name:'Mesa Fiesta',          lat:33.416, lng:-111.831, income:58,  canopy:15, density:3800, park:1.9, pm25:14.2 },
-  { name:'Chandler West',        lat:33.306, lng:-111.880, income:78,  canopy:22, density:2800, park:1.3, pm25:11.8 },
-  { name:'Gilbert Heritage',     lat:33.353, lng:-111.789, income:84,  canopy:24, density:2400, park:1.1, pm25:11.2 },
-  { name:'Glendale Central',     lat:33.537, lng:-112.186, income:55,  canopy:14, density:4100, park:2.1, pm25:15.1 },
-  { name:'Peoria Lakes',         lat:33.580, lng:-112.233, income:72,  canopy:19, density:2900, park:1.5, pm25:12.3 },
-  { name:'Surprise',             lat:33.630, lng:-112.368, income:68,  canopy:17, density:2600, park:1.8, pm25:13.1 },
-  { name:'Goodyear',             lat:33.435, lng:-112.358, income:74,  canopy:20, density:2200, park:1.7, pm25:12.8 },
-  { name:'Laveen',               lat:33.370, lng:-112.168, income:61,  canopy:13, density:3400, park:2.4, pm25:14.8 },
-  { name:'Avondale',             lat:33.435, lng:-112.350, income:53,  canopy:11, density:4600, park:2.6, pm25:16.2 },
-  // Lower income, low canopy, high density — urban core
-  { name:'South Mountain',       lat:33.358, lng:-112.072, income:38,  canopy:5,  density:7200, park:3.1, pm25:19.8 },
-  { name:'Maryvale',             lat:33.478, lng:-112.168, income:32,  canopy:4,  density:8100, park:3.4, pm25:21.2 },
-  { name:'Central City',         lat:33.458, lng:-112.072, income:29,  canopy:6,  density:8800, park:2.8, pm25:20.4 },
-  { name:'Alhambra',             lat:33.488, lng:-112.130, income:35,  canopy:5,  density:7600, park:3.2, pm25:20.1 },
-  { name:'Estrella',             lat:33.415, lng:-112.220, income:41,  canopy:7,  density:6400, park:2.9, pm25:18.6 },
-  { name:'Laveen South',         lat:33.335, lng:-112.180, income:36,  canopy:4,  density:7800, park:3.6, pm25:21.8 },
-  { name:'South Phoenix',        lat:33.390, lng:-112.078, income:27,  canopy:3,  density:9200, park:3.8, pm25:22.4 },
-  { name:'West McDowell',        lat:33.471, lng:-112.110, income:31,  canopy:5,  density:8400, park:3.1, pm25:20.8 },
-  // Boundary / mixed cases
-  { name:'ASU Campus area',      lat:33.421, lng:-111.934, income:48,  canopy:16, density:5200, park:1.4, pm25:15.8 },
-  { name:'Downtown Phoenix',     lat:33.448, lng:-112.074, income:52,  canopy:9,  density:6100, park:1.8, pm25:17.2 },
-  { name:'Midtown',              lat:33.468, lng:-112.074, income:61,  canopy:14, density:4800, park:1.6, pm25:14.9 },
-  { name:'Camelback East',       lat:33.510, lng:-111.990, income:88,  canopy:26, density:2100, park:1.2, pm25:10.8 },
-  { name:'North Mountain',       lat:33.588, lng:-112.072, income:76,  canopy:21, density:2700, park:1.5, pm25:12.1 },
-  { name:'Deer Valley',          lat:33.682, lng:-112.109, income:89,  canopy:23, density:1900, park:1.3, pm25:10.4 },
-  { name:'Cave Creek area',      lat:33.832, lng:-111.953, income:94,  canopy:33, density:1100, park:2.1, pm25:8.8  },
-  { name:'Tempe South',          lat:33.378, lng:-111.940, income:54,  canopy:12, density:5400, park:2.2, pm25:16.4 },
-  { name:'Mesa South',           lat:33.372, lng:-111.831, income:47,  canopy:10, density:6200, park:2.8, pm25:17.8 },
-  { name:'Tolleson',             lat:33.451, lng:-112.259, income:39,  canopy:6,  density:6800, park:3.5, pm25:20.6 },
-  { name:'El Mirage',            lat:33.612, lng:-112.329, income:44,  canopy:8,  density:5900, park:3.0, pm25:18.2 },
-  { name:'Sun City West',        lat:33.660, lng:-112.360, income:58,  canopy:24, density:2100, park:1.6, pm25:11.6 },
-  { name:'Queen Creek',          lat:33.249, lng:-111.634, income:86,  canopy:18, density:1600, park:2.3, pm25:10.9 },
-  { name:'San Tan Valley',       lat:33.196, lng:-111.538, income:72,  canopy:14, density:2400, park:2.8, pm25:12.7 },
+const STATIONS = [
+  // Northeast & Mid-Atlantic
+  { name:'Boston',         st:'MA', lat:42.36, lng:-71.01,  jan:30, precip:44, kg:'Dfa' },
+  { name:'New York',       st:'NY', lat:40.78, lng:-73.97,  jan:34, precip:50, kg:'Cfa' },
+  { name:'Philadelphia',   st:'PA', lat:39.87, lng:-75.23,  jan:34, precip:44, kg:'Cfa' },
+  { name:'Washington',     st:'DC', lat:38.85, lng:-77.04,  jan:37, precip:42, kg:'Cfa' },
+  { name:'Pittsburgh',     st:'PA', lat:40.50, lng:-80.23,  jan:29, precip:40, kg:'Dfa' },
+  { name:'Buffalo',        st:'NY', lat:42.94, lng:-78.74,  jan:26, precip:42, kg:'Dfb' },
+  { name:'Albany',         st:'NY', lat:42.75, lng:-73.80,  jan:24, precip:41, kg:'Dfa' },
+  { name:'Burlington',     st:'VT', lat:44.47, lng:-73.15,  jan:20, precip:37, kg:'Dfb' },
+  { name:'Portland',       st:'ME', lat:43.64, lng:-70.30,  jan:23, precip:48, kg:'Dfb' },
+  // Southeast
+  { name:'Richmond',       st:'VA', lat:37.51, lng:-77.32,  jan:39, precip:44, kg:'Cfa' },
+  { name:'Raleigh',        st:'NC', lat:35.87, lng:-78.79,  jan:42, precip:46, kg:'Cfa' },
+  { name:'Charlotte',      st:'NC', lat:35.21, lng:-80.94,  jan:42, precip:42, kg:'Cfa' },
+  { name:'Knoxville',      st:'TN', lat:35.82, lng:-83.99,  jan:39, precip:50, kg:'Cfa' },
+  { name:'Louisville',     st:'KY', lat:38.18, lng:-85.73,  jan:34, precip:47, kg:'Cfa' },
+  { name:'Nashville',      st:'TN', lat:36.12, lng:-86.68,  jan:40, precip:51, kg:'Cfa' },
+  { name:'Memphis',        st:'TN', lat:35.06, lng:-89.99,  jan:41, precip:54, kg:'Cfa' },
+  { name:'Atlanta',        st:'GA', lat:33.63, lng:-84.44,  jan:45, precip:52, kg:'Cfa' },
+  { name:'Birmingham',     st:'AL', lat:33.57, lng:-86.75,  jan:45, precip:55, kg:'Cfa' },
+  { name:'Charleston',     st:'SC', lat:32.90, lng:-80.04,  jan:49, precip:51, kg:'Cfa' },
+  { name:'Savannah',       st:'GA', lat:32.12, lng:-81.20,  jan:51, precip:49, kg:'Cfa' },
+  { name:'Jacksonville',   st:'FL', lat:30.49, lng:-81.69,  jan:55, precip:50, kg:'Cfa' },
+  { name:'Tampa',          st:'FL', lat:27.96, lng:-82.54,  jan:62, precip:47, kg:'Cfa' },
+  { name:'Miami',          st:'FL', lat:25.79, lng:-80.32,  jan:69, precip:62, kg:'Am'  },
+  { name:'Key West',       st:'FL', lat:24.55, lng:-81.75,  jan:70, precip:40, kg:'Aw'  },
+  { name:'Mobile',         st:'AL', lat:30.69, lng:-88.25,  jan:52, precip:65, kg:'Cfa' },
+  { name:'New Orleans',    st:'LA', lat:29.99, lng:-90.25,  jan:54, precip:63, kg:'Cfa' },
+  { name:'Jackson',        st:'MS', lat:32.32, lng:-90.08,  jan:47, precip:55, kg:'Cfa' },
+  { name:'Little Rock',    st:'AR', lat:34.73, lng:-92.24,  jan:42, precip:50, kg:'Cfa' },
+  { name:'Houston',        st:'TX', lat:29.98, lng:-95.36,  jan:54, precip:50, kg:'Cfa' },
+  { name:'San Antonio',    st:'TX', lat:29.53, lng:-98.47,  jan:52, precip:32, kg:'Cfa' },
+  { name:'Dallas',         st:'TX', lat:32.90, lng:-97.04,  jan:46, precip:38, kg:'Cfa' },
+  { name:'Oklahoma City',  st:'OK', lat:35.39, lng:-97.60,  jan:39, precip:37, kg:'Cfa' },
+  // Midwest & Plains
+  { name:'Chicago',        st:'IL', lat:41.98, lng:-87.91,  jan:25, precip:38, kg:'Dfa' },
+  { name:'Detroit',        st:'MI', lat:42.23, lng:-83.33,  jan:26, precip:34, kg:'Dfa' },
+  { name:'Milwaukee',      st:'WI', lat:42.95, lng:-87.90,  jan:23, precip:36, kg:'Dfa' },
+  { name:'Minneapolis',    st:'MN', lat:44.88, lng:-93.23,  jan:16, precip:32, kg:'Dfa' },
+  { name:'Duluth',         st:'MN', lat:46.84, lng:-92.19,  jan:10, precip:31, kg:'Dfb' },
+  { name:'Fargo',          st:'ND', lat:46.93, lng:-96.81,  jan:8,  precip:23, kg:'Dfb' },
+  { name:'Bismarck',       st:'ND', lat:46.77, lng:-100.75, jan:13, precip:18, kg:'Dfb' },
+  { name:'Sioux Falls',    st:'SD', lat:43.58, lng:-96.74,  jan:18, precip:28, kg:'Dfa' },
+  { name:'Des Moines',     st:'IA', lat:41.53, lng:-93.66,  jan:24, precip:37, kg:'Dfa' },
+  { name:'Omaha',          st:'NE', lat:41.30, lng:-95.89,  jan:23, precip:31, kg:'Dfa' },
+  { name:'Kansas City',    st:'MO', lat:39.30, lng:-94.71,  jan:28, precip:40, kg:'Dfa' },
+  { name:'St. Louis',      st:'MO', lat:38.75, lng:-90.37,  jan:32, precip:42, kg:'Cfa' },
+  { name:'Indianapolis',   st:'IN', lat:39.72, lng:-86.29,  jan:29, precip:42, kg:'Dfa' },
+  { name:'Columbus',       st:'OH', lat:39.99, lng:-82.88,  jan:30, precip:41, kg:'Dfa' },
+  { name:'Wichita',        st:'KS', lat:37.65, lng:-97.43,  jan:32, precip:34, kg:'Cfa' },
+  // Interior West
+  { name:'Amarillo',       st:'TX', lat:35.22, lng:-101.71, jan:37, precip:20, kg:'BSk' },
+  { name:'Midland',        st:'TX', lat:31.94, lng:-102.19, jan:45, precip:15, kg:'BSk' },
+  { name:'El Paso',        st:'TX', lat:31.81, lng:-106.38, jan:46, precip:9,  kg:'BWk' },
+  { name:'Albuquerque',    st:'NM', lat:35.04, lng:-106.61, jan:38, precip:9,  kg:'BSk' },
+  { name:'Denver',         st:'CO', lat:39.85, lng:-104.66, jan:31, precip:15, kg:'BSk' },
+  { name:'Cheyenne',       st:'WY', lat:41.16, lng:-104.81, jan:28, precip:16, kg:'BSk' },
+  { name:'Billings',       st:'MT', lat:45.81, lng:-108.54, jan:26, precip:14, kg:'BSk' },
+  { name:'Grand Junction', st:'CO', lat:39.13, lng:-108.54, jan:27, precip:9,  kg:'BWk' },
+  { name:'Salt Lake City', st:'UT', lat:40.79, lng:-111.97, jan:31, precip:16, kg:'BSk' },
+  { name:'Boise',          st:'ID', lat:43.57, lng:-116.22, jan:32, precip:12, kg:'BSk' },
+  { name:'Reno',           st:'NV', lat:39.50, lng:-119.77, jan:36, precip:7,  kg:'BSk' },
+  { name:'Flagstaff',      st:'AZ', lat:35.14, lng:-111.67, jan:31, precip:23, kg:'Dsb' },
+  { name:'Spokane',        st:'WA', lat:47.62, lng:-117.53, jan:28, precip:17, kg:'Dsb' },
+  { name:'Phoenix',        st:'AZ', lat:33.43, lng:-112.00, jan:57, precip:7,  kg:'BWh' },
+  { name:'Tucson',         st:'AZ', lat:32.13, lng:-110.96, jan:55, precip:11, kg:'BSh' },
+  { name:'Las Vegas',      st:'NV', lat:36.07, lng:-115.16, jan:50, precip:4,  kg:'BWh' },
+  // Pacific Coast & California
+  { name:'Los Angeles',    st:'CA', lat:34.05, lng:-118.24, jan:58, precip:14, kg:'Csa' },
+  { name:'San Diego',      st:'CA', lat:32.73, lng:-117.18, jan:59, precip:10, kg:'BSh' },
+  { name:'Bakersfield',    st:'CA', lat:35.43, lng:-119.05, jan:48, precip:6,  kg:'BWh' },
+  { name:'Fresno',         st:'CA', lat:36.78, lng:-119.72, jan:47, precip:11, kg:'BSh' },
+  { name:'Sacramento',     st:'CA', lat:38.51, lng:-121.49, jan:47, precip:18, kg:'Csa' },
+  { name:'San Francisco',  st:'CA', lat:37.62, lng:-122.37, jan:51, precip:20, kg:'Csb' },
+  { name:'Eureka',         st:'CA', lat:40.81, lng:-124.16, jan:48, precip:40, kg:'Csb' },
+  { name:'Portland',       st:'OR', lat:45.59, lng:-122.60, jan:41, precip:37, kg:'Csb' },
+  { name:'Seattle',        st:'WA', lat:47.44, lng:-122.31, jan:42, precip:39, kg:'Csb' },
 ];
 
-// Normalize features to [0,1] for distance calculation
-const FEAT_KEYS = ['income','canopy','density','park','pm25'];
-const mins = {}, maxs = {};
-FEAT_KEYS.forEach(k => {
-  mins[k] = Math.min(...HOODS.map(h => h[k]));
-  maxs[k] = Math.max(...HOODS.map(h => h[k]));
-});
-function norm(val, k) { return (val - mins[k]) / (maxs[k] - mins[k]); }
-function normVec(h)   { return FEAT_KEYS.map(k => norm(h[k], k)); }
+const KG_TYPES = {
+  'Humid continental': { color:'#2a8fb0', codes:['Dfa','Dfb','Dsb'], desc:'Cold winters, warm or hot summers.' },
+  'Humid subtropical': { color:'#3d9a46', codes:['Cfa'],             desc:'Mild winters, hot and humid summers, precipitation all year.' },
+  'Tropical':          { color:'#1f4fbf', codes:['Am','Aw'],         desc:'Warm all year. Every month averages above 64°F.' },
+  'Mediterranean':     { color:'#9a8a12', codes:['Csa','Csb'],       desc:'Mild, wet winters and dry summers.' },
+  'Semi-arid':         { color:'#e09a2c', codes:['BSh','BSk'],       desc:'Dry, but not quite dry enough to be a desert.' },
+  'Desert':            { color:'#c0392b', codes:['BWh','BWk'],       desc:'Very dry. Little precipitation in any season.' },
+};
+function kgType(code) {
+  return Object.keys(KG_TYPES).find(t => KG_TYPES[t].codes.includes(code));
+}
 
-// Scatter plot uses income (x) and canopy (y) as the 2D projection
-const CLUSTER_COLORS = ['#534ab7','#0f6e56','#993c1d','#ba7517'];
-const CLUSTER_LABELS_BG = ['#eeedfe','#e1f5ee','#faece7','#faeeda'];
+const FEATS = ['jan','precip'];
+const mins = {}, maxs = {};
+FEATS.forEach(f => {
+  mins[f] = Math.min(...STATIONS.map(s => s[f]));
+  maxs[f] = Math.max(...STATIONS.map(s => s[f]));
+});
+// Rescale each variable to 0–1
+function scale(v, f)   { return (v - mins[f]) / (maxs[f] - mins[f]); }
+function unscale(v, f) { return mins[f] + v * (maxs[f] - mins[f]); }
+const POINTS = STATIONS.map(s => FEATS.map(f => scale(s[f], f)));
+
+const CLUSTER_COLORS = ['#534ab7','#0f6e56','#c2410c','#ba7517','#185fa5','#a3306b'];
+
+function label(s) { return `${s.name}, ${s.st}`; }
+function esc(str) { return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function cssVar(name, fallback) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
 
 /* ══════════════════════════════════════════════════════
    K-MEANS CORE
 ══════════════════════════════════════════════════════ */
-function euclidean(a, b) {
-  return Math.sqrt(a.reduce((s,v,i) => s + (v-b[i])**2, 0));
-}
+function dist2(a, b) { return a.reduce((s, v, i) => s + (v - b[i]) ** 2, 0); }
 
-function assignClusters(points, centroids) {
-  return points.map(pt => {
-    let best = 0, bestD = Infinity;
-    centroids.forEach((c,i) => {
-      const d = euclidean(pt, c);
-      if (d < bestD) { bestD = d; best = i; }
-    });
+function assignPoints(centers) {
+  return POINTS.map(p => {
+    let best = 0;
+    centers.forEach((c, j) => { if (dist2(p, c) < dist2(p, centers[best])) best = j; });
     return best;
   });
 }
 
-function updateCentroids(points, assignments, K) {
-  return Array.from({length:K}, (_,k) => {
-    const pts = points.filter((_,i) => assignments[i] === k);
-    if (!pts.length) return points[Math.floor(Math.random()*points.length)].slice();
-    return FEAT_KEYS.map((_,fi) => pts.reduce((s,p) => s+p[fi], 0) / pts.length);
+// Each center moves to the mean of its points. A center with no points stays put.
+function moveCenters(centers, assignments) {
+  return centers.map((c, j) => {
+    const pts = POINTS.filter((_, i) => assignments[i] === j);
+    if (!pts.length) return c.slice();
+    return FEATS.map((_, f) => pts.reduce((s, p) => s + p[f], 0) / pts.length);
   });
 }
 
-function computeInertia(points, assignments, centroids) {
-  return points.reduce((s,pt,i) => s + euclidean(pt, centroids[assignments[i]])**2, 0);
+function spread(centers, assignments) {
+  return POINTS.reduce((s, p, i) => s + dist2(p, centers[assignments[i]]), 0);
 }
 
-function runKMeans(K, maxIter=100, initCentroids=null) {
-  const pts = HOODS.map(normVec);
-  let centroids = initCentroids
-    ? initCentroids.map(c => c.slice())
-    : (() => {
-        // K-means++ init
-        const chosen = [pts[Math.floor(Math.random()*pts.length)].slice()];
-        while (chosen.length < K) {
-          const dists = pts.map(p => Math.min(...chosen.map(c => euclidean(p,c)**2)));
-          const total = dists.reduce((a,b)=>a+b,0);
-          let r = Math.random()*total, cum=0;
-          for (let i=0;i<pts.length;i++) { cum+=dists[i]; if(cum>=r){chosen.push(pts[i].slice());break;}}
-        }
-        return chosen;
-      })();
-  let assignments = assignClusters(pts, centroids);
-  for (let iter=0; iter<maxIter; iter++) {
-    const newC = updateCentroids(pts, assignments, K);
-    const newA = assignClusters(pts, newC);
-    if (newA.every((a,i)=>a===assignments[i])) { centroids=newC; assignments=newA; break; }
-    centroids = newC; assignments = newA;
-  }
-  return { centroids, assignments, inertia: computeInertia(pts, assignments, centroids) };
-}
-
-/* ══════════════════════════════════════════════════════
-   SCATTER CANVAS GAME
-══════════════════════════════════════════════════════ */
-let K = 3;
-let userCentroids = [];     // [{x,y} in canvas coords]
-let assignments   = null;   // array of cluster indices
-let iterCount     = 0;
-let converged     = false;
-let animSpeed     = { slow:600, medium:250, fast:80 };
-let currentSpeed  = 'medium';
-let running       = false;
-
-const canvas = document.getElementById('scatter-canvas');
-const ctx    = canvas.getContext('2d');
-
-// Map income/canopy to canvas coords
-function toCanvas(income, canopy) {
-  const PAD = { t:16, r:16, b:40, l:52 };
-  const cW = canvas.width  - PAD.l - PAD.r;
-  const cH = canvas.height - PAD.t - PAD.b;
-  const x = PAD.l + ((income - mins.income) / (maxs.income - mins.income)) * cW;
-  const y = PAD.t + (1 - (canopy - mins.canopy) / (maxs.canopy - mins.canopy)) * cH;
-  return {x, y};
-}
-
-function fromCanvas(cx, cy) {
-  const PAD = { t:16, r:16, b:40, l:52 };
-  const cW = canvas.width  - PAD.l - PAD.r;
-  const cH = canvas.height - PAD.t - PAD.b;
-  const income = mins.income + ((cx - PAD.l) / cW) * (maxs.income - mins.income);
-  const canopy = mins.canopy + (1 - (cy - PAD.t) / cH) * (maxs.canopy - mins.canopy);
-  return {
-    income: Math.max(mins.income, Math.min(maxs.income, income)),
-    canopy:  Math.max(mins.canopy,  Math.min(maxs.canopy,  canopy))
+// Small seeded random generator so Part 2 gives the same answer every time
+function makeRng(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
-function drawScatter() {
-  const W = canvas.width, H = canvas.height;
-  const PAD = { t:16, r:16, b:40, l:52 };
-  const cW = W - PAD.l - PAD.r;
-  const cH = H - PAD.t - PAD.b;
+// K-means++ starting centers: spread the starting guesses out
+function smartStart(K, rng) {
+  const centers = [POINTS[Math.floor(rng() * POINTS.length)].slice()];
+  while (centers.length < K) {
+    const d = POINTS.map(p => Math.min(...centers.map(c => dist2(p, c))));
+    let r = rng() * d.reduce((a, b) => a + b, 0);
+    let i = 0;
+    for (; i < POINTS.length - 1; i++) { r -= d[i]; if (r <= 0) break; }
+    centers.push(POINTS[i].slice());
+  }
+  return centers;
+}
 
-  ctx.clearRect(0,0,W,H);
+function runKMeans(K, rng) {
+  let centers = smartStart(K, rng);
+  let assignments = assignPoints(centers);
+  for (let iter = 0; iter < 100; iter++) {
+    centers = moveCenters(centers, assignments);
+    const next = assignPoints(centers);
+    if (next.every((a, i) => a === assignments[i])) break;
+    assignments = next;
+  }
+  return { centers, assignments, spread: spread(centers, assignments) };
+}
 
-  // Background
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface2') || '#f2f1ed';
-  ctx.fillRect(0,0,W,H);
+// Best of many runs, with groups renumbered from coldest to warmest
+const BEST = {};
+function bestKMeans(K) {
+  if (BEST[K]) return BEST[K];
+  const rng = makeRng(1000 + K);
+  let best = null;
+  for (let r = 0; r < 40; r++) {
+    const res = runKMeans(K, rng);
+    if (!best || res.spread < best.spread - 1e-9) best = res;
+  }
+  const order = best.centers.map((c, j) => j).sort((a, b) => best.centers[a][0] - best.centers[b][0]);
+  const remap = {};
+  order.forEach((oldJ, newJ) => remap[oldJ] = newJ);
+  BEST[K] = {
+    centers: order.map(j => best.centers[j]),
+    assignments: best.assignments.map(a => remap[a]),
+    spread: best.spread,
+  };
+  return BEST[K];
+}
 
-  // Grid lines + axis tick labels
-  ctx.strokeStyle = 'rgba(0,0,0,0.07)'; ctx.lineWidth = 0.5;
-  ctx.fillStyle = '#9a9a9f'; ctx.font = '9px -apple-system,sans-serif';
+/* ══════════════════════════════════════════════════════
+   PART 1: STEP-BY-STEP SCATTER PLOT
+══════════════════════════════════════════════════════ */
+const canvas = document.getElementById('scatter-canvas');
+const ctx    = canvas.getContext('2d');
+const tip    = document.getElementById('plot-tip');
 
-  // Vertical grid + X tick labels (income)
-  const incomeRange = maxs.income - mins.income;
-  for (let i=0;i<=4;i++) {
-    const x = PAD.l + cW*(i/4);
-    ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t+cH); ctx.stroke();
-    const incVal = Math.round(mins.income + incomeRange*(i/4));
+let K = 3;
+let centers = [];          // in 0–1 scaled units
+let assignments = null;
+let phase = 'place';       // place → assign ⇄ update → done
+let rounds = 0;
+let busy = false;
+let lastSpread = null;
+let geom = null;
+
+const PAD = { l:52, r:16, t:14, b:42 };
+const DOMAIN = [-0.05, 1.05];
+const LABELED = ['Fargo','Miami','Phoenix','Seattle','Mobile','Las Vegas','Denver','Chicago'];
+
+function layoutCanvas() {
+  const w = canvas.parentElement.clientWidth;
+  // Keep the plot area square so distances on screen match the distances K-means uses
+  const side = Math.max(200, Math.min(w - PAD.l - PAD.r, 470));
+  const h = side + PAD.t + PAD.b;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.height = h + 'px';
+  canvas.width  = w * dpr;
+  canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const x0 = PAD.l + Math.max(0, (w - PAD.l - PAD.r - side) / 2);
+  geom = { w, h, side, x0, y0: PAD.t };
+}
+
+function toPx(p) {
+  const span = DOMAIN[1] - DOMAIN[0];
+  return {
+    x: geom.x0 + ((p[0] - DOMAIN[0]) / span) * geom.side,
+    y: geom.y0 + (1 - (p[1] - DOMAIN[0]) / span) * geom.side,
+  };
+}
+function fromPx(x, y) {
+  const span = DOMAIN[1] - DOMAIN[0];
+  return [
+    DOMAIN[0] + ((x - geom.x0) / geom.side) * span,
+    DOMAIN[0] + (1 - (y - geom.y0) / geom.side) * span,
+  ];
+}
+
+function drawScatter(drawCenters = centers) {
+  const { w, h, side, x0, y0 } = geom;
+  const text3 = cssVar('--text3', '#9a9a9f');
+  const text2 = cssVar('--text2', '#5a5a62');
+  const grid  = cssVar('--border', 'rgba(0,0,0,0.1)');
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid + ticks
+  ctx.lineWidth = 1;
+  ctx.font = '10px -apple-system,sans-serif';
+  ctx.fillStyle = text3;
+  for (let t = 10; t <= 70; t += 10) {
+    const { x } = toPx([scale(t, 'jan'), 0]);
+    ctx.strokeStyle = grid;
+    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y0 + side); ctx.stroke();
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText('$' + incVal + 'k', x, PAD.t + cH + 5);
+    ctx.fillText(t + '°', x, y0 + side + 5);
   }
-
-  // Horizontal grid + Y tick labels (canopy)
-  const canopyRange = maxs.canopy - mins.canopy;
-  for (let i=0;i<=4;i++) {
-    const y = PAD.t + cH*(i/4);
-    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(PAD.l+cW, y); ctx.stroke();
-    const canVal = Math.round(maxs.canopy - canopyRange*(i/4));
+  for (let t = 0; t <= 60; t += 10) {
+    const { y } = toPx([0, scale(t, 'precip')]);
+    if (y < y0 || y > y0 + side) continue;
+    ctx.strokeStyle = grid;
+    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + side, y); ctx.stroke();
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText(canVal + '%', PAD.l - 5, y);
+    ctx.fillText(t + ' in', x0 - 6, y);
   }
+  ctx.strokeStyle = grid;
+  ctx.strokeRect(x0, y0, side, side);
 
   // Axis titles
-  ctx.fillStyle = '#9a9a9f'; ctx.font = '10px -apple-system,sans-serif';
+  ctx.fillStyle = text2; ctx.font = '11px -apple-system,sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  ctx.fillText('Median household income', PAD.l + cW/2, H - 2);
-
+  ctx.fillText('Average January temperature (°F)  →  warmer', x0 + side / 2, h - 3);
   ctx.save();
-  ctx.translate(13, PAD.t + cH/2);
-  ctx.rotate(-Math.PI/2);
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('Tree canopy %', 0, 0);
+  ctx.translate(13, y0 + side / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Yearly precipitation (inches)  →  wetter', 0, 0);
   ctx.restore();
 
-  // Lines from points to nearest centroid
-  if (assignments !== null && userCentroids.length === K) {
-    ctx.globalAlpha = 0.15; ctx.lineWidth = 0.8;
-    HOODS.forEach((h,i) => {
-      const {x,y} = toCanvas(h.income, h.canopy);
-      const c = userCentroids[assignments[i]];
+  // Lines from stations to their center
+  if (assignments) {
+    ctx.globalAlpha = 0.25; ctx.lineWidth = 1;
+    POINTS.forEach((p, i) => {
+      const a = toPx(p), c = toPx(drawCenters[assignments[i]]);
       ctx.strokeStyle = CLUSTER_COLORS[assignments[i]];
-      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(c.x,c.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.stroke();
     });
     ctx.globalAlpha = 1;
   }
 
-  // Points
-  HOODS.forEach((h, i) => {
-    const {x,y} = toCanvas(h.income, h.canopy);
-    const clr = assignments !== null ? CLUSTER_COLORS[assignments[i]] : '#888780';
-    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
-    ctx.fillStyle = clr; ctx.globalAlpha=0.8; ctx.fill();
-    ctx.globalAlpha=1; ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.2; ctx.stroke();
+  // Stations
+  POINTS.forEach((p, i) => {
+    const { x, y } = toPx(p);
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = assignments ? CLUSTER_COLORS[assignments[i]] : '#888780';
+    ctx.globalAlpha = 0.85; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1; ctx.stroke();
   });
 
-  // User-placed centroids (drawn last so they're on top)
-  userCentroids.forEach((c,i) => {
-    ctx.beginPath(); ctx.arc(c.x,c.y,10,0,Math.PI*2);
-    ctx.fillStyle = CLUSTER_COLORS[i]; ctx.fill();
-    ctx.strokeStyle='#fff'; ctx.lineWidth=2.5; ctx.stroke();
-    ctx.fillStyle='#fff'; ctx.font='bold 12px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('✕',c.x,c.y);
+  // A few labels to help students get oriented
+  ctx.font = '10px -apple-system,sans-serif'; ctx.fillStyle = text2;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  STATIONS.forEach((s, i) => {
+    if (!LABELED.includes(s.name)) return;
+    const { x, y } = toPx(POINTS[i]);
+    const right = x + 70 < x0 + side;
+    ctx.textAlign = right ? 'left' : 'right';
+    ctx.fillText(s.name, right ? x + 8 : x - 8, y);
+  });
+
+  // Centers
+  drawCenters.forEach((c, j) => {
+    const { x, y } = toPx(c);
+    ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2);
+    ctx.fillStyle = CLUSTER_COLORS[j]; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('✕', x, y + 0.5);
   });
 }
 
-function initCanvas() {
-  canvas.width  = canvas.offsetWidth;
-  canvas.height = 420;
-  drawScatter();
+function setActiveStep(n) {
+  for (let i = 1; i <= 4; i++) document.getElementById('step-' + i).classList.toggle('active', i === n);
+}
+function setStatus(html) { document.getElementById('game-status').innerHTML = html; }
+function setButtons() {
+  const ready = phase === 'assign' || phase === 'update';
+  document.getElementById('btn-step').disabled = !ready || busy;
+  document.getElementById('btn-run').disabled  = !ready || busy;
+  canvas.classList.toggle('placing', phase === 'place');
+}
+function showSpread() {
+  const el = document.getElementById('spread-val');
+  const ch = document.getElementById('spread-change');
+  if (!assignments) { el.textContent = '–'; ch.textContent = ''; lastSpread = null; return; }
+  const v = spread(centers, assignments);
+  el.textContent = v.toFixed(2);
+  ch.textContent = (lastSpread !== null && lastSpread - v > 0.005) ? `↓ from ${lastSpread.toFixed(2)}` : '';
+  lastSpread = v;
 }
 
 canvas.addEventListener('click', e => {
-  if (converged || userCentroids.length >= K) return;
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const cx = (e.clientX - rect.left) * scaleX;
-  const cy = (e.clientY - rect.top)  * scaleY;
-  userCentroids.push({x:cx, y:cy});
+  if (phase !== 'place' || busy) return;
+  const r = canvas.getBoundingClientRect();
+  const p = fromPx(e.clientX - r.left, e.clientY - r.top);
+  if (p[0] < DOMAIN[0] || p[0] > DOMAIN[1] || p[1] < DOMAIN[0] || p[1] > DOMAIN[1]) return;
+  centers.push(p);
   drawScatter();
-  updateLegend();
-
-  if (userCentroids.length === K) {
-    // Do first assignment with canvas centroids mapped to feature space
-    doFirstAssignment();
-    document.getElementById('btn-step').disabled = false;
-    document.getElementById('btn-run').disabled  = false;
-    updateStatus(`<strong>All ${K} centroids placed!</strong> Hit "Step →" to run one iteration, or "Run to end" to converge automatically.`);
+  if (centers.length < K) {
+    setStatus(`Center ${centers.length} placed. Click to place center <strong>${centers.length + 1} of ${K}</strong>.`);
   } else {
-    updateStatus(`<strong>Step 1:</strong> Place ${K - userCentroids.length} more centroid${K - userCentroids.length > 1 ? 's' : ''}.`);
+    phase = 'assign';
+    setActiveStep(2);
+    setStatus(`All ${K} centers are placed. Press <strong>Next step</strong> to assign each station to its nearest center.`);
   }
+  setButtons();
 });
 
-function doFirstAssignment() {
-  // Convert canvas centroid positions to normalized feature vectors
-  // We only have income/canopy from canvas — fill other dims with cluster mean approximations
-  const pts = HOODS.map(normVec);
-  const cNorm = userCentroids.map(c => {
-    const {income, canopy} = fromCanvas(c.x, c.y);
-    const base = FEAT_KEYS.map(k => norm(k === 'income' ? income : k === 'canopy' ? canopy : (mins[k]+maxs[k])/2, k));
-    return base;
+canvas.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+  let hit = -1, best = 64;
+  POINTS.forEach((p, i) => {
+    const { x, y } = toPx(p);
+    const d = (x - mx) ** 2 + (y - my) ** 2;
+    if (d < best) { best = d; hit = i; }
   });
-  assignments = assignClusters(pts, cNorm);
-  iterCount = 0;
-  drawScatter();
+  if (hit < 0) { tip.style.display = 'none'; return; }
+  const s = STATIONS[hit];
+  tip.innerHTML = `<b>${label(s)}</b> · ${s.jan}°F · ${s.precip} in`;
+  tip.style.display = 'block';
+  const left = Math.min(mx + 12, geom.w - tip.offsetWidth - 4);
+  tip.style.left = left + 'px';
+  tip.style.top  = (my - 30) + 'px';
+});
+canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+
+function animateCenters(from, to, ms) {
+  return new Promise(resolve => {
+    const t0 = performance.now();
+    function frame(now) {
+      const t = Math.min(1, (now - t0) / ms);
+      const e = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+      drawScatter(from.map((c, j) => c.map((v, f) => v + (to[j][f] - v) * e)));
+      if (t < 1) requestAnimationFrame(frame); else resolve();
+    }
+    requestAnimationFrame(frame);
+  });
 }
 
-function stepIteration() {
-  if (converged || running) return;
-  const pts   = HOODS.map(normVec);
-  const cNorm = userCentroids.map(c => {
-    const {income, canopy} = fromCanvas(c.x, c.y);
-    return FEAT_KEYS.map(k => norm(k==='income'?income:k==='canopy'?canopy:(mins[k]+maxs[k])/2, k));
-  });
+async function nextStep() {
+  if (busy) return;
+  busy = true; setButtons();
 
-  // Compute new centroids from full 5D space
-  const newCNorm = updateCentroids(pts, assignments, K);
-  const newA     = assignClusters(pts, newCNorm);
-
-  const changed = !newA.every((a,i)=>a===assignments[i]);
-  assignments = newA; iterCount++;
-
-  // Map new centroids back to canvas coords using income/canopy dims
-  userCentroids = newCNorm.map(c => {
-    const income = mins.income + c[0]*(maxs.income-mins.income);
-    const canopy = mins.canopy + c[1]*(maxs.canopy-mins.canopy);
-    return toCanvas(income, canopy);
-  });
-
-  drawScatter(); updateLegend();
-
-  if (!changed) {
-    converged = true;
-    document.getElementById('btn-step').disabled = true;
-    document.getElementById('btn-run').disabled  = true;
-    updateStatus(`<strong>Converged after ${iterCount} iteration${iterCount!==1?'s':''}!</strong> The cluster assignments stopped changing. Try resetting with different starting centroids — does the result change?`);
-  } else {
-    updateStatus(`<strong>Iteration ${iterCount}</strong> — centroids moved, assignments updated. ${K - new Set(assignments).size === 0 ? '' : ''} Keep stepping to see convergence.`);
+  if (phase === 'assign') {
+    const next = assignPoints(centers);
+    const changed = assignments ? next.filter((a, i) => a !== assignments[i]).length : null;
+    assignments = next;
+    drawScatter();
+    showSpread();
+    if (changed === 0) {
+      phase = 'done';
+      setActiveStep(4);
+      setStatus(`<strong>Finished.</strong> No station changed groups, so the centers won't move again. That took ${rounds} round${rounds === 1 ? '' : 's'} of assigning and moving. Press <strong>Start over</strong> and place your centers somewhere else. Do you end up with the same groups?`);
+    } else {
+      phase = 'update';
+      setActiveStep(changed === null ? 2 : 4);
+      setStatus(changed === null
+        ? `Each station joined the group of its nearest center. Press <strong>Next step</strong> to move each center to the middle of its group.`
+        : `<strong>${changed} station${changed === 1 ? '' : 's'}</strong> switched to a different group because a different center is now closer. Press <strong>Next step</strong> to move the centers again.`);
+    }
+  } else if (phase === 'update') {
+    const moved = moveCenters(centers, assignments);
+    const empty = centers.some((_, j) => !assignments.includes(j));
+    await animateCenters(centers, moved, 450);
+    centers = moved;
+    rounds++;
+    drawScatter();
+    showSpread();
+    phase = 'assign';
+    setActiveStep(rounds === 1 ? 3 : 4);
+    setStatus(`Each center moved to the middle of its group.${empty ? ' (One center has no stations, so it stays where it is.)' : ''} Press <strong>Next step</strong> to check whether any station is now closer to a different center.`);
   }
+
+  busy = false; setButtons();
 }
 
-async function runToConvergence() {
-  if (running || converged) return;
-  running = true;
-  document.getElementById('btn-run').disabled = true;
-  document.getElementById('btn-step').disabled = true;
-  while (!converged) {
-    stepIteration();
-    if (!converged) await new Promise(r => setTimeout(r, animSpeed[currentSpeed]));
+async function runToEnd() {
+  while (phase === 'assign' || phase === 'update') {
+    await nextStep();
+    if (phase !== 'done') await new Promise(r => setTimeout(r, 350));
   }
-  running = false;
 }
 
 function resetGame() {
-  userCentroids = []; assignments = null; iterCount = 0; converged = false; running = false;
-  document.getElementById('btn-step').disabled = true;
-  document.getElementById('btn-run').disabled  = true;
-  updateStatus(`<strong>Step 1:</strong> Click on the scatter plot to place <strong>${K}</strong> centroids. Try to space them out across different regions.`);
-  updateLegend();
-  drawScatter();
+  if (busy) return;
+  centers = []; assignments = null; phase = 'place'; rounds = 0;
+  setActiveStep(1);
+  setStatus(`Click on the plot to place center <strong>1 of ${K}</strong>.`);
+  showSpread(); setButtons(); drawScatter();
 }
 
 function setK(k) {
+  if (busy) return;
   K = k;
-  document.querySelectorAll('.k-btn').forEach((b,i) => b.classList.toggle('active', i+2===k));
-  document.getElementById('k-display').textContent = k;
+  document.querySelectorAll('#k-selector .k-btn').forEach(b => b.classList.toggle('active', +b.dataset.k === k));
+  document.querySelectorAll('.k-word').forEach(el => el.textContent = k);
   resetGame();
 }
 
-function setSpeed(s) {
-  currentSpeed = s;
-  document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase()===s));
-}
-
-function updateStatus(html) {
-  document.getElementById('game-status').innerHTML = html;
-}
-
-function updateLegend() {
-  const leg = document.getElementById('scatter-legend');
-  if (!userCentroids.length) { leg.innerHTML = '<span style="color:var(--text3);font-style:italic;">Place centroids to see legend</span>'; return; }
-  leg.innerHTML = Array.from({length:K},(_,i)=>`
-    <div style="display:flex;align-items:center;gap:6px;">
-      <span style="width:12px;height:12px;border-radius:50%;background:${CLUSTER_COLORS[i]};display:inline-block;flex-shrink:0;"></span>
-      <span>Cluster ${i+1}</span>
-      ${assignments ? `<span style="color:var(--text3);font-size:11px;">(${assignments.filter(a=>a===i).length} neighborhoods)</span>` : ''}
-    </div>`).join('');
-}
-
 /* ══════════════════════════════════════════════════════
-   LEAFLET MAP
+   PART 2: MAP + ELBOW
 ══════════════════════════════════════════════════════ */
-let kmMap = null;
-let kmMarkers = [];
-let mapK = 3;
+const US_VIEW = { center: [38.5, -96.5], zoom: 4 };
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+const TILE_ATTR = '© OpenStreetMap © CARTO';
+let mapK = 4;
+let kmMap = null, kmLayer = null;
 
-const K_CONFIGS = {
-  2: { label:'K=2', color:'#534ab7', bg:'#eeedfe' },
-  3: { label:'K=3', color:'#0f6e56', bg:'#e1f5ee' },
-  4: { label:'K=4', color:'#993c1d', bg:'#faece7' },
-};
-
-// Pre-computed cluster interpretations for K=2,3,4
-const INTERP = {
-  2: [
-    { name:'Cluster 1 — Affluent & green',   color:'#534ab7', desc:'High income, high canopy, low density. Primarily northern Phoenix suburbs and Scottsdale — well-resourced neighborhoods with low environmental stress.' },
-    { name:'Cluster 2 — Urban core & vulnerable', color:'#0f6e56', desc:'Lower income, sparse canopy, high density, poor air quality. South and central Phoenix neighborhoods with compounding environmental disadvantage.' },
-  ],
-  3: [
-    { name:'Cluster 1 — Affluent & green',    color:'#534ab7', desc:'Highest income tier, strong canopy cover, lowest density. Paradise Valley, Arcadia, Scottsdale North — the most resource-rich neighborhoods in the metro.' },
-    { name:'Cluster 2 — Middle suburban',     color:'#0f6e56', desc:'Moderate income and density, some green space. Chandler, Gilbert, Goodyear, Peoria — the broad middle tier of Phoenix suburbia.' },
-    { name:'Cluster 3 — Urban disadvantaged', color:'#993c1d', desc:'Lower income, very low canopy, high density, worst air quality. South Phoenix, Maryvale, Alhambra — neighborhoods with highest environmental vulnerability.' },
-  ],
-  4: [
-    { name:'Cluster 1 — Luxury enclaves',     color:'#534ab7', desc:'Top income tier, highest canopy, lowest density. Paradise Valley, Arcadia, Gainey Ranch — the wealthiest 20% of the metro.' },
-    { name:'Cluster 2 — Established suburbs', color:'#0f6e56', desc:'Upper-middle income, moderate canopy. Biltmore, Camelback East, Ahwatukee — established residential areas with good amenities.' },
-    { name:'Cluster 3 — Outer suburbs',       color:'#993c1d', desc:'Moderate income, low to moderate canopy, growing areas. Surprise, Goodyear, Queen Creek — newer development on the suburban fringe.' },
-    { name:'Cluster 4 — Urban core',          color:'#ba7517', desc:'Lowest income, minimal canopy, highest density and pollution. Central city neighborhoods with the most acute environmental stress.' },
-  ],
-};
-
-function initMap() {
-  kmMap = L.map('km-map', { zoomControl: true, scrollWheelZoom: false }).setView([33.48, -112.00], 10);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap © CARTO', maxZoom: 18
-  }).addTo(kmMap);
+function makeMap(id) {
+  const m = L.map(id, { scrollWheelZoom: false, zoomSnap: 0.25, zoomControl: false }).setView(US_VIEW.center, US_VIEW.zoom);
+  L.control.zoom({ position: 'bottomleft' }).addTo(m);
+  L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 12 }).addTo(m);
+  m.fitBounds([[25, -124.5], [48.5, -69]]);
+  return m;
 }
 
-function renderMapForK(k) {
+function groupName(k, j) {
+  const n = (NAMES[k] && NAMES[k][j] || '').trim();
+  return n ? `Group ${j + 1}: ${n}` : `Group ${j + 1}`;
+}
+
+function groupStats(k) {
+  const { assignments: a } = bestKMeans(k);
+  return Array.from({ length: k }, (_, j) => {
+    const members = STATIONS.filter((_, i) => a[i] === j);
+    const avg = f => members.reduce((s, m) => s + m[f], 0) / members.length;
+    return { members, jan: avg('jan'), precip: avg('precip') };
+  });
+}
+
+function stationPopup(s, k, j) {
+  return `<div style="font-size:12px;line-height:1.7;min-width:160px;">
+    <b style="font-size:13px;">${label(s)}</b><br>
+    <span style="color:${CLUSTER_COLORS[j]};font-weight:600;">${esc(groupName(k, j))}</span><br>
+    January temperature: ${s.jan}°F<br>
+    Yearly precipitation: ${s.precip} in
+  </div>`;
+}
+
+function drawGroupMarkers(map, layer, k) {
+  if (layer) map.removeLayer(layer);
+  const { assignments: a } = bestKMeans(k);
+  layer = L.layerGroup(STATIONS.map((s, i) =>
+    L.circleMarker([s.lat, s.lng], { radius: 7, color: '#fff', weight: 1.5, fillColor: CLUSTER_COLORS[a[i]], fillOpacity: 0.9 })
+      .bindPopup(stationPopup(s, k, a[i]))
+  )).addTo(map);
+  return layer;
+}
+
+function groupLegend(k) {
+  const stats = groupStats(k);
+  return stats.map((g, j) => `<div class="legend-item"><span class="dot" style="background:${CLUSTER_COLORS[j]}"></span>${esc(groupName(k, j))} (${g.members.length})</div>`).join('');
+}
+
+function renderMap(k) {
   mapK = k;
-  const { assignments: asgn } = runKMeans(k);
-
-  kmMarkers.forEach(m => kmMap.removeLayer(m));
-  kmMarkers = [];
-
-  HOODS.forEach((h,i) => {
-    const ci  = asgn[i];
-    const clr = CLUSTER_COLORS[ci];
-    const m = L.circleMarker([h.lat, h.lng], {
-      radius: 8, color: '#fff', weight: 1.5, fillColor: clr, fillOpacity: 0.85
-    }).addTo(kmMap);
-
-    m.bindPopup(`
-      <div style="font-size:12px;line-height:1.8;min-width:170px;">
-        <b style="font-size:13px;">${h.name}</b><br>
-        <span style="display:inline-block;padding:1px 8px;border-radius:5px;font-size:11px;font-weight:600;background:${CLUSTER_LABELS_BG[ci]};color:${clr};">Cluster ${ci+1}</span><br><br>
-        <b>Median income:</b> $${h.income.toLocaleString()}k<br>
-        <b>Tree canopy:</b> ${h.canopy}%<br>
-        <b>Pop. density:</b> ${h.density.toLocaleString()}/km²<br>
-        <b>Dist. to park:</b> ${h.park}km<br>
-        <b>PM2.5:</b> ${h.pm25} µg/m³
-      </div>`);
-    kmMarkers.push(m);
-  });
-
-  // Update map legend
-  const leg = document.getElementById('map-legend');
-  leg.innerHTML = Array.from({length:k},(_,ci)=>`
-    <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);">
-      <span style="width:10px;height:10px;border-radius:50%;background:${CLUSTER_COLORS[ci]};display:inline-block;flex-shrink:0;"></span>
-      Cluster ${ci+1} (${asgn.filter(a=>a===ci).length})
-    </div>`).join('');
-
-  // Update K toggle
-  document.querySelectorAll('.kt-btn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.dataset.k) === k);
-    b.style.background = parseInt(b.dataset.k) === k ? CLUSTER_COLORS[0] : '';
-  });
-
-  // Update interpretation
-  const interp = INTERP[k];
-  document.getElementById('cluster-interp').innerHTML = interp.map(cl =>
-    `<div style="margin-bottom:10px;padding:9px 11px;border-radius:8px;border-left:3px solid ${cl.color};background:var(--surface2);">
-      <div style="font-size:12px;font-weight:600;color:${cl.color};margin-bottom:3px;">${cl.name}</div>
-      <div style="font-size:12px;color:var(--text2);line-height:1.6;">${cl.desc}</div>
-    </div>`).join('');
-
-  updateElbow(k);
+  document.querySelectorAll('.kt-btn').forEach(b => b.classList.toggle('active', +b.dataset.k === k));
+  kmLayer = drawGroupMarkers(kmMap, kmLayer, k);
+  document.getElementById('map-legend').innerHTML = groupLegend(k);
+  drawElbow();
+  renderNaming();
 }
 
-function buildKToggle() {
-  const wrap = document.getElementById('k-toggle');
-  [2,3,4].forEach(k => {
-    const b = document.createElement('button');
-    b.className = 'kt-btn';
-    b.dataset.k = k;
-    b.textContent = `K = ${k}`;
-    b.onclick = () => renderMapForK(k);
-    wrap.appendChild(b);
+const ELBOW = Array.from({ length: 8 }, (_, i) => bestKMeans(i + 1).spread);
+
+function drawElbow() {
+  const cv = document.getElementById('elbow-canvas');
+  const c = cv.getContext('2d');
+  const W = cv.clientWidth, H = 180;
+  const dpr = window.devicePixelRatio || 1;
+  cv.style.height = H + 'px';
+  cv.width = W * dpr; cv.height = H * dpr;
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const pad = { t:14, r:14, b:34, l:40 };
+  const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+  const maxV = Math.ceil(ELBOW[0]);
+  const text3 = cssVar('--text3', '#9a9a9f');
+  const text2 = cssVar('--text2', '#5a5a62');
+  const X = i => pad.l + cW * (i / (ELBOW.length - 1));
+  const Y = v => pad.t + cH * (1 - v / maxV);
+
+  c.clearRect(0, 0, W, H);
+  c.font = '10px -apple-system,sans-serif';
+  c.strokeStyle = cssVar('--border', 'rgba(0,0,0,0.1)'); c.lineWidth = 1;
+  for (let v = 0; v <= maxV; v += 2) {
+    c.beginPath(); c.moveTo(pad.l, Y(v)); c.lineTo(pad.l + cW, Y(v)); c.stroke();
+    c.fillStyle = text3; c.textAlign = 'right'; c.textBaseline = 'middle';
+    c.fillText(v, pad.l - 6, Y(v));
+  }
+  ELBOW.forEach((_, i) => {
+    c.fillStyle = text3; c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText(i + 1, X(i), pad.t + cH + 5);
   });
+  c.fillStyle = text2; c.textBaseline = 'bottom';
+  c.fillText('K (number of groups)', pad.l + cW / 2, H - 2);
+
+  c.strokeStyle = '#534ab7'; c.lineWidth = 2; c.lineJoin = 'round';
+  c.beginPath();
+  ELBOW.forEach((v, i) => i ? c.lineTo(X(i), Y(v)) : c.moveTo(X(i), Y(v)));
+  c.stroke();
+  ELBOW.forEach((v, i) => {
+    const on = i + 1 === mapK;
+    c.beginPath(); c.arc(X(i), Y(v), on ? 6 : 3.5, 0, Math.PI * 2);
+    c.fillStyle = on ? '#534ab7' : text3; c.fill();
+    if (on) { c.strokeStyle = '#fff'; c.lineWidth = 2; c.stroke(); }
+  });
+
+  const pct = (a, b) => Math.round((ELBOW[a - 1] - ELBOW[b - 1]) / ELBOW[a - 1] * 100);
+  const k = mapK;
+  let txt = `Within-group spread at K = ${k}: <strong>${ELBOW[k - 1].toFixed(2)}</strong>. `;
+  txt += `Going from K = ${k - 1} to K = ${k} lowered it by ${pct(k - 1, k)}%.`;
+  if (k < ELBOW.length) txt += ` Going to K = ${k + 1} would lower it by another ${pct(k, k + 1)}%.`;
+  document.getElementById('elbow-annotation').innerHTML = txt;
 }
 
 /* ══════════════════════════════════════════════════════
-   ELBOW PLOT
+   PART 3: NAMING + KÖPPEN COMPARISON
 ══════════════════════════════════════════════════════ */
-function computeElbowData() {
-  return Array.from({length:7},(_,i) => {
-    const k = i+1;
-    if (k === 1) {
-      const pts = HOODS.map(normVec);
-      const mean = FEAT_KEYS.map((_,fi)=>pts.reduce((s,p)=>s+p[fi],0)/pts.length);
-      return pts.reduce((s,p)=>s+euclidean(p,mean)**2,0);
-    }
-    // Run 3 times, take best
-    let best = Infinity;
-    for (let r=0;r<3;r++) { const {inertia} = runKMeans(k); if (inertia<best) best=inertia; }
-    return best;
-  });
+const STORE_KEY = 'geoai-kmeans-names';
+let NAMES = {};
+try { NAMES = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { NAMES = {}; }
+function saveNames() { try { localStorage.setItem(STORE_KEY, JSON.stringify(NAMES)); } catch (e) {} }
+
+let revealed = false;
+let yoursMap = null, yoursLayer = null, kgMap = null;
+
+function kgBreakdown(members) {
+  const counts = {};
+  members.forEach(s => { const t = kgType(s.kg); counts[t] = (counts[t] || 0) + 1; });
+  const types = Object.keys(KG_TYPES).filter(t => counts[t]).sort((a, b) => counts[b] - counts[a]);
+  const bar = types.map(t => `<span style="flex:${counts[t]};background:${KG_TYPES[t].color}" title="${t}: ${counts[t]}"></span>`).join('');
+  const rows = types.map(t => `<div class="legend-item"><span class="dot" style="background:${KG_TYPES[t].color}"></span>${t}: ${counts[t]}</div>`).join('');
+  return `<div class="kg-label">Köppen zones in this group</div><div class="kg-bar">${bar}</div><div class="kg-rows">${rows}</div>`;
 }
 
-const ELBOW_DATA = computeElbowData();
+function renderNaming() {
+  const k = mapK;
+  document.getElementById('naming-k').textContent = k;
+  const stats = groupStats(k);
+  NAMES[k] = NAMES[k] || [];
+  document.getElementById('name-grid').innerHTML = stats.map((g, j) => `
+    <div class="name-card" style="border-top-color:${CLUSTER_COLORS[j]}">
+      <div class="name-card-head" style="color:${CLUSTER_COLORS[j]}">Group ${j + 1} · ${g.members.length} stations</div>
+      <div class="name-card-stats">
+        <div><b>${Math.round(g.jan)}°F</b>avg. January temp</div>
+        <div><b>${Math.round(g.precip)} in</b>avg. precipitation</div>
+      </div>
+      <div class="name-card-list">${g.members.map(label).join(' · ')}</div>
+      <input class="name-input" type="text" maxlength="60" placeholder="Name this group" data-j="${j}" value="${esc(NAMES[k][j] || '')}">
+      <div class="kg-breakdown">${kgBreakdown(g.members)}</div>
+    </div>`).join('');
+  document.querySelectorAll('.name-input').forEach(inp => inp.addEventListener('input', () => {
+    NAMES[mapK][+inp.dataset.j] = inp.value;
+    saveNames();
+    refreshNamesElsewhere();
+  }));
+  if (revealed) renderCompareMaps();
+}
 
-function updateElbow(activeK) {
-  const cv   = document.getElementById('elbow-canvas');
-  const ectx = cv.getContext('2d');
-  cv.width   = cv.offsetWidth * window.devicePixelRatio;
-  cv.height  = 180 * window.devicePixelRatio;
-  cv.style.height = '180px';
-  ectx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  const W = cv.offsetWidth, H = 180;
+// Update the map legends and popups without rebuilding the cards (keeps typing focus)
+function refreshNamesElsewhere() {
+  document.getElementById('map-legend').innerHTML = groupLegend(mapK);
+  kmLayer = drawGroupMarkers(kmMap, kmLayer, mapK);
+  if (revealed) renderCompareMaps();
+}
 
-  const pad = {t:14,r:16,b:30,l:48};
-  const cW = W-pad.l-pad.r, cH = H-pad.t-pad.b;
-  const maxV = ELBOW_DATA[0]*1.05, minV = 0;
+function renderCompareMaps() {
+  yoursLayer = drawGroupMarkers(yoursMap, yoursLayer, mapK);
+  document.getElementById('legend-yours').innerHTML = groupLegend(mapK);
+}
 
-  ectx.clearRect(0,0,W,H);
-  ectx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface2')||'#f2f1ed';
-  ectx.fillRect(0,0,W,H);
+function revealKoppen() {
+  revealed = true;
+  document.getElementById('part3').classList.add('kg-revealed');
 
-  // Grid
-  ectx.strokeStyle='rgba(0,0,0,0.06)'; ectx.lineWidth=0.5;
-  for (let i=0;i<=3;i++) {
-    const y = pad.t + cH*(i/3);
-    ectx.beginPath(); ectx.moveTo(pad.l,y); ectx.lineTo(pad.l+cW,y); ectx.stroke();
-    const val = maxV - (maxV-minV)*(i/3);
-    ectx.fillStyle='#9a9a9f'; ectx.font='9px -apple-system,sans-serif'; ectx.textAlign='right';
-    ectx.fillText(val.toFixed(1), pad.l-4, y+3);
-  }
+  document.getElementById('kg-key').innerHTML = Object.entries(KG_TYPES).map(([t, info]) =>
+    `<div><span class="dot" style="background:${info.color}"></span><span><strong>${t}</strong> (${info.codes.join(', ')}): ${info.desc}</span></div>`).join('');
 
-  // X axis labels
-  ELBOW_DATA.forEach((_,i)=>{
-    const x = pad.l + cW*(i/6);
-    ectx.fillStyle='#9a9a9f'; ectx.font='9px -apple-system,sans-serif'; ectx.textAlign='center';
-    ectx.fillText(`K=${i+1}`, x, H-8);
+  yoursMap = makeMap('map-yours');
+  kgMap = makeMap('map-koppen');
+  STATIONS.forEach(s => {
+    const t = kgType(s.kg);
+    L.circleMarker([s.lat, s.lng], { radius: 6, color: '#fff', weight: 1.5, fillColor: KG_TYPES[t].color, fillOpacity: 0.9 })
+      .bindPopup(`<div style="font-size:12px;line-height:1.7;"><b style="font-size:13px;">${label(s)}</b><br>Köppen: ${t} (${s.kg})</div>`)
+      .addTo(kgMap);
   });
+  document.getElementById('legend-koppen').innerHTML = Object.entries(KG_TYPES).map(([t, info]) =>
+    `<div class="legend-item"><span class="dot" style="background:${info.color}"></span>${t}</div>`).join('');
 
-  // Line
-  ectx.strokeStyle='#534ab7'; ectx.lineWidth=2; ectx.lineJoin='round';
-  ectx.beginPath();
-  ELBOW_DATA.forEach((v,i)=>{
-    const x = pad.l + cW*(i/6);
-    const y = pad.t + cH*(1-(v-minV)/(maxV-minV));
-    i===0?ectx.moveTo(x,y):ectx.lineTo(x,y);
+  // Keep the two maps panned and zoomed together
+  let syncing = false;
+  const sync = (from, to) => from.on('move', () => {
+    if (syncing) return;
+    syncing = true; to.setView(from.getCenter(), from.getZoom(), { animate: false }); syncing = false;
   });
-  ectx.stroke();
+  sync(yoursMap, kgMap); sync(kgMap, yoursMap);
 
-  // Dots
-  ELBOW_DATA.forEach((v,i)=>{
-    const x = pad.l + cW*(i/6);
-    const y = pad.t + cH*(1-(v-minV)/(maxV-minV));
-    const isActive = i+1===activeK;
-    ectx.beginPath(); ectx.arc(x,y,isActive?6:4,0,Math.PI*2);
-    ectx.fillStyle = isActive ? '#534ab7' : '#9a9a9f'; ectx.fill();
-    if (isActive) {
-      ectx.strokeStyle='#fff'; ectx.lineWidth=2; ectx.stroke();
-    }
-  });
-
-  // Elbow annotation
-  const diffs = ELBOW_DATA.slice(1).map((v,i)=>ELBOW_DATA[i]-v);
-  const drops = diffs.map((d,i)=>d/ELBOW_DATA[i]);
-  const elbowK = drops.indexOf(Math.max(...drops.slice(0,5)))+2;
-  document.getElementById('elbow-annotation').innerHTML =
-    `The curve shows the biggest drop between K=${elbowK-1} and K=${elbowK} — suggesting <strong style="color:var(--text);">K=${elbowK}</strong> as a natural elbow. Your currently selected K=${activeK} is highlighted. There's no single right answer — the elbow is a guide, not a rule.`;
+  renderCompareMaps();
 }
 
 /* ══════════════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════════════ */
+function fillTables() {
+  const row = s => `<tr><td>${label(s)}</td><td class="num">${s.jan}</td><td class="num">${s.precip}</td></tr>`;
+  const sample = ['Fargo','Seattle','Phoenix','Mobile','Miami'].map(n => STATIONS.find(s => s.name === n));
+  document.getElementById('sample-rows').innerHTML = sample.map(row).join('');
+  document.getElementById('all-rows').innerHTML = [...STATIONS].sort((a, b) => label(a).localeCompare(label(b))).map(row).join('');
+}
+
 window.addEventListener('load', () => {
-  initCanvas(); drawScatter(); updateLegend();
-  updateStatus(`<strong>Step 1:</strong> Click on the scatter plot to place <strong>3</strong> centroids. Try to space them out across different regions of the plot.`);
-  initMap();
-  buildKToggle();
-  renderMapForK(3);
+  fillTables();
+
+  const ks = document.getElementById('k-selector');
+  [2, 3, 4, 5].forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'k-btn'; b.dataset.k = k; b.textContent = k;
+    b.onclick = () => setK(k);
+    ks.appendChild(b);
+  });
+  layoutCanvas();
+  setK(3);
+
+  const kt = document.getElementById('k-toggle');
+  [2, 3, 4, 5, 6].forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'kt-btn'; b.dataset.k = k; b.textContent = `K = ${k}`;
+    b.onclick = () => renderMap(k);
+    kt.appendChild(b);
+  });
+  kmMap = makeMap('km-map');
+  renderMap(4);
 });
 
-window.addEventListener('resize', () => { initCanvas(); drawScatter(); });
+window.addEventListener('resize', () => { layoutCanvas(); drawScatter(); drawElbow(); });
 </script>
 </body>
 </html>
