@@ -104,7 +104,7 @@
   .var-card p { font-size: 12.5px; color: var(--text2); line-height: 1.65; }
   .var-card p + p { margin-top: 6px; }
   .var-card strong { color: var(--text); font-weight: 600; }
-  .data-notes { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin-bottom: 1rem; }
+  .data-notes { margin-bottom: 1rem; max-width: 820px; }
   .data-note { border-left: 3px solid var(--purple-bd); padding: 2px 0 2px 12px; font-size: 12.5px; color: var(--text2); line-height: 1.65; }
   .data-note strong { color: var(--text); font-weight: 600; }
   .data-table { border-collapse: collapse; font-size: 12.5px; width: 100%; max-width: 460px; }
@@ -200,8 +200,20 @@
   .limits p + p { margin-top: 8px; }
   .limits strong { color: var(--text); }
 
+
+  a.cite { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text3); }
+  a.cite:hover { color: var(--purple); border-bottom-color: var(--purple); }
+  .intro-box .question { margin: 10px 0; padding: 10px 14px; border-left: 3px solid var(--purple); background: rgba(83,74,183,.08); border-radius: 0 8px 8px 0; font-weight: 500; }
+  details.bg { margin-top: 8px; }
+  details.bg summary { cursor: pointer; font-size: 12.5px; color: var(--purple); font-weight: 500; }
+  details.bg p { font-size: 12.5px; color: var(--text2); line-height: 1.7; margin-top: 6px; max-width: 760px; }
+  .questions > li > .q { color: var(--text); }
+  .refs ul { list-style: none; font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .refs li { padding-left: 1.5rem; text-indent: -1.5rem; margin-bottom: 6px; }
+  .refs li:target { background: var(--purple-bg); border-radius: 4px; }
+
   @media (max-width: 860px) {
-    .game-grid, .map-grid, .compare-maps, .var-grid, .data-notes { grid-template-columns: 1fr; }
+    .game-grid, .map-grid, .compare-maps, .var-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -240,27 +252,29 @@
   </div>
 
   <!-- ══════════════════════════ SCENARIO ══════════════════════════ -->
-  <div class="scenario-banner">
-    <div class="scenario-eyebrow">Scenario</div>
-    <p>Climate zones are one of the most widely used maps in geography. The USDA plant hardiness zones on seed packets, the climate zones in building energy codes, and the Köppen map in most textbooks all group places that have similar climates. Grouping is useful because places with similar climates deal with similar issues: how much heating homes need, which crops grow well, and how much water a city has to store for the dry months.</p>
-    <p>Most of these maps are built from rules that people decided on in advance. Köppen, for example, calls a place a desert if its yearly precipitation is below a cutoff that depends on its temperature. In this activity you'll work the other way around. You'll start with the data and let the patterns in it decide the groups.</p>
-    <p>You have climate data for 70 weather stations across the lower 48 states. K-means will sort them into groups so that stations with similar climates end up together. You choose how many groups you want (that number is <strong>K</strong>). You don't tell it what the groups should be or give it examples of correct answers, which is why K-means is called <em>unsupervised</em> learning. At the end you'll name your groups and compare them with the Köppen zones, to see where a data-driven map agrees with the traditional one and where it doesn't.</p>
+  <div class="scenario-banner intro-box">
+    <div class="scenario-eyebrow">Introduction</div>
+    <p>Climate zones are one of the most common ways geographers divide up a country. The Köppen system, first published in 1900, sorts places into classes using set cutoffs for temperature and precipitation (<a class="cite" href="#ref-koppen1900">Köppen, 1900</a>; <a class="cite" href="#ref-kottek2006">Kottek et al., 2006</a>). The USDA plant hardiness zones that gardeners use follow a different rule, based on the coldest winter temperature a place usually gets (<a class="cite" href="#ref-usda2023">USDA, 2023</a>). Building energy codes in the US also use climate zones, so that building requirements can be set for each zone instead of for each town (<a class="cite" href="#ref-briggs2003">Briggs et al., 2003</a>). In each case, grouping places by climate lets planners, farmers, and builders make decisions for a whole region at once.</p>
+    <p>All of these maps depend on cutoffs that someone chose in advance, such as "a place is a desert if it gets less than a certain amount of rain." The cutoffs are reasonable, but they are still a human decision, and a different set of cutoffs would give a different map. Another approach is to let the data suggest the groups. Fovell and Fovell (<a class="cite" href="#ref-fovell1993">1993</a>) took this approach for the contiguous US, using a statistical method called cluster analysis to define climate zones from weather station records instead of from preset rules.</p>
+    <p>This leads to the research question for this activity:</p>
+    <div class="question">If we only look at climate measurements from US weather stations, what natural groups appear, and how do those groups compare with the Köppen zones?</div>
+    <p>To answer this question, we use <strong>K-means clustering</strong> (<a class="cite" href="#ref-macqueen1967">MacQueen, 1967</a>; <a class="cite" href="#ref-lloyd1982">Lloyd, 1982</a>) to group 70 weather stations based on two variables: average January temperature and yearly precipitation. K-means is an <em>unsupervised</em> method. We don't give it example answers or tell it what the groups should be. We only choose how many groups we want (that number is <strong>K</strong>), and it finds the groups. Afterward you'll name the groups and compare them with the Köppen zones.</p>
   </div>
 
   <!-- ══════════════════════════ DATA ══════════════════════════ -->
   <div class="data-box">
     <div class="panel-title">The data</div>
-    <p>Each weather station has two numbers. Both are 30-year averages (1991–2020).</p>
+    <p>K-means needs a table of numbers that describe each thing it is going to group. Here we are grouping weather stations, and each station is described by two numbers, which are called <strong>variables</strong>. K-means uses only these two variables to decide which stations are similar enough to share a group. We use two so that every station can be drawn as a single dot on a scatter plot in Part 1, which makes it easier to see what the algorithm is doing. Both variables are 30-year averages (1991–2020).</p>
 
     <div class="var-grid">
       <div class="var-card">
-        <h3>January temperature</h3>
+        <h3>Variable 1: January temperature</h3>
         <div class="var-unit">degrees Fahrenheit (°F)</div>
         <p>The average temperature in January, combining daytime highs and nighttime lows. It tells you how cold winters get.</p>
         <p><strong>Why we use it:</strong> summers are warm across most of the US, but winters are very different from place to place, from 8°F in Fargo, ND to 70°F in Key West, FL. So winter temperature does a better job of telling climates apart than summer temperature.</p>
       </div>
       <div class="var-card">
-        <h3>Yearly precipitation</h3>
+        <h3>Variable 2: Yearly precipitation</h3>
         <div class="var-unit">inches per year</div>
         <p>The total amount of rain plus melted snow that falls in an average year.</p>
         <p><strong>Why we use it:</strong> it separates dry places like Las Vegas (4 inches) from wet places like Mobile, AL (65 inches). Temperature and precipitation together are the starting point for most climate classifications.</p>
@@ -268,10 +282,10 @@
     </div>
 
     <div class="data-notes">
-      <div class="data-note"><strong>Location is not part of the data.</strong> K-means only sees the two climate numbers. It never sees latitude or longitude. We use the coordinates afterward, only to put the results on a map. So if the groups form clear regions on the map, that pattern came from the climate data alone.</div>
-      <div class="data-note"><strong>Both variables are rescaled.</strong> Before running K-means, each variable is rescaled to run from 0 (the lowest station) to 1 (the highest station). This keeps one variable from counting more than the other just because its numbers are bigger.</div>
+      <div class="data-note"><strong>Both variables are rescaled.</strong> Temperature is measured in degrees and precipitation in inches, so the two don't use the same scale. Before running K-means, each variable is rescaled to run from 0 (the lowest station) to 1 (the highest station). This keeps one variable from counting more than the other just because its numbers are bigger (<a class="cite" href="#ref-milligan1988">Milligan & Cooper, 1988</a>).</div>
     </div>
 
+    <p style="margin-bottom:8px;">Here are five of the 70 stations as examples:</p>
     <table class="data-table">
       <thead><tr><th>Station</th><th class="num">January temp (°F)</th><th class="num">Precipitation (in)</th></tr></thead>
       <tbody id="sample-rows"></tbody>
@@ -285,7 +299,7 @@
         </table>
       </div>
     </details>
-    <div class="source">Values rounded from NOAA's U.S. Climate Normals, 1991–2020.</div>
+    <div class="source">Values rounded from NOAA's U.S. Climate Normals, 1991–2020 (<a class="cite" href="#ref-noaa2021">NOAA NCEI, 2021</a>).</div>
   </div>
 
   <!-- ══════════════════════════ PART 1 ══════════════════════════ -->
@@ -314,20 +328,20 @@
 
         <ol class="steps">
           <li class="step" id="step-1">
-            <div class="step-title"><span class="step-num">1</span>Place starting centers</div>
+            <div class="step-title"><span class="step-num">1</span>You place starting centers</div>
             <p>Click on the plot to place <span class="k-word">3</span> centers. These are just starting guesses, so anywhere works.</p>
           </li>
           <li class="step" id="step-2">
-            <div class="step-title"><span class="step-num">2</span>Assign stations to the nearest center</div>
-            <p>Each station joins the group of whichever center is closest to it on the plot.</p>
+            <div class="step-title"><span class="step-num">2</span>Stations are assigned to the nearest center</div>
+            <p>K-means finds the closest center to each station and puts the station in that center's group. Click <strong>Next step</strong> to watch it happen.</p>
           </li>
           <li class="step" id="step-3">
-            <div class="step-title"><span class="step-num">3</span>Move each center to the middle of its group</div>
-            <p>Each center moves to the average January temperature and average precipitation of the stations in its group.</p>
+            <div class="step-title"><span class="step-num">3</span>Centers move to the middle of their groups</div>
+            <p>Each center moves to the average January temperature and average precipitation of the stations in its group. Click <strong>Next step</strong> again.</p>
           </li>
           <li class="step" id="step-4">
-            <div class="step-title"><span class="step-num">4</span>Repeat steps 2 and 3</div>
-            <p>After the centers move, some stations may now be closer to a different center, so they're assigned again. When no station changes groups, K-means is finished.</p>
+            <div class="step-title"><span class="step-num">4</span>The algorithm repeats until nothing changes</div>
+            <p>After the centers move, some stations may be closer to a different center, so K-means assigns them again. It stops when no station changes groups. Keep clicking <strong>Next step</strong>, or use <strong>Run to finish</strong>.</p>
           </li>
         </ol>
 
@@ -353,7 +367,7 @@
       <div class="section-eyebrow">Part 2</div>
       <h2>Map the groups and choose K</h2>
       <p>Here the computer runs K-means for you, all the way to the finish. It does this many times with different random starting centers and keeps the run with the lowest within-group spread. Groups are numbered from coldest to warmest average January temperature.</p>
-      <p>Pick a value of K and look at where each group's stations are on the map. Keep in mind that K-means never saw where any station is. Click a station to see its values.</p>
+      <p>Pick a value of K and look at where each group's stations are on the map. Click a station to see its values.</p>
     </div>
 
     <div class="map-grid">
@@ -412,16 +426,6 @@
           <div class="map-legend" id="legend-koppen"></div>
         </div>
       </div>
-
-      <div class="panel">
-        <div class="panel-title">Questions to discuss</div>
-        <ol class="questions">
-          <li>Which of your groups line up well with a single Köppen zone? Which ones mix several zones together?</li>
-          <li>Find Seattle and Portland, OR. Which K-means group are they in, and which stations is that group mostly made of? Köppen puts them in the same zone as San Francisco. Why might the two approaches disagree? (Hint: what does Köppen look at that our two variables don't?)</li>
-          <li>Climate changes gradually across space, but every station has to belong to exactly one group. Find a station near the edge of its group on the map, such as Kansas City or Oklahoma City. Try a few values of K. Does it always stay in the same group?</li>
-          <li>If you could add a third variable, what would you add? How do you think it would change the groups?</li>
-        </ol>
-      </div>
     </div>
   </div>
 
@@ -433,6 +437,55 @@
     <p><strong>It works best when groups are round and similar in size.</strong> K-means measures straight-line distance to a center, so it tends to make compact groups of similar size. If the real groups are long and stretched out, or very different in size, it can split or merge them in ways that don't make sense.</p>
     <p><strong>The starting centers can change the result.</strong> As you may have seen in Part 1, different starting centers can lead to different final groups. In practice, people run K-means many times and keep the run with the lowest within-group spread, which is what Part 2 does.</p>
     <p><strong>You have to choose K and interpret the groups.</strong> The algorithm doesn't know how many climate zones there "should" be or what they mean. Those decisions come from you and your knowledge of geography.</p>
+  </div>
+
+  <!-- ══════════════════════════ DISCUSSION ══════════════════════════ -->
+  <div class="panel" style="margin-top:2rem;">
+    <div class="panel-title">Discussion questions</div>
+    <ol class="questions">
+      <li><span class="q">Compare your K-means groups with the Köppen zones. Which of your groups line up well with a single Köppen zone? Which ones mix several zones together?</span></li>
+      <li><span class="q">Find Seattle and Portland, OR. Which K-means group are they in, and which stations is that group mostly made of? Köppen puts them in the same zone as San Francisco. Why might the two approaches disagree?</span>
+        <details class="bg"><summary>Background</summary>
+          <p>Köppen looks at <em>when</em> precipitation falls, not only how much. Seattle, Portland, and San Francisco all have dry summers and wet winters, which Köppen treats as its own type (<a class="cite" href="#ref-kottek2006">Kottek et al., 2006</a>). Our two variables only include the yearly total, so K-means can't see that pattern. A city with 39 inches a year that falls evenly through the seasons looks the same to it as a city with 39 inches that falls almost entirely in winter.</p>
+        </details></li>
+      <li><span class="q">Climate changes gradually across space, but every station has to belong to exactly one group. Find a station near the edge of its group, such as Kansas City or Oklahoma City. Try a few values of K. Does it always stay in the same group?</span></li>
+      <li><span class="q">Location (latitude and longitude) was not one of the variables we gave K-means, yet the groups form clear regions on the map. Why do you think that happened?</span>
+        <details class="bg"><summary>Background</summary>
+          <p>This is an example of what geographers call Tobler's first law of geography: "everything is related to everything else, but near things are more related than distant things" (<a class="cite" href="#ref-tobler1970">Tobler, 1970</a>). Climate is shaped by latitude, elevation, and distance from the ocean, and all of these change gradually across space. So weather stations that are close together tend to have similar climates. K-means had no idea where the stations were, but because nearby stations have similar numbers, it ended up grouping them together anyway.</p>
+        </details></li>
+      <li><span class="q">How do you think the results would have changed if we had used location as the input instead of January temperature and precipitation?</span>
+        <details class="bg"><summary>Background</summary>
+          <p>K-means would group stations by how close they are to each other on the map and would ignore climate completely. The groups would look like the country cut into blocks. Stations that are close together but have different climates would end up in the same group. Phoenix (57°F in January, 7 inches of precipitation) and Flagstaff (31°F, 23 inches) are only about 120 miles apart, but their climates are very different because Flagstaff sits at about 7,000 feet of elevation. A location-based grouping would probably put them together.</p>
+        </details></li>
+      <li><span class="q">Could location be the <em>only</em> input? What would the groups mean if it was, and what problems might that cause?</span>
+        <details class="bg"><summary>Background</summary>
+          <p>K-means would run fine, because it will group any numbers you give it. The problem is what the groups would mean. They would only tell you which stations are neighbors, and they could not tell you anything about climate. We would also be assuming that nearby places have similar climates, which is the very pattern we wanted to check. In this case the answer would be built into the input.</p>
+          <p>It is also a good moment to learn about <strong>overfitting</strong>. Overfitting is when a method picks up the quirks of the particular data it was given instead of the real pattern underneath, so it doesn't work well on new data (<a class="cite" href="#ref-hastie2009">Hastie et al., 2009</a>). Our 70 stations are not evenly spread out, with many more in the East than the West. A location-only grouping would mostly reflect where those 70 stations happen to be, not how climate really varies across the country.</p>
+        </details></li>
+      <li><span class="q">What other variables could you add to improve the groups, and why? How do you think each one would change the results?</span>
+        <details class="bg"><summary>Background</summary>
+          <p>Here are a few options. <strong>Summer temperature</strong> would separate places with hot summers from places with cool summers, a difference Köppen uses (<a class="cite" href="#ref-kottek2006">Kottek et al., 2006</a>). <strong>The season when precipitation falls</strong> would separate dry-summer places like Seattle and San Francisco from places that get rain all year. <strong>Elevation</strong> strongly controls temperature, which is why Flagstaff and Denver are colder than their latitude suggests.</p>
+          <p>Adding variables also makes things harder. With more than two variables you can no longer see all of the data on one scatter plot. Variables that move together, like temperature and elevation, count extra in the distance calculation. And every variable has to be rescaled so that none of them dominates (<a class="cite" href="#ref-milligan1988">Milligan & Cooper, 1988</a>).</p>
+        </details></li>
+    </ol>
+  </div>
+
+  <!-- ══════════════════════════ REFERENCES ══════════════════════════ -->
+  <div class="panel refs" style="margin-top:1.5rem;">
+    <div class="panel-title">References</div>
+    <ul>
+      <li id="ref-briggs2003">Briggs, R. S., Lucas, R. G., &amp; Taylor, Z. T. (2003). Climate classification for building energy codes and standards: Part 1 — Development process. <em>ASHRAE Transactions, 109</em>(1), 109–121.</li>
+      <li id="ref-fovell1993">Fovell, R. G., &amp; Fovell, M.-Y. C. (1993). Climate zones of the conterminous United States defined using cluster analysis. <em>Journal of Climate, 6</em>(11), 2103–2135.</li>
+      <li id="ref-hastie2009">Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The elements of statistical learning: Data mining, inference, and prediction</em> (2nd ed.). Springer.</li>
+      <li id="ref-koppen1900">Köppen, W. (1900). Versuch einer Klassifikation der Klimate, vorzugsweise nach ihren Beziehungen zur Pflanzenwelt. <em>Geographische Zeitschrift, 6</em>, 593–611.</li>
+      <li id="ref-kottek2006">Kottek, M., Grieser, J., Beck, C., Rudolf, B., &amp; Rubel, F. (2006). World map of the Köppen-Geiger climate classification updated. <em>Meteorologische Zeitschrift, 15</em>(3), 259–263.</li>
+      <li id="ref-lloyd1982">Lloyd, S. P. (1982). Least squares quantization in PCM. <em>IEEE Transactions on Information Theory, 28</em>(2), 129–137.</li>
+      <li id="ref-macqueen1967">MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. In <em>Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability</em> (Vol. 1, pp. 281–297). University of California Press.</li>
+      <li id="ref-milligan1988">Milligan, G. W., &amp; Cooper, M. C. (1988). A study of standardization of variables in cluster analysis. <em>Journal of Classification, 5</em>(2), 181–204.</li>
+      <li id="ref-noaa2021">NOAA National Centers for Environmental Information. (2021). <em>U.S. Climate Normals, 1991–2020</em>. https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals</li>
+      <li id="ref-tobler1970">Tobler, W. R. (1970). A computer movie simulating urban growth in the Detroit region. <em>Economic Geography, 46</em>(Suppl.), 234–240.</li>
+      <li id="ref-usda2023">USDA Agricultural Research Service &amp; Oregon State University PRISM Climate Group. (2023). <em>USDA Plant Hardiness Zone Map</em>. https://planthardiness.ars.usda.gov</li>
+    </ul>
   </div>
 
 </div>
